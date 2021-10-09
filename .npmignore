@@ -1,0 +1,10 @@
+coverage/
+test/
+demo/
+CONTRIBUTING.md
+polymer.json
+karma.*
+.*
+demo/vendor.js
+custom-elements.json
+tsconfig.json

@@ -1,0 +1,1426 @@
+#%RAML 1.0
+title: API body demo
+version: v1
+baseUri: http://{instance}.domain.com/
+
+mediaType: [application/json, application/xml]
+protocols: [HTTP, HTTPS]
+
+description: |
+  This is a description of demo API.
+
+  This is **markdown**.
+
+  [evil markdown](javascript:alert(document.domain))xxxx<img src='https://www.checkmarx.com/wp-content/uploads/2017/09/twitter-3-Ways-to-Prevent-XSS.png' onload=alert(domain) />xxxx
+
+baseUriParameters:
+  instance:
+    description: |
+      The execution environments. Can be one of:
+      - development
+      - staging
+      - qa∂
+      - production
+    type: string
+    enum: [development, staging, qa, production]
+    pattern: (development|staging|qa|production)
+    default: production
+annotationTypes:
+  MarkAnnotation: nil
+  deprecated: string
+  annotationTest: nil
+  clearanceLevel:
+    properties:
+      level:
+        enum: [ low, medium, high ]
+        required: true
+      signature:
+        pattern: "\\d{3}-\\w{12}"
+        required: true
+uses:
+  ExampleType: resourceTypes/example-types.raml
+  myLib: library.raml
+  DemoTypes: library/demo-types.raml
+types:
+  Image: !include resourceTypes/image.raml
+  Resource: !include resourceTypes/resource.raml
+  AppPerson: !include resourceTypes/app-person.raml
+  DemoPerson: !include types/DemoPerson.raml
+  Product: !include resourceTypes/product.raml
+  ErrorResource:
+    description: A response that is errored
+    type: object
+    properties:
+      error:
+        type: boolean
+        required: true
+        example: true
+        default: true
+        description: Indicate that the response is errored.
+      message:
+        type: string
+        description: The error message associated with the error.
+        required: true
+  EnurableType:
+    type: object
+    properties:
+      e1:
+        (MarkAnnotation):
+        (deprecated): |
+          This property is deprecated.
+
+          Please, do not use it in new projects.
+        (clearanceLevel):
+          level: low
+          signature: 230-ghtwvfrs1itr
+        type: string
+        displayName: Enumerable 1
+        description: |
+          Example enumerable type to test the documentation
+          element.
+
+          It renders `Markdown` model.
+        enum: [v1, v2, v3, v4]
+        required: false
+        examples:
+          Ex1: v1
+          EX2: v2
+        pattern: "v[1-4]"
+        default: v1
+      e2:
+        type: string
+        enum: [e1, e2, e3, e4]
+        required: true
+        example: e1
+  ArrayType:
+    type: array
+    items: Image
+    description: |
+      Hello world
+  Feature:
+    description: A feature to test enum values in the URI parameters.
+    type: string
+    enum:
+      - A
+      - B
+      - C
+  Unionable:
+    type: ErrorResource | Product
+  PropertyUnion:
+    type: object
+    properties:
+      etag:
+        type: string
+      data: Feature | ErrorResource | Product
+  PropertyArray:
+    type: object
+    properties:
+      etag:
+        type: string
+      nextPageToken:
+        type: string
+      data:
+        type: array
+        items: Product
+      complex:
+        type: array
+        items: string | number | Product
+  ComplexRecursive:
+    type: object
+    properties:
+      iteration1:
+        properties:
+          images:
+            type: array
+            items: Image
+          userImage:
+            type: Image
+            properties:
+              options:
+                type: string | Product
+              user:
+                type: AppPerson
+      ieration2:
+        type: Product
+        properties:
+          images:
+            type: Image[]
+  ProcessVariableList:
+    type: object
+    properties:
+      //: any
+    example: |
+      {
+        "processVar1": "value1",
+        "processVar2": "value2"
+      }
+  Notification:
+    properties:
+      scalarArray:
+        required: true
+        type: array
+        items: integer
+        description: Integer array item type
+        displayName: Scalar array (integer)
+      otherScalar:
+        required: false
+        type: string[]
+  AnyType: any
+  NilType: nil
+  ScalarType: string
+  BooleanType: boolean
+  DescribedScalar:
+    type: string
+    description: This is a scalar with description
+    minLength: 1
+    maxLength: 12
+  Arrable2:
+    type: string[]
+  UnionArray:
+    type: Arrable2 | string
+  FilePropertyType:
+    type: object
+    properties:
+      filetype:
+        minLength: 100
+        maxLength: 300
+        required: false
+        type: file
+        fileTypes:
+          - image/png
+          - image/jpeg
+  FileType:
+    minLength: 1024
+    maxLength: 2048
+    required: true
+    type: file
+    fileTypes:
+      - application/mulesoft+modeling
+      - application/data-model
+  withEmbeddedType:
+    type: object
+    properties:
+      imageProperty: Image
+      other: string
+  withExtendedType:
+    type: Image
+    properties:
+      other: string
+  RecursiveShape:
+    (deprecated): This type is deprecated causes it throws errors.
+    type: object
+    properties: 
+      id: string
+      relatedTo:
+        type: RecursiveShape
+        description: This is recursive.
+  apiTokens: # each is optional, not exclusive with anything
+    properties:
+      userToken: number
+      applicationToken?: number
+resourceTypes:
+  ErrorredResource:
+    get:
+  ResourceNotFound:
+    type: ErrorredResource
+    get:
+      responses:
+        404:
+          body:
+            application/json:
+              displayName: Not found response
+              type: ErrorResource
+            application/xml:
+              displayName: Not found response
+              type: !include schemas/error-response.xsd
+              example: !include examples/e404.xml
+  UnauthorizedResponse:
+    type: ErrorredResource
+    get:
+      responses:
+        404:
+          body:
+            application/json:
+              displayName: Unauthorized response
+              type: ErrorResource
+            application/xml:
+              displayName: Unauthorized response
+              type: !include schemas/error-response.xsd
+              example: !include examples/e401.xml
+  RequestErrorResponse:
+    type: ErrorredResource
+    get:
+      responses:
+        400:
+          description: The error response when one of the parameters is invalid and can't be parsed. Nothing can be done at the time except correcting the request to send valid data.
+          body:
+            application/json:
+              displayName: Invalid request
+              type: ErrorResource
+            application/xml:
+              displayName: Invalid request
+              type: !include schemas/error-response.xsd
+              example: !include examples/e400.xml
+    put:
+      responses:
+        400:
+          description: The error response when one of the parameters is invalid and can't be parsed. Nothing can be done at the time except correcting the request to send valid data.
+          body:
+            application/json:
+              displayName: Invalid request
+              type: ErrorResource
+            application/xml:
+              displayName: Invalid request
+              type: !include schemas/error-response.xsd
+              example: !include examples/e400.xml
+traits:
+  Paginated: !include traits/pagination.raml
+  Adminable: !include traits/adminable.raml
+  RateLimited: !include traits/rate-limited.raml
+securitySchemes:
+  basic: !include securitySchemes/basic.raml
+  oauth_2_0: !include securitySchemes/oauth_2_0.raml
+  custom1: !include securitySchemes/x-custom.raml
+  custom2: !include securitySchemes/x-other.raml
+  custom3: !include securitySchemes/x-query-string.raml
+  pass_through: !include securitySchemes/passthrough.raml
+  basicWithDefaults:
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          type: string
+          default: test
+  oauth1: !include securitySchemes/oauth_1_0.raml
+  oauth1signature: !include securitySchemes/oauth_1_0_signature.raml
+  oauth1noSignature: !include securitySchemes/oauth_1_0_no-signature.raml
+  oauth1noSettings: !include securitySchemes/oauth_1_0_no-settings.raml
+  digest:
+    description: |
+      This API supports DigestSecurityScheme Authentication.
+    type: Digest Authentication
+  passthroughQueryString: !include securitySchemes/passthrough-querystring.raml
+  custom_scheme:
+    description: |
+      A custom security scheme for authenticating requests.
+    type: x-custom
+    displayName: RAML's custom scheme
+    describedBy:
+      headers:
+        SpecialToken:
+          description: |
+            Used to send a custom token.
+          type: string
+      queryString:
+        type: apiTokens
+        examples:
+          first:
+            value:
+              userToken: 1234
+              applicationToken: 5678
+          second:
+            value:
+              start: 1239874566
+              page-size: 987321456
+      responses:
+        401:
+          description: |
+            Bad token.
+        403:
+  oauth2:
+    type: OAuth 2.0
+    displayName: Regular OAuth 2.0 definition
+    settings:
+      accessTokenUri: https://token.com
+      authorizationUri: https://auth.com
+      scopes: [profile, email]
+    describedBy:
+      queryParameters:
+        access_token:
+          type: string
+          description: Apply access token here.
+      headers:
+        Authorization:
+          type: string
+  oauth2grants:
+    type: OAuth 2.0
+    displayName: Regular OAuth 2.0 definition
+    settings:
+      accessTokenUri: https://token.com
+      authorizationUri: https://auth.com
+      authorizationGrants: authorization_code
+      scopes: [profile, email]
+    describedBy:
+      queryParameters:
+        access_token:
+          type: string
+          description: Apply access token here.
+      headers:
+        Authorization:
+          type: string
+  oauth2Annotation:
+    type: OAuth 2.0
+    displayName: OAuth 2.0 with annotation
+    settings:
+      (oauth-2-custom-settings):
+        # ignoreDefaultGrants:
+        authorizationGrants: [annotated_custom_grant, annotated_custom_grant2]
+        authorizationSettings:
+          queryParameters:
+            resource:
+              type: string
+              required: true
+              description: |
+                A resource ID that defines a domain of authorization.
+              displayName: Hello query parameeter
+              default: default
+              examples:
+                named: named example value
+                otherExample: test example value
+              pattern: "[a-zA-Z]+"
+              maxLength: 12
+              minLength: 3
+            numericParam:
+              type: number
+              minimum: 10
+              maximum: 20
+              multipleOf: 2
+              format: float
+              required: false
+              example: 22
+            dateParam:
+              type: date-only
+              required: false
+            repetableParam1:
+              type: string[]
+              required: false
+            repetableParam2:
+              type: array
+              items: integer
+              required: false
+        accessTokenSettings:
+          queryParameters:
+            queryTokenResource: string
+            detailedTokenResource:
+              type: number
+              description: some description
+              required: false
+          headers:
+            x-token-resource:
+              type: number
+              default: 123
+          body:
+            bodyTokenResource: string
+            bodyDetailed:
+              type: boolean
+              required: true
+              displayName: Body detailed property
+              default: true
+      accessTokenUri: https://token.com
+      authorizationUri: https://auth.com
+      authorizationGrants: [authorization_code, password, client_credentials, implicit]
+      scopes: [profile, email]
+    describedBy:
+      queryParameters:
+        access_token:
+          type: string
+          description: Apply access token here.
+  oauth2queryDelivery: !include securitySchemes/oauth2-query-delivery.raml
+  oauth2headerDelivery: !include securitySchemes/oauth2-header-delivery.raml
+  oauth2noDelivery: !include securitySchemes/oauth2-no-delivery.raml
+  oauth2noGrants: !include securitySchemes/oauth2-no-grants.raml
+  oauth2pkce: !include securitySchemes/oauth2-pkce.raml
+  libOauth: myLib.oauthLib
+
+documentation:
+  - title: Test doc
+    content: Test content
+
+
+/test-parameters/{feature}:
+  (deprecated): This endpoint is deprecated and will be removed.
+  securedBy: [libOauth]
+  uriParameters:
+    feature:
+      type: string
+      enum:
+        - A
+        - B
+        - C
+  get:
+    (deprecated): This method is deprecated and will be removed.
+    (clearanceLevel):
+      level: high
+      signature: 230-ghtwvfrs1itr
+    description: To test enum values in the URI parameters for inline type declaration.
+    queryParameters:
+      testRepeatable:
+        (deprecated): Test parameter will be removed in next version of the API.
+        required: true
+        type: string[]
+        example: [value1, value2]
+      numericRepeatable:
+        required: true
+        type: integer[]
+        examples:
+          Some-test-example: [123, 456]
+          Other-example: [1011, 1213]
+      notRequiredRepeatable:
+        (annotationTest):
+        type: array
+        items: date-only
+        required: false
+  /{typeFeature}:
+    (annotationTest):
+    (deprecated): This method will be removed in future release of the API.
+    uriParameters:
+      typeFeature:
+        (annotationTest):
+        type: Feature
+    get:
+      (deprecated): This endpoint is deprecated and will be removed.
+      description: To test enum values in the URI parameters for global type declaration.
+/people:
+  displayName: People
+  type: RequestErrorResponse
+  is: [RateLimited]
+  get:
+    (annotationTest):
+    displayName: List people
+    description: Use this method to list all the people.
+    is: [Paginated: {resourceType: AppPerson}]
+    securedBy: [basic, null]
+    headers:
+      x-people-op-id:
+        (annotationTest):
+        type: string
+        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        description: People ops ID. It is UUID v4 string
+        example: 9719fa6f-c666-48e0-a191-290890760b30
+  post:
+    (deprecated): |
+      This method is not deprecated. And this is only an annotation test.
+    displayName: Create a person
+    description: Use this method to add new person
+    body:
+      application/json:
+        (deprecated): This response type is deprecated and soon will be replaced.
+        type: AppPerson
+      application/xml:
+        type: !include schemas/person.xsd
+        example: !include examples/person.xml
+  head:
+    description: Just for tests.
+    body:
+      application/json:
+        (deprecated): This response type is deprecated and soon will be replaced.
+        type: AppPerson
+      application/xml:
+        type: !include schemas/person.xsd
+        example: !include examples/person.xml
+  put:
+    displayName: Update a person
+    description: Updates the person in the datastore.
+    body:
+      application/json:
+        schema: !include schemas/person.json
+        example: !include examples/person.json
+      application/xml:
+        type: !include schemas/person.xsd
+        example: !include examples/person.xml
+    responses:
+      204:
+      200:
+        (deprecated): This response type is deprecated and soon will be replaced.
+        description: |
+          Success response for the body
+        headers:
+          X-Frame-Options:
+            type: string
+            examples:
+              Deny: DENY
+              SameOrigin: SAMEORIGIN
+        body:
+          application/json:
+            schema: !include schemas/person.json
+            example: !include examples/person.json
+          application/xml:
+            type: !include schemas/person.xsd
+            example: !include examples/person.xml
+  /{personId}:
+    securedBy: custom1
+    type: ResourceNotFound
+    displayName: A person
+    description: The endpoint to access information about the person
+    uriParameters:
+      personId:
+        type: integer
+        required: true
+        description: The ID of the person in the system. It is generated by the database numeric value for the person.
+        example: 1234
+    get:
+      displayName: Get a person
+      description: Returns a person
+      headers:
+        x-client-id:
+          (deprecated): This will be replaced
+          example: 123456-acme.client.com
+          description: The application id used to make a request. It can be obtained in the developer console.
+          type: string
+          required: true
+        x-people-op-id:
+          (annotationTest):
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+          description: People ops ID. It is UUID v4 string
+          example: 9719fa6f-c666-48e0-a191-290890760b30
+      responses:
+        200:
+          body:
+            application/json:
+              type: AppPerson
+            application/xml:
+              type: !include schemas/person.xsd
+              example: !include examples/person.xml
+    delete:
+      displayName: Remove a person
+      description: Removes the person from the datastore. This method do not returns any data in 200 response.
+      responses:
+        204:
+      headers:
+        x-people-op-id:
+          (annotationTest):
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+          description: People ops ID. It is UUID v4 string
+          example: 9719fa6f-c666-48e0-a191-290890760b30
+    put:
+      displayName: Update a person
+      description: Updates the person in the datastore.
+      queryParameters:
+        testPatam: string
+      body:
+        application/json:
+          type: AppPerson
+          description: Puts a person to the data store
+        application/xml:
+          type: !include schemas/person.xsd
+          example: !include examples/person.xml
+      responses:
+        200:
+      headers:
+        x-people-op-id:
+          (annotationTest):
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+          description: People ops ID. It is UUID v4 string
+          example: 9719fa6f-c666-48e0-a191-290890760b30
+/products:
+  displayName: Products
+  description: The API is to be used to access data about the products.
+  type: RequestErrorResponse
+  post:
+    displayName: Create product
+    description: |
+      Creates a product in the store.
+      While creating a product the `id` and `etag` properties will be ignored.
+
+      The endpoint will reject the request if exactly the same product is already defined in the
+      datastore (all properties of both objects equals). Newly created product is available
+      for listing but **it won't be available for ordering API** until it's availability is not set.
+    body:
+      application/json:
+        type: Product
+      application/xml:
+        type: !include schemas/product.xsd
+        example: !include examples/product.xml
+    responses:
+      200:
+        body:
+          application/json:
+            type: Product
+            examples:
+              Product:
+                id: d697f5cea85011e680f576304dec7eb7
+                name: Super product
+                quantity: 125
+                unit: ml
+                upc: "123456789101"
+                available: true
+                etag: "W/\"686897696a7c876b7e\""
+              OtherProduct:
+                id: 123e4567e89b12d3a456426655440000
+                name: Acme Product
+                quantity: 1
+                unit: kg
+                upc: "223456789101"
+                available: true
+                etag: "W/\"123456789\""
+          application/xml:
+            type: !include schemas/product.xsd
+            example: !include examples/product.xml
+      400:
+        description: The request has been rejected. Probably the product already exists in the datastore.
+/orgs:
+  /{orgId}:
+    is: [RateLimited]
+    get:
+      displayName: Get organization
+      description: Returns an organization info.
+      responses:
+        200:
+          body:
+            application/json:
+              type: ExampleType.Org
+              properties:
+                id:
+                  type: string
+                  description: UUID generated ID
+              example:
+                id: "12345"
+                onCall:
+                  firstname: nico
+                  lastname: ark
+                  kind: AcmeAdmin
+                  clearanceLevel: low
+                  phone: "12321"
+                Head:
+                  firstname: nico
+                  lastname: ark
+                  kind: AcmeManager
+                  reports:
+                    -
+                      firstname: nico
+                      lastname: ark
+                      kind: admin
+                  phone: "123-23"
+    put:
+      body:
+        application/json:
+          type: ExampleType.Org
+          properties:
+            id:
+              type: string
+              description: UUID generated ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: ExampleType.Org
+    /managers:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                type: ExampleType.Manager[]
+/messages:
+  securedBy: [oauth_2_0]
+  post:
+    description: Create a new message
+    is:  [Adminable]
+    body:
+      application/json:
+        type: object
+        properties:
+          receiver:
+            type: string
+            description: receiver of the message
+            required: true
+          body:
+            type: string
+            description: A message body
+            required: true
+          important:
+            type: boolean
+            description: If true then the message will be marked as important
+            default: false
+            required: true
+  get:
+    description: |
+      List user messages. It returns an array of messages for last of 7 days if
+      `since` property is not set.
+      You can use `since` and `until` query parameters to control messages time
+      span.
+    queryParameters:
+      until:
+        (annotationTest):
+        type: date-only
+        description: Date right limit of the messages query.
+        example: 2017-05-12
+      since:
+        type: date-only
+        description: Date left limit of the messages query.
+        example: 2017-05-10
+    responses:
+      200:
+        body:
+          application/json:
+            type: array
+            items: !include resourceTypes/message-type.raml
+            example: !include examples/messages-example.json
+  /bulk:
+    post:
+      description: Bulk create messages.
+      is:  [Adminable]
+      body:
+        application/json:
+          (annotationTest):
+          type: array
+          items: !include resourceTypes/message-sent-type.raml
+          examples:
+            Example1: !include examples/messages-sent-example.json
+/arrayBody:
+  post:
+    body:
+      application/json:
+        (deprecated): This response type is deprecated and soon will be replaced.
+        description: |
+          This demonstrates a body as an Array
+        type: AppPerson[]
+/schemaBody:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+              "status":"success"
+              }
+/no-desc:
+  get:
+    responses:
+      200:
+      405:
+      201:
+
+/multipleTypeInheritance:
+  get:
+    description: |
+      The response body inherits the following types:
+
+      - AppPerson
+      - AlertableAdmin
+    responses:
+      200:
+        body:
+          application/json:
+            type:
+              - AppPerson
+              - ExampleType.AlertableAdmin
+/typeFromLibraryEndpoint:
+  post:
+    body:
+      type: myLib.TypeFromLibray
+    responses:
+      200:
+/test:
+  post:
+    body:
+      type: Product
+    responses:
+      200:
+        body:
+          type: AppPerson
+/scalarArrays:
+  post:
+    body:
+      type: Notification
+/notifications:
+  post:
+    body:
+      type: Notification
+/defaultValues:
+  get:
+    headers:
+      x-string:
+        type: string
+        default: TestDefault
+      x-integer:
+        type: integer
+        default: 1234
+      x-boolean:
+        type: boolean
+        default: false
+      x-array:
+        type: string[]
+        default: [ArrayTest, OtherTest]
+/post-headers:
+  post:
+    headers:
+      x-string:
+        required: true
+        type: string
+        default: my-value
+    body:
+      application/json:
+        type: AppPerson
+/authorization:
+  /basicauth:
+    get:
+      securedBy: [basic]
+  /basic-auth-with-defaults:
+    get:
+      securedBy: [basicWithDefaults]
+  /passthroogh:
+    securedBy: [pass_through]
+    get:
+  /oauth1:
+    get:
+      securedBy: [oauth1]
+  /oauth1-signature:
+    get:
+      securedBy: [oauth1signature]
+  /oauth1-nosignature:
+    get:
+      securedBy: [oauth1noSignature]
+  /oauth1-nosettings:
+    get:
+      securedBy: [oauth1noSettings]
+  /custom1:
+    get:
+      securedBy: [custom1]
+  /custom2:
+    get:
+      securedBy: [custom2]
+  /custom3:
+    get:
+      securedBy: [custom3]
+  /digest:
+    get:
+      securedBy: digest
+  /passthrough-query-string:
+    get:
+      securedBy: passthroughQueryString
+  /custom-query-string:
+    get:
+      securedBy: custom_scheme
+  /oauth2:
+    post:
+      securedBy: [oauth2]
+  /oauth2-with-annotations:
+    get:
+      securedBy: [oauth2Annotation]
+  /oauth2-with-grant-list:
+    get:
+      securedBy: [oauth2grants]
+  /oauth2-query-delivery:
+    get:
+      securedBy: [oauth2queryDelivery]
+  /oauth2-header-delivery:
+    get:
+      securedBy: [oauth2headerDelivery]
+  /oauth2-no-delivery:
+    get:
+      securedBy: [oauth2noDelivery]
+  /oauth2-no-grants:
+    get:
+      securedBy: [oauth2noGrants]
+  /oauth2-pkce:
+    get:
+      securedBy: [oauth2pkce]
+  /combo-types:
+    get:
+      securedBy: [basic, digest, passthroughQueryString, custom1, oauth2, oauth1]
+  /all-oauth2:
+    get:
+      securedBy: [oauth2, oauth2Annotation, oauth2grants, oauth2queryDelivery, oauth2headerDelivery, oauth2noDelivery, oauth2noGrants]
+  /nil-oauth2:
+    get:
+      securedBy: [null, oauth2]
+/required-query-parameters:
+  get:
+    queryParameters:
+      requiredString:
+        type: string
+        required: true
+
+/optional-query-parameters:
+  get:
+    queryParameters:
+      requiredString:
+        type: string
+        required: false
+/required-headers:
+  get:
+    headers:
+      requiredString:
+        type: string
+        required: true
+
+/optional-headers:
+  get:
+    headers:
+      requiredString:
+        type: string
+        required: false
+/content-type:
+  post:
+    headers:
+      Content-Type:
+        default: application/json
+    body:
+      type: object
+      properties:
+        error:
+          type: boolean
+          default: false
+/parameters:
+  get:
+    displayName: All parameter types
+    headers: 
+      Accept:
+        default: application/json
+        description: Selectes the response's media type, when supported.
+        enum: 
+          - application/json
+          - application/xml
+          - text/csv
+        required: false
+      x-required:
+        required: true
+      x-object-header:
+        type: object
+        properties: 
+          key: string
+          value:
+            type: any
+            description: Any value
+      If-Modified-Since:
+        type: datetime
+        example: Sun, 28 Feb 2016 16:41:41 GMT
+        format: rfc2616 # this time it's required, otherwise, the example format is invalid
+    queryParameters: 
+      unionable:
+        type: string | number
+        description: One of the two
+        example: 25
+        default: no
+      complexUnionable:
+        type: Feature | Product
+        description: Super confusing for a query param
+      mixedUnionable:
+        type: Feature | string
+        description: At least one should work
+      combo:
+        type: string
+        default: Some value
+        description: A combo of all string properties
+        displayName: Combo (string)
+        enum: 
+          - value 1
+          - value 2
+          - value 3
+          - value 4
+          - value 5
+          - value 6
+          - value 7
+          - value 8
+          - value 9
+          - value 10
+        examples:
+          Example 1: value 1
+          Example 2: value 2
+        maxLength: 100
+        minLength: 1
+        pattern: .*
+        required: true
+      comboNum:
+        type: number
+        default: 20
+        description: A combo with a number type
+        displayName: Combo (number)
+        enum: 
+          - 5
+          - 10
+          - 20
+          - 40
+          - 50
+          - 75
+          - 100
+        examples:
+          Minimum: 5
+          Maximum: 100
+        minimum: 5
+        maximum: 100
+        multipleOf: 5
+        format: int64
+      birthday:
+        type: date-only
+        example: 2015-05-23
+      lunchtime:
+        type: time-only
+        example: 12:30:00
+      fireworks:
+        type: datetime-only
+        example: 2015-07-04T21:00:00
+      created:
+        type: datetime
+        example: 2016-02-28T16:41:41.090Z
+        format: rfc3339
+      userPicture:
+        type: file
+        fileTypes: ['image/jpeg', 'image/png']
+        maxLength: 307200
+      customFile:
+        type: file
+        fileTypes: ['*/*'] # any file type allowed
+        maxLength: 1048576
+      aBoolean:
+        type: boolean
+        description: This is a boolean value without a default value.
+        displayName: Boolean
+      aBooleanWithDefault:
+        type: boolean
+        default: true
+        displayName: Boolean with default
+        description: This is a boolean value with default value.
+      nillable:
+        type: nil
+        description: This can be null
+      nillableUnion:
+        type: string | nil
+/query-params:
+  /bool:
+    get:
+      queryParameters: 
+        aBoolean:
+          type: boolean
+          description: This is a boolean value without a default value.
+          displayName: Boolean
+        aBooleanWithDefault:
+          type: boolean
+          default: true
+          displayName: Boolean with default
+          description: This is a boolean value with default value.
+        nillableBoolean:
+          type: boolean | nil
+          displayName: Boolean with nil
+          description: This is a boolean value with a nil union value.
+        stringBoolean:
+          type: boolean | string
+          displayName: Boolean with string
+          description: This is a boolean value with a string union value.
+  /string:
+    get:
+      queryParameters: 
+        string:
+          type: string
+          description: Simple string
+        enum:
+          type: string
+          enum: [development, staging, qa, production]
+          description: Enum string
+        minMaxLnegth:
+          type: string
+          minLength: 5
+          maxLength: 15
+          description: Min 5 max 15
+        patternLettersOnly:
+          type: string
+          pattern: '[a-zA-Z]*'
+          description: Letters only pattern
+        patternNumbersOnly:
+          type: string
+          pattern: '[0-9]*'
+          description: Number only pattern
+        displayName:
+          type: string
+          displayName: String 6
+          description: With display name
+        notRequired:
+          type: string
+          required: false
+          description: Optional value
+        withDefault:
+          type: string
+          default: This is a default
+          description: Default value
+        withDefaultNotRequired:
+          type: string
+          default: This is a default
+          required: false
+          description: Default value and not required
+        stringUnionNumber:
+          type: string | number
+          description: Either string or number
+        withExamples:
+          type: string
+          examples:
+            Word 1: Option 1
+            Word 2: Option 2
+            Word 3: 123456
+          description: String with examples.
+        anArray:
+          type: string[]
+          description: Array of strings.
+  /dates:
+    get:
+      queryParameters: 
+        dateOnly:
+          type: date-only
+          description: Date only, like "2015-05-23"
+        timeOnly:
+          type: time-only
+          description: Time only, like "12:30:00"
+        dateTimeOnly:
+          type: datetime-only
+          description: Date and time only, like "2015-07-04T21:00:00"
+        rfc3339:
+          type: datetime
+          format: rfc3339
+          description: Date and time, rfc3339 format, like "2016-02-28T16:41:41.090Z"
+        rfc2616:
+          type: datetime
+          format: rfc2616 
+          description: Date and time, rfc2616 format, like "Sun, 28 Feb 2016 16:41:41 GMT"
+        dateTimeNoFormat:
+          type: datetime
+          description: Date and time, assumed rfc3339 format, like "2016-02-28T16:41:41.090Z"
+        dateOnlyDefaultValue:
+          type: date-only
+          default: 2015-05-23
+          description: Date only, with a default value.
+        timeOnlyDefaultValue:
+          type: time-only
+          default: 12:30:00
+          description: Time only, with a default value.
+        rfc3339DefaultValue:
+          type: datetime
+          format: rfc3339
+          default: 2016-02-28T16:41:41.090Z
+          description: Date and time, rfc3339 format, default value
+        rfc2616DefaultValue:
+          type: datetime
+          format: rfc2616 
+          default: Sun, 28 Feb 2016 16:41:41 GMT
+          description: Date and time, rfc2616 format, default value
+        dateTimeDefaultValue:
+          type: datetime
+          default: 2016-02-28T16:41:41.090Z
+          description: Date and time, with a default value.
+        dateTimeUnion:
+          type: datetime | string
+          description: Date and time union with string.
+        dateTimeNil:
+          type: datetime | nil
+          description: Required but nillable.
+        dateArray:
+          type: datetime[]
+          description: A list of datetime
+  /numbers:
+    get:
+      queryParameters: 
+        simple: number
+        intFormat:
+          type: number
+          format: int
+          description: int format number
+        int8Format:
+          type: number
+          format: int8
+          description: int8 format number
+        int16Format:
+          type: number
+          format: int16
+          description: int16 format number
+        int32Format:
+          type: number
+          format: int32
+          description: int32 format number
+        int64Format:
+          type: number
+          format: int64
+          description: int64 format number
+        longFormat:
+          type: number
+          format: long
+          description: long format number
+        floatFormat:
+          type: number
+          format: float
+          description: float format number
+        doubleFormat:
+          type: number
+          format: double
+          description: double format number
+        floatWithMultiple:
+          type: number
+          format: float
+          multipleOf: 1.1
+          description: float format number with multiple of.
+        integerFormat:
+          type: integer
+          description: An integer
+        integerMinMax:
+          type: integer
+          minimum: 0
+          maximum: 100
+          multipleOf: 5
+          description: Min, max, and multiple of.
+        integerUnionString:
+          type: integer | string
+          description: Union with string
+        integerUnionNil:
+          type: integer | nil
+          description: Required but nillable
+        notRequired:
+          type: integer
+          required: false
+          description: Required but nillable
+        integerDefault:
+          type: integer
+          default: 12
+          description: Integer with default "12"
+        floatDefault:
+          type: number
+          format: float
+          multipleOf: 1.1
+          default: 2.2
+          description: float with default if "2.2"
+        integerArray:
+          type: integer[]
+          description: A list of integers
+/any-body:
+  post:
+    body: 
+      application/json:
+        type: any
+        description: Whatever you want to put there, just do it.
+        example: "An example of Any body" 
+        displayName: This is ANY
+        default: "(empty)"
+/a-file-body:
+  post:
+    body: 
+      image/*:
+        type: file
+        fileTypes: ['image/jpeg', 'image/png']
+        maxLength: 307200
+        displayName: The image
+        description: Allows to upload any image.
+/a-scalar-body:
+  post:
+    body: 
+      text/plain:
+        type: string
+        description: Generally some fine description
+        default: "To be updated soon"
+        minLength: 3
+        maxLength: 1024
+/an-union-body:
+  post:
+    body: 
+      application/json:
+        type: AppPerson|Product
+        description: Either product or a person.
+/raml-examples:
+  post:
+    body: 
+      application/json:
+        type: object
+        examples: !include examples/person.raml
+/date-formats:
+  post:
+    body: 
+      application/json:
+        properties: 
+          birthday:
+            type: date-only # no implications about time or offset
+            # example: 2015-05-23
+          lunchtime:
+            type: time-only # no implications about date or offset
+            # example: 12:30:00
+          fireworks:
+            type: datetime-only
+            # example: 2015-07-04T21:00:00
+          created:
+            type: datetime
+            # example: 2016-02-28T16:41:41.090Z
+            format: rfc3339
+          If-Modified-Since:
+            type: datetime
+            # example: Sun, 28 Feb 2016 16:41:41 GMT
+            format: rfc2616 
+            # rfc3339 or rfc2616
+/body-types:
+  /json:
+    post:
+      body: 
+        application/json:
+          type: AppPerson
+  /xml:
+    post:
+      body:
+        application/xml:
+          type: AppPerson
+  /form:
+    post:
+      body:
+        application/x-www-form-urlencoded:
+          type: AppPerson
+  /multi-parts:
+    post:
+      body:
+        multipart/form-data:
+          type: AppPerson
+/generated-example:
+  post:
+    body:
+      application/json:
+        type: DemoPerson
+      application/xml:
+        type: DemoPerson
+      application/x-www-form-urlencoded:
+        type: DemoPerson
+  put:
+    body:
+      application/json:
+        type: DemoPerson[]
+      application/xml:
+        type: DemoPerson[]
+      application/x-www-form-urlencoded:
+        type: DemoPerson[]
+/demo-types:
+  post:
+    body: 
+      application/json:
+        type: DemoTypes.Pet
+    responses: 
+      200:
+        body: 
+          application/json:
+            type: DemoTypes.Dog | DemoTypes.Cat
+/raml-and-union:
+  post:
+    body: 
+      application/json:
+        type: [DemoTypes.Mamal, DemoTypes.Pet]
+/raml-and-or-union:
+  post:
+    body: 
+      application/json:
+        type: [DemoTypes.Mamal, DemoTypes.Pet | DemoTypes.Cat]
+/body-with-enums:
+  post:
+    body: 
+      application/json:
+        type: object
+        properties: 
+          anEnum:
+            type: string
+            default: Some value
+            description: A combo of all string properties
+            displayName: Combo (string)
+            enum: 
+              - value 1
+              - value 2
+              - value 3
+              - value 4
+              - value 5
+              - value 6
+              - value 7
+              - value 8
+              - value 9
+              - value 10
