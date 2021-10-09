@@ -4,8 +4,6 @@ A set of web components based on LitElement that creates the visualization layer
 
 This project replaces all `api-*` components from this organization and consolidates the code base under a single repository.
 
-## Version compatibility
-
 [![Published on NPM](https://img.shields.io/npm/v/@api-components/amf-components.svg)](https://www.npmjs.com/package/@api-components/amf-components)
 
 [![Tests and publishing](https://github.com/advanced-rest-client/amf-components/actions/workflows/deployment.yml/badge.svg)](https://github.com/advanced-rest-client/amf-components/actions/workflows/deployment.yml)

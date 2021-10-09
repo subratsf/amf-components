@@ -1,5 +1,3 @@
-import { ApiExample, ApiParameter, ApiPayload } from "@api-components/amf-helper-mixin";
-
 export declare class ApiStoreContextEvent<T> extends CustomEvent<StoreEventDetailWithResult<T>> {
   /**
    * @param type The event type

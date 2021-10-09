@@ -18,4 +18,8 @@ export const EventTypes = Object.freeze({
     serverChange: 'apiserverchanged',
     serverCountChange: 'serverscountchanged',
   }),
+
+  Api: Object.freeze({
+    summary: 'amfstoreapisummary',
+  }),
 });

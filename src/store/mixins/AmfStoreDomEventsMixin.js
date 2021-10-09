@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { dedupeMixin } from '@open-wc/dedupe-mixin';
 import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
-import { StoreEventTypes } from '../events/StoreEventTypes.js';
+import { EventTypes } from '../../events/EventTypes.js';
 
 
 export const eventHandler = Symbol('eventHandler');
@@ -10,7 +10,7 @@ export const eventHandler = Symbol('eventHandler');
  * @type {Record<string, { target: string, args?: string[], eventProperties?: boolean }>}
  */
 const eventsMap = {
-  [StoreEventTypes.Api.summary]: { target: 'apiSummary' },
+  [EventTypes.Api.summary]: { target: 'apiSummary' },
 };
 
 /**

@@ -2,12 +2,12 @@
 // import { EndpointEvents } from './EndpointEvents.js';
 // import { OperationEvents } from './OperationEvents.js';
 import { ApiEvents } from './ApiEvents.js';
-// import { ServerEvents } from './ServerEvents.js';
+import { ServerEvents } from './ServerEvents.js';
 // import { DocumentationEvents } from './DocumentationEvents.js';
 // import { SecurityEvents } from './SecurityEvents.js';
 // import { TypeEvents } from './TypeEvents.js';
 // import { ResponseEvents } from './ResponseEvents.js';
-// import { RequestEvents } from './RequestEvents.js';
+import { RequestEvents } from './RequestEvents.js';
 // import { PayloadEvents } from './PayloadEvents.js';
 // import { ParameterEvents } from './ParameterEvents.js';
 // import { ExampleEvents } from './ExampleEvents.js';
@@ -17,12 +17,12 @@ export const Events = {
   Api: ApiEvents,
   // Endpoint: EndpointEvents,
   // Operation: OperationEvents,
-  // Server: ServerEvents,
+  Server: ServerEvents,
   // Documentation: DocumentationEvents,
   // Security: SecurityEvents,
   // Type: TypeEvents,
   // Response: ResponseEvents,
-  // Request: RequestEvents,
+  Request: RequestEvents,
   // Payload: PayloadEvents,
   // Parameter: ParameterEvents,
   // Example: ExampleEvents,

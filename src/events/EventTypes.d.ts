@@ -19,10 +19,15 @@ interface Server {
   serverCountChange: string;
 }
 
+declare interface ApiEvents {
+  summary: string;
+}
+
 interface IEventTypes {
   Security: Readonly<Security>;
   Request: Readonly<Request>;
   Server: Readonly<Server>;
+  Api: Readonly<ApiEvents>;
 }
 
 export const EventTypes: Readonly<IEventTypes>;

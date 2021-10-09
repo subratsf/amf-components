@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { StoreEventTypes } from './StoreEventTypes.js';
+import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent } from './BaseEvents.js';
 
 /** @typedef {import('@api-components/amf-helper-mixin').ApiSummary} ApiSummary */
@@ -12,7 +12,7 @@ export const ApiEvents = {
    * @returns {Promise<ApiSummary>}
    */
   summary: async (target) => {
-    const e = new ApiStoreContextEvent(StoreEventTypes.Api.summary);
+    const e = new ApiStoreContextEvent(EventTypes.Api.summary);
     target.dispatchEvent(e);
     return e.detail.result;
   },
