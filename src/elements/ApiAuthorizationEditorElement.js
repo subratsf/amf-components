@@ -6,11 +6,11 @@ import elementStyles from './styles/AuthorizationEditor.js';
 import '../../api-authorization-method.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityScheme} ApiSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityHttpSettings} ApiSecurityHttpSettings */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../helpers/api').ApiSecurityScheme} ApiSecurityScheme */
+/** @typedef {import('../helpers/api').ApiSecurityHttpSettings} ApiSecurityHttpSettings */
 /** @typedef {import('./ApiAuthorizationMethodElement').default} ApiAuthorizationMethodElement */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.RequestAuthorization} RequestAuthorization */
 /** @typedef {import('@advanced-rest-client/authorization').Oauth2Credentials} Oauth2Credentials */

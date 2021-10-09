@@ -29,8 +29,8 @@ import '../../api-response-view.js';
 /** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.TransportRequest} TransportRequest */
 /** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
 /** @typedef {import('@advanced-rest-client/authorization').Oauth2Credentials} Oauth2Credentials */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/api-server-selector').ServerType} ServerType */
+/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../types').ServerType} ServerType */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 /** @typedef {import('../types').ApiConsoleResponse} ApiConsoleResponse */
 /** @typedef {import('../events/RequestEvents').ApiRequestEvent} ApiRequestEvent */

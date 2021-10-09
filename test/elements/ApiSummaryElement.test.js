@@ -4,8 +4,8 @@ import { AmfLoader } from '../AmfLoader.js';
 import '../../api-summary.js';
 
 /** @typedef {import('../../').ApiSummaryElement} ApiSummaryElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
 
 describe('ApiSummaryElement', () => {
   const loader = new AmfLoader();

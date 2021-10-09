@@ -4,7 +4,7 @@ import '../../api-request-editor.js';
 import * as InputCache from '../../src/lib/InputCache.js';
 
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../..').ApiRequestEditorElement} ApiRequestEditorElement */
 
 describe('ApiRequestEditorElement', () => {

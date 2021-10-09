@@ -1,14 +1,14 @@
 /* eslint-disable class-methods-use-this */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDataNodeUnion} ApiDataNodeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiObjectNode} ApiObjectNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShape} ApiShape */
+/** @typedef {import('../helpers/api').ApiDataNodeUnion} ApiDataNodeUnion */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../helpers/api').ApiObjectNode} ApiObjectNode */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiShape} ApiShape */
 
-import { ns } from '@api-components/amf-helper-mixin';
+import { ns } from '../helpers/Namespace.js';
 
 /**
  * Computes a data model for custom definition for the OAuth 2 scheme

@@ -13,11 +13,10 @@ the License.
 */
 import { TemplateResult, LitElement } from 'lit-element';
 import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
-import { AmfDocument } from '@api-components/amf-helper-mixin';
+import { AmfDocument } from '../helpers/amf';
 import { ArcResponse, ArcRequest, ApiTypes } from '@advanced-rest-client/arc-types';
 import { Oauth2Credentials } from '@advanced-rest-client/authorization';
-import { ServerType } from '@api-components/api-server-selector';
-import { ApiConsoleResponse, ApiConsoleRequest } from '../types';
+import { ServerType, ApiConsoleResponse, ApiConsoleRequest } from '../types';
 import { ApiRequestEvent, ApiResponseEvent } from '../events/RequestEvents';
 
 export const selectedValue: unique symbol;

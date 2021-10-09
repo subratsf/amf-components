@@ -1,5 +1,8 @@
 import { LitElement, TemplateResult } from 'lit-element';
-import { AmfHelperMixin, AmfSerializer, DomainElement, ApiParameter, ApiCustomDomainProperty, ApiExample } from '@api-components/amf-helper-mixin';
+import { ApiParameter, ApiCustomDomainProperty, ApiExample } from '../helpers/api';
+import { DomainElement } from '../helpers/amf';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
+import { AmfSerializer } from '../helpers/AmfSerializer';
 import { SchemaExample } from '@api-components/api-schema';
 
 export declare const sectionToggleClickHandler: unique symbol;

@@ -17,7 +17,6 @@ the License.
 import { html, LitElement } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
 import { TelemetryEvents, RequestEventTypes } from '@advanced-rest-client/arc-events';
 import { v4 } from '@advanced-rest-client/uuid-generator';
 import { HeadersParser } from '@advanced-rest-client/arc-headers';
@@ -28,7 +27,6 @@ import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
 import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import '@api-components/api-server-selector/api-server-selector.js';
 import '@advanced-rest-client/body-editor/body-formdata-editor.js';
 import '@advanced-rest-client/body-editor/body-multipart-editor.js';
 import '@advanced-rest-client/body-editor/body-raw-editor.js';
@@ -45,21 +43,24 @@ import { AmfInputParser } from '../lib/AmfInputParser.js';
 import * as InputCache from '../lib/InputCache.js';
 import { RequestEvents } from '../events/RequestEvents.js';
 import { EventTypes } from '../events/EventTypes.js';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
+import { AmfSerializer } from '../helpers/AmfSerializer.js';
 import '../../api-authorization-editor.js';
+import '../../api-server-selector.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
 /** @typedef {import('@advanced-rest-client/authorization').Oauth2Credentials} Oauth2Credentials */
 /** @typedef {import('@advanced-rest-client/body-editor').BodyRawEditorElement} BodyRawEditorElement */
 /** @typedef {import('@advanced-rest-client/body-editor').BodyFormdataEditorElement} BodyFormdataEditorElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiOperation} ApiOperation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').Operation} Operation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
+/** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../helpers/amf').Operation} Operation */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
 /** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
 /** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
 /** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */

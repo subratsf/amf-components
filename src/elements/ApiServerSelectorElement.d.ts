@@ -1,5 +1,7 @@
 import { LitElement, TemplateResult } from 'lit-element';
-import { AmfHelperMixin, ApiServer, AmfDocument } from '@api-components/amf-helper-mixin';
+import { ApiServer } from '../helpers/api';
+import { AmfDocument } from '../helpers/amf';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
 import { ServerType, SelectionInfo, UpdateServersOptions } from '../types';
 
 export const customNodesCount: unique symbol;

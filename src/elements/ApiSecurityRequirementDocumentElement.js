@@ -7,8 +7,8 @@ import {
 import elementStyles from './styles/ApiSecurityRequirement.js';
 import '../../api-parametrized-security-scheme.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@api-components/amf-helper-mixin').SecurityRequirement} SecurityRequirement */
+/** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../helpers/amf').SecurityRequirement} SecurityRequirement */
 
 export const securityRequirementValue = Symbol('securityRequirementValue');
 export const findSecurity = Symbol('findSecurity');

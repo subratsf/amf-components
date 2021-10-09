@@ -3,20 +3,21 @@
 import { LitElement, html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
 import { ApiExampleGenerator } from '@api-components/api-schema';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
 import '@advanced-rest-client/arc-icons/arc-icon.js';
 import '@advanced-rest-client/highlight/arc-marked.js';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
+import { AmfSerializer } from '../helpers/AmfSerializer.js';
 import '../../api-annotation-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiCustomDomainProperty} ApiCustomDomainProperty */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiExample} ApiExample */
+/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiCustomDomainProperty} ApiCustomDomainProperty */
+/** @typedef {import('../helpers/api').ApiExample} ApiExample */
 /** @typedef {import('@api-components/api-schema').SchemaExample} SchemaExample */
 
 export const sectionToggleClickHandler = Symbol('sectionToggleClickHandler');

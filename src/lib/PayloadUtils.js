@@ -1,8 +1,8 @@
 import { ApiExampleGenerator, ApiMonacoSchemaGenerator, ApiSchemaGenerator } from '@api-components/api-schema';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiAnyShape} ApiAnyShape */
+/** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
 /** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
 
 /** 

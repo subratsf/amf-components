@@ -22,3 +22,8 @@ export * as InputCache from './src/lib/InputCache';
 export * as UrlLib from './src/lib/UrlUtils.js';
 export * as Utils from './src/lib/Utils';
 export * from './src/types'
+export { AmfHelperMixin } from './src/helpers/AmfHelperMixin';
+export { AmfSerializer } from './src/helpers/AmfSerializer';
+export { ns } from './src/helpers/Namespace';
+export * as Amf from './src/helpers/amf';
+export * as Api from './src/helpers/api';

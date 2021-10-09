@@ -7,7 +7,7 @@ import '@api-components/api-navigation/api-navigation.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-schema-document.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
+/** @typedef {import('../src/helpers/amf').DomainElement} DomainElement */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {

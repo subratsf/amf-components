@@ -51,11 +51,10 @@
     "@anypoint-web-components/anypoint-radio-button": "^0.1.9",
     "@anypoint-web-components/anypoint-switch": "^0.1.10",
     "@anypoint-web-components/anypoint-tabs": "^0.1.19",
-    "@api-components/amf-helper-mixin": "^4.5.15",
     "@api-components/api-schema": "^0.1.4",
-    "@api-components/api-server-selector": "^0.7.1",
     "@api-components/http-method-label": "^3.1.4",
     "@open-wc/dedupe-mixin": "^1.3.0",
+    "amf-json-ld-lib": "0.0.14",
     "dompurify": "^2.3.3",
     "lit-element": "^2.5.1",
     "lit-html": "^1.4.1"

@@ -1,10 +1,6 @@
 import { TemplateResult } from 'lit-element';
-import { 
-  ApiSummary,
-  ApiServer,
-  AsyncApi,
-  WebApi,
-} from '@api-components/amf-helper-mixin';
+import { ApiSummary, ApiServer } from '../helpers/api';
+import { AsyncApi, WebApi } from '../helpers/amf';
 import { ApiDocumentationBase } from './ApiDocumentationBase';
 import { ApiSummaryEndpoint, ApiSummaryOperation } from '../types';
 

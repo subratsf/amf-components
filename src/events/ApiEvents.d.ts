@@ -1,4 +1,4 @@
-import { ApiSummary } from '@api-components/amf-helper-mixin';
+import { ApiSummary } from '../helpers/api';
 
 export declare interface IApiEvents {
   /**

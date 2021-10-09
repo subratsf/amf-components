@@ -13,12 +13,13 @@ the License.
 */
 import { TemplateResult, LitElement } from 'lit-element';
 import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
+import { AmfSerializer } from '../helpers/AmfSerializer';
 import { Oauth2Credentials } from '@advanced-rest-client/authorization';
-import { ApiEndPoint, ApiOperation, ApiPayload, ApiParameter, ApiServer, Operation, AmfDocument } from '@api-components/amf-helper-mixin';
-import { ServerType } from '@api-components/api-server-selector';
+import { ApiEndPoint, ApiOperation, ApiPayload, ApiParameter, ApiServer } from '../helpers/api';
+import { Operation, AmfDocument } from '../helpers/amf';
 import { AmfParameterMixin } from '../lib/AmfParameterMixin';
-import { SecuritySelectorListItem, ApiConsoleRequest, OperationParameter } from '../types';
+import { SecuritySelectorListItem, ApiConsoleRequest, OperationParameter, ServerType } from '../types';
 
 export const EventCategory: string;
 

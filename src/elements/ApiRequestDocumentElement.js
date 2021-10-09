@@ -17,14 +17,14 @@ import '../../api-payload-document.js';
 import '../../api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiRequest} ApiRequest */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').Request} Request */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiRequest} ApiRequest */
+/** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../helpers/amf').Request} Request */
+/** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
 /** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
 /** @typedef {import('../types').OperationParameter} OperationParameter */
 

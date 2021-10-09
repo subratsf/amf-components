@@ -71,11 +71,6 @@ components:
           description: The title of the article, in CommonMark format.
           type: string
           minLength: 3
-        outdated:
-          description: This is no longer in use.
-          type: string
-          deprecated: true
-          writeOnly: true
   parameters:
     skipParam:
       name: skip
@@ -114,6 +109,7 @@ components:
       flows: 
         implicit:
           authorizationUrl: http://example.org/api/oauth/dialog
+          refreshUrl: http://example.org/api/refresh
           scopes:
             write:pets: modify pets in your account
             read:pets: read your pets
@@ -121,20 +117,30 @@ components:
     BasicAuth:
       type: http
       scheme: basic
+      description: A basic HTTP scheme
 
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: Bearer form of authentication
     
     ApiKeyAuth:
       type: apiKey
       in: header
       name: X-API-Key
+      description: Using API keys
+
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: X-API-Key
+      description: API Key in a query parameter
     
     OpenID:
       type: openIdConnect
       openIdConnectUrl: https://example.com/.well-known/openid-configuration
+      description: Using OpenId
     
     OAuth2:
       type: oauth2
@@ -142,20 +148,26 @@ components:
         authorizationCode:
           authorizationUrl: https://example.com/oauth/authorize
           tokenUrl: https://example.com/oauth/token
+          refreshUrl: http://example.org/api/refresh
           scopes:
             read: Grants read access
             write: Grants write access
             admin: Grants access to admin operations
+        clientCredentials:
+          tokenUrl: https://example.com/oauth/token
+          refreshUrl: http://example.org/api/refresh
+          scopes:
+            read: Grants read access
+        password:
+          tokenUrl: http://example.org/api/token
+          scopes:
+            write: Grants write access
+      description: An oauth configuration.
 
     cookieAuth:
       type: apiKey
       in: cookie
       name: JSESSIONID
-
-    queryAuth:
-      type: apiKey
-      in: query
-      name: api-key
 
 paths:
   /pets:
@@ -204,11 +216,141 @@ paths:
                     properties:
                       description:
                         type: string
-  /outdatedEndpoint:
-    description: This endpoint is no longer in use.
+  /securityCombo:
     get:
-      deprecated: true
-      description: This operation is no longer in use.
+      security:
+        - petstore_auth:
+          - write:pets
+        - api_key: []
+        - OpenID: []
+        - OAuth2:
+          - read
+        - cookieAuth: []
       responses:
         '200':
-          description: Successful response
+          description: All security
+          content:
+            application/json:
+              schema:
+                type: string
+  /subscribe:
+    post:
+      operationId: subscribe
+      summary: Subscribe to a webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callbackUrl:
+                  type: string
+                  format: uri
+                  example: https://myserver.com/send/callback/here
+                inProgressUrl:
+                  type: string
+                failedUrl:  
+                  type: string
+                successUrl:
+                  type: string
+              required:
+                - callbackUrl
+      responses:
+        '201':
+          description: Webhook created
+      callbacks:
+        myEvent:
+          '{$request.body#/callbackUrl}':
+            post:
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: Some event happened
+                      required:
+                        - message
+              responses:
+                '200':
+                  description: Your server returns this code if it accepts the callback
+  /oas-properties:
+    post:
+      externalDocs:
+        url: https://docs.com
+        description: A doc
+      deprecated: true
+      tags:
+        - "pets"
+        - "tests"
+      description: A description
+      operationId: myId
+      requestBody:
+        description: A body
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            encoding: 
+              color:
+                style: form
+                explode: false
+            examples:
+              simple:
+                value:
+                  - yellow
+                  - red
+                  - pink
+                summary: A sample color value
+                description: Example of a color value
+            schema:
+              type: object
+              properties:
+                color:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: OK response
+  /http-security:
+    get:
+      security:
+        - BasicAuth: []
+      responses:
+        '201':
+          description: OK
+    post:
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: OK
+    put:
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '201':
+          description: OK
+    patch:
+      security:
+        - cookieAuth: []
+      responses:
+        '201':
+          description: OK
+    options:
+      security:
+        - ApiKeyQuery: []
+      responses:
+        '102':
+          description: OK
+  /open-id:
+    get:
+      security:
+        - OpenID: []
+      responses:
+        '201':
+          description: OK

@@ -7,8 +7,8 @@ import commonStyles from './styles/Common.js';
 import { ApiDocumentationBase, descriptionTemplate, serializerValue } from './ApiDocumentationBase.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDocumentation} ApiDocumentation */
-/** @typedef {import('@api-components/amf-helper-mixin').CreativeWork} CreativeWork */
+/** @typedef {import('../helpers/api').ApiDocumentation} ApiDocumentation */
+/** @typedef {import('../helpers/amf').CreativeWork} CreativeWork */
 
 export const documentationValue = Symbol('documentationValue');
 export const titleTemplate = Symbol('titleTemplate');

@@ -8,9 +8,9 @@ import {
 import '../../api-schema-document.js';
 
 /** @typedef {import('../../').ApiSchemaDocumentElement} ApiSchemaDocumentElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioButtonElement} AnypointRadioButtonElement */
 
 describe('ApiSchemaDocumentElement', () => {

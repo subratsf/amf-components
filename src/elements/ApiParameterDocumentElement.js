@@ -10,11 +10,11 @@ import { paramNameTemplate, typeValueTemplate, detailsTemplate, pillTemplate } f
 import { ApiDocumentationBase, descriptionTemplate } from './ApiDocumentationBase.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
 
 export const queryParameter = Symbol('queryParameter');
 export const querySchema = Symbol('querySchema');

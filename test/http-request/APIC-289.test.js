@@ -2,7 +2,7 @@ import { fixture, assert, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
 import '../../api-request-editor.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../..').ApiRequestEditorElement} ApiRequestEditorElement */
 
 describe('ApiRequestEditorElement', () => {

@@ -5,7 +5,8 @@ import '../../api-authorization-editor.js';
 import { methodsValue } from '../../src/elements/ApiAuthorizationEditorElement.js';
 
 /** @typedef {import('../../index').ApiAuthorizationEditorElement} ApiAuthorizationEditorElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth1Authorization} OAuth1Authorization */
@@ -13,7 +14,6 @@ import { methodsValue } from '../../src/elements/ApiAuthorizationEditorElement.j
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.PassThroughAuthorization} PassThroughAuthorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
 
 describe('ApiAuthorizationEditorElement', () => {

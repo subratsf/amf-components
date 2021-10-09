@@ -2,8 +2,8 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-html';
-import { ns } from '@api-components/amf-helper-mixin';
 import Oauth2, { oauth2GrantTypes } from '@advanced-rest-client/authorization/src/lib/ui/OAuth2.js'
+import { ns } from '../../helpers/Namespace.js';
 import * as InputCache from '../InputCache.js';
 import { AmfInputParser } from '../AmfInputParser.js';
 import { Oauth2RamlCustomData } from '../Oauth2RamlCustomData.js';
@@ -15,19 +15,19 @@ const gtValue = Symbol("gtValue");
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityScheme} ApiSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiCustomDomainProperty} ApiCustomDomainProperty */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiObjectNode} ApiObjectNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayNode} ApiArrayNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityScope} ApiSecurityScope */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDataNodeUnion} ApiDataNodeUnion */
+/** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../../helpers/api').ApiSecurityScheme} ApiSecurityScheme */
+/** @typedef {import('../../helpers/api').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
+/** @typedef {import('../../helpers/api').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
+/** @typedef {import('../../helpers/api').ApiCustomDomainProperty} ApiCustomDomainProperty */
+/** @typedef {import('../../helpers/api').ApiObjectNode} ApiObjectNode */
+/** @typedef {import('../../helpers/api').ApiArrayNode} ApiArrayNode */
+/** @typedef {import('../../helpers/api').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../../helpers/api').ApiSecurityScope} ApiSecurityScope */
+/** @typedef {import('../../helpers/api').ApiDataNodeUnion} ApiDataNodeUnion */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2CustomParameter} OAuth2CustomParameter */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.Oauth2GrantType} Oauth2GrantType */

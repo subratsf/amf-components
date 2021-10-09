@@ -1,15 +1,17 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-param-reassign */
 import { LitElement, html } from 'lit-element';
-import { AmfHelperMixin, AmfSerializer, ns } from '@api-components/amf-helper-mixin';
 import '@advanced-rest-client/arc-icons/arc-icon.js';
 import elementStyles from './styles/ApiAnnotation.js';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
+import { AmfSerializer } from '../helpers/AmfSerializer.js';
+import { ns } from '../helpers/Namespace.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDomainProperty} ApiDomainProperty */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiCustomDomainProperty} ApiCustomDomainProperty */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiObjectNode} ApiObjectNode */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/api').ApiDomainProperty} ApiDomainProperty */
+/** @typedef {import('../helpers/api').ApiCustomDomainProperty} ApiCustomDomainProperty */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../helpers/api').ApiObjectNode} ApiObjectNode */
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 
 export const shapeValue = Symbol('shapeValue');

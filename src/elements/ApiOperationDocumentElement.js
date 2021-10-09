@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
-import { ns } from "@api-components/amf-helper-mixin";
 import { Styles as HttpStyles } from '@api-components/http-method-label';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import { ApiSchemaValues, ApiSchemaGenerator } from '@api-components/api-schema';
@@ -10,6 +9,7 @@ import '@anypoint-web-components/anypoint-tabs/anypoint-tab.js';
 import '@anypoint-web-components/anypoint-tabs/anypoint-tabs.js';
 import '@advanced-rest-client/arc-icons/arc-icon.js';
 import '@advanced-rest-client/http-code-snippets/http-code-snippets.js';
+import { ns } from "../helpers/Namespace.js";
 import { QueryParameterProcessor } from '../lib/QueryParameterProcessor.js';
 import elementStyles from './styles/ApiOperation.js';
 import commonStyles from './styles/Common.js';
@@ -30,17 +30,17 @@ import '../../api-response-document.js';
 import '../../api-security-requirement-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiOperation} ApiOperation */
-/** @typedef {import('@api-components/amf-helper-mixin').EndPoint} EndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').Operation} Operation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiResponse} ApiResponse */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiCallback} ApiCallback */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiAnyShape} ApiAnyShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
+/** @typedef {import('../helpers/amf').EndPoint} EndPoint */
+/** @typedef {import('../helpers/amf').Operation} Operation */
+/** @typedef {import('../helpers/api').ApiResponse} ApiResponse */
+/** @typedef {import('../helpers/api').ApiCallback} ApiCallback */
+/** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
 /** @typedef {import('@anypoint-web-components/anypoint-tabs').AnypointTabs} AnypointTabs */
 /** @typedef {import('./ApiRequestDocumentElement').default} ApiRequestDocumentElement */
 

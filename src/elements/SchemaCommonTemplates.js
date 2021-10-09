@@ -1,19 +1,19 @@
 import { html } from "lit-element";
-import { ns } from '@api-components/amf-helper-mixin';
 import { classMap } from "lit-html/directives/class-map";
 import { ifDefined } from "lit-html/directives/if-defined";
+import { ns } from '../helpers/Namespace.js';
 import '../../api-annotation-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiUnionShape} ApiUnionShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiFileShape} ApiFileShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDataNodeUnion} ApiDataNodeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiRecursiveShape} ApiRecursiveShape */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../helpers/api').ApiUnionShape} ApiUnionShape */
+/** @typedef {import('../helpers/api').ApiFileShape} ApiFileShape */
+/** @typedef {import('../helpers/api').ApiDataNodeUnion} ApiDataNodeUnion */
+/** @typedef {import('../helpers/api').ApiRecursiveShape} ApiRecursiveShape */
 
 /**
  * @param {string} label The label to render.

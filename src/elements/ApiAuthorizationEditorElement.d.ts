@@ -1,9 +1,6 @@
 import { TemplateResult, LitElement } from 'lit-element';
-import {
-  ApiParametrizedSecurityScheme,
-  ApiSecurityRequirement,
-  AmfDocument,
-} from '@api-components/amf-helper-mixin';
+import { ApiParametrizedSecurityScheme, ApiSecurityRequirement, } from '../helpers/api';
+import { AmfDocument, } from '../helpers/amf';
 import { Oauth2Credentials } from '@advanced-rest-client/authorization';
 import { RequestAuthorization } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
 import { default as ApiAuthorizationMethodElement } from './ApiAuthorizationMethodElement';

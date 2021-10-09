@@ -15,7 +15,7 @@ import {
   METHOD_API_KEY,
 } from '../elements/ApiAuthorizationMethodElement.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
 /** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.RequestAuthorization} RequestAuthorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */

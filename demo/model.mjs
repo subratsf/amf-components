@@ -5,6 +5,8 @@ import generator from '@api-components/api-model-generator';
 /** @type {Map<string, ApiConfiguration>} */
 const config = new Map();
 config.set('demo-api/demo-api.raml', { type: "RAML 1.0" });
+config.set('amf-helper-api/amf-helper-api.raml', { type: "RAML 1.0" });
+config.set('arc-demo-api/arc-demo-api.raml', { type: "RAML 1.0" });
 config.set('array-body/array-body.raml', { type: "RAML 1.0" });
 config.set('google-drive-api/google-drive-api.raml', { type: "RAML 1.0" });
 config.set('appian-api/appian-api.raml', { type: "RAML 1.0" });
@@ -86,6 +88,9 @@ config.set('oas-3-api/oas-3-api.yaml', { type: "OAS 3.0" });
 config.set('modular-api/modular-api.raml', { type: "RAML 1.0" });
 config.set('servers-api/servers-api.yaml', { type: 'OAS 3.0', mime: 'application/yaml' });
 config.set('no-servers-api/no-servers-api.yaml', { type: 'OAS 3.0', mime: 'application/yaml' });
+config.set('multiple-servers/multiple-servers.yaml', { type: 'OAS 3.0', mime: 'application/yaml' });
+config.set('flattened-api/flattened-api.raml', { type: 'RAML 1.0', mime: 'application/yaml', flattened: true });
+config.set('expanded-api/expanded-api.raml', { type: 'RAML 1.0', mime: 'application/yaml', flattened: false });
 
 generator.generate(config, {
   dest: 'demo/models/',

@@ -1,5 +1,6 @@
 import { TemplateResult } from 'lit-element';
-import { ApiDocumentation, CreativeWork } from '@api-components/amf-helper-mixin';
+import { ApiDocumentation } from '../helpers/api';
+import { CreativeWork } from '../helpers/amf';
 import { ApiDocumentationBase } from './ApiDocumentationBase';
 
 export const documentationValue: unique symbol;

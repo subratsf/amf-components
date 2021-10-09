@@ -1,5 +1,7 @@
 import { LitElement, TemplateResult } from 'lit-element';
-import { AmfHelperMixin, DomainElement, ApiDomainProperty, ApiCustomDomainProperty, ApiScalarNode, ApiObjectNode } from '@api-components/amf-helper-mixin';
+import { ApiDomainProperty, ApiCustomDomainProperty, ApiScalarNode, ApiObjectNode } from '../helpers/api';
+import { DomainElement } from '../helpers/amf';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
 
 export const shapeValue: unique symbol;
 export const processShape: unique symbol;

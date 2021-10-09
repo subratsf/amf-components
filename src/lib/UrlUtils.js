@@ -1,8 +1,8 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-param-reassign */
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
+/** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../types').ComputeBaseUriOptions} ComputeBaseUriOptions */
 
 /**

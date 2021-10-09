@@ -15,13 +15,13 @@ import { sanitizeHTML } from '../lib/Utils.js';
 import * as UrlLib from '../lib/UrlUtils.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDocumentation} ApiDocumentation */
-/** @typedef {import('@api-components/amf-helper-mixin').CreativeWork} CreativeWork */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSummary} ApiSummary */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').AsyncApi} AsyncApi */
-/** @typedef {import('@api-components/amf-helper-mixin').WebApi} WebApi */
-/** @typedef {import('@api-components/amf-helper-mixin').EndPoint} EndPoint */
+/** @typedef {import('../helpers/api').ApiDocumentation} ApiDocumentation */
+/** @typedef {import('../helpers/amf').CreativeWork} CreativeWork */
+/** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../helpers/amf').AsyncApi} AsyncApi */
+/** @typedef {import('../helpers/amf').WebApi} WebApi */
+/** @typedef {import('../helpers/amf').EndPoint} EndPoint */
 /** @typedef {import('../types').ApiSummaryEndpoint} ApiSummaryEndpoint */
 /** @typedef {import('../types').ApiSummaryOperation} ApiSummaryOperation */
 

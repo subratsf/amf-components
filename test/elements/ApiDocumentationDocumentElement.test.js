@@ -4,9 +4,9 @@ import { AmfLoader } from '../AmfLoader.js';
 import '../../api-documentation-document.js';
 
 /** @typedef {import('../../').ApiDocumentationDocumentElement} ApiDocumentationDocumentElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').CreativeWork} CreativeWork */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDocumentation} ApiDocumentation */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').CreativeWork} CreativeWork */
+/** @typedef {import('../../src/helpers/api').ApiDocumentation} ApiDocumentation */
 
 describe('ApiDocumentationDocumentElement', () => {
   const loader = new AmfLoader();

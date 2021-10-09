@@ -1,5 +1,5 @@
 import { HTTPRequest, RequestAuthorization } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
-import { ApiParameter, ApiShapeUnion, ApiSecurityRequirement, ApiServer, ApiEndPoint } from '@api-components/amf-helper-mixin';
+import { ApiParameter, ApiShapeUnion, ApiSecurityRequirement, ApiServer, ApiEndPoint } from './helpers/api';
 import { default as XhrSimpleRequestTransportElement } from './elements/XhrSimpleRequestTransportElement';
 
 export declare interface ApiConsoleRequest extends HTTPRequest {

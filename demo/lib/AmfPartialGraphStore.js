@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
-import { AmfHelperMixin } from '@api-components/amf-helper-mixin';
+import { AmfHelperMixin } from '../../src/helpers/AmfHelperMixin.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').Api} Api */
-/** @typedef {import('@api-components/amf-helper-mixin').EndPoint} EndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').Operation} Operation */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/amf').Api} Api */
+/** @typedef {import('../../src/helpers/amf').EndPoint} EndPoint */
+/** @typedef {import('../../src/helpers/amf').Operation} Operation */
 
 export class AmfPartialGraphStore extends AmfHelperMixin(Object) {
   /**

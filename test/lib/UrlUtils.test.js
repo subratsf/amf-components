@@ -8,8 +8,8 @@ import {
   applyUrlParameters,
 } from '../../src/lib/UrlUtils.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 
 describe('Libraries', () => {
   describe('URL library', () => {

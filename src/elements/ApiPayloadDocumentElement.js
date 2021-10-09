@@ -12,10 +12,10 @@ import {
 import '../../api-schema-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').Payload} Payload */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiExample} ApiExample */
+/** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../helpers/amf').Payload} Payload */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiExample} ApiExample */
 /** @typedef {import('@api-components/api-schema').SchemaExample} SchemaExample */
 
 export const queryPayload = Symbol('queryPayload');

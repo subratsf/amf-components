@@ -1,7 +1,7 @@
 import { v4 } from '@advanced-rest-client/uuid-generator/main.js';
 import { AmfStore } from './AmfStore.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 
 /**
  * The AMF graph store that hosts multiple instances of the AMF graph model.

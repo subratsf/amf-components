@@ -17,13 +17,13 @@ import '../../api-operation-document.js'
 import '../../api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').EndPoint} EndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiOperation} ApiOperation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiAnyShape} ApiAnyShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/api-server-selector').ServerType} ServerType */
+/** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../helpers/amf').EndPoint} EndPoint */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
+/** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../types').ServerType} ServerType */
 /** @typedef {import('./ApiRequestElement').default} ApiRequestPanelElement */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 

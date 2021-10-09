@@ -14,8 +14,8 @@ import {
   serverHandler,
 } from '../../src/elements/ApiRequestEditorElement.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../../').ApiAuthorizationMethodElement} ApiAuthorizationMethodElement */
 /** @typedef {import('../../').ApiRequestEditorElement} ApiRequestEditorElement */
 

@@ -1,5 +1,6 @@
 import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/authorization";
-import { AmfDocument, ApiParametrizedSecurityScheme } from '@api-components/amf-helper-mixin';
+import { ApiParametrizedSecurityScheme } from '../helpers/api';
+import { AmfDocument } from '../helpers/amf';
 import {
   typeChangedSymbol,
   propagateChanges,

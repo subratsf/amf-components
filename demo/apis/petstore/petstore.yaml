@@ -16,6 +16,8 @@ info:
   termsOfService: 'http://swagger.io/terms/'
   contact:
     email: apiteam@swagger.io
+    name: Swagger IO
+    url: swagger.io
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
@@ -40,6 +42,7 @@ paths:
       summary: Add a new pet to the store
       description: Add a new pet to the store
       operationId: addPet
+      deprecated: true
       responses:
         '200':
           description: Successful operation
@@ -121,6 +124,7 @@ paths:
           description: Status values that need to be considered for filter
           required: false
           explode: true
+          example: pending
           schema:
             type: string
             enum:
@@ -238,6 +242,13 @@ paths:
         - name: name
           in: query
           description: Name of pet that needs to be updated
+          deprecated: true
+          explode: true
+          allowEmptyValue: true
+          allowReserved: true
+          required: false
+          style: form
+          example: "A name"
           schema:
             type: string
         - name: status
@@ -245,6 +256,22 @@ paths:
           description: Status of pet that needs to be updated
           schema:
             type: string
+        - name: debug
+          in: cookie
+          description: Whether to debug the response
+          schema:
+            type: number
+        - in: query
+          name: filter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  color:
+                    type: string
       responses:
         '405':
           description: Invalid input
@@ -474,6 +501,20 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/User'
+          links:
+            GetUserByUserName:
+              operationId: getUserByName
+              parameters:
+                username: '$request.body#/username'
+              description: >
+                The `username` value from the request body to be used as
+                the `username` parameter in `GET /users/{username}`.
+            GetUserByRef:
+              operationRef: '#/paths/user/{username}/get'
+              parameters:
+                username: '$request.body#/username'
+              description: >
+                This uses `operationRef` instead of `operationId`.
       requestBody:
         content:
           application/json:
@@ -568,19 +609,23 @@ paths:
         default:
           description: successful operation
   '/user/{username}':
+    summary: Represents a user
+    description: >
+      This resource represents an individual user in the system.
+      Each user is identified by a numeric `id`.
+    parameters:
+      - name: username
+        in: path
+        description: 'The name that needs to be fetched. Use user1 for testing. '
+        required: true
+        schema:
+          type: string
     get:
       tags:
         - user
       summary: Get user by user name
       description: ''
       operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: 'The name that needs to be fetched. Use user1 for testing. '
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: successful operation
@@ -642,6 +687,33 @@ paths:
           description: Invalid username supplied
         '404':
           description: User not found
+  /unions:
+    patch:
+      summary: An oneOf body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+      responses:
+        '200':
+          description: Updated
+    post:
+      summary: An allOf body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+              discriminator:
+                propertyName: pet_type
+      responses:
+        '200':
+          description: Updated
 externalDocs:
   description: Find out more about Swagger
   url: 'http://swagger.io'

@@ -1,5 +1,6 @@
 export default {
   files: 'test/**/*.test.js',
+  // files: 'test/serializer/*.test.js',
   // files: 'test/elements/ApiServerSelectorElement.test.js',
   // files: 'test/authorization/CustomMethod.test.js',
   nodeResolve: true,

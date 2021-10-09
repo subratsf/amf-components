@@ -4,7 +4,6 @@
 // eslint-disable-next-line no-unused-vars
 import { html } from 'lit-element';
 import { dedupeMixin } from '@open-wc/dedupe-mixin';
-import { ns } from '@api-components/amf-helper-mixin';
 import { ApiSchemaValues } from '@api-components/api-schema';
 import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
@@ -17,18 +16,19 @@ import '@anypoint-web-components/anypoint-switch/anypoint-switch.js';
 import '@advanced-rest-client/arc-icons/arc-icon.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js'
 import { classMap } from 'lit-html/directives/class-map.js';
+import { ns } from '../helpers/Namespace.js';
 import * as InputCache from './InputCache.js';
 import { readLabelValue } from './Utils.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiUnionShape} ApiUnionShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiTupleShape} ApiTupleShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiAnyShape} ApiAnyShape */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiUnionShape} ApiUnionShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiTupleShape} ApiTupleShape */
+/** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
 /** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
 /** @typedef {import('@anypoint-web-components/anypoint-input').SupportedInputTypes} SupportedInputTypes */
 /** @typedef {import('@anypoint-web-components/anypoint-checkbox').AnypointCheckbox} AnypointCheckbox */

@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { ns } from '@api-components/amf-helper-mixin';
+import { ns } from '../helpers/Namespace.js';
 import ApiSecurityDocumentElement, {
   settingsTemplate,
   securityValue,
@@ -9,8 +9,8 @@ import ApiSecurityDocumentElement, {
 } from "./ApiSecurityDocumentElement.js";
 import elementStyles from './styles/ParametrizedSecurityElement.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
+/** @typedef {import('../helpers/api').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
+/** @typedef {import('../helpers/api').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 
 export const settingsIdValue = Symbol('settingsIdValue');

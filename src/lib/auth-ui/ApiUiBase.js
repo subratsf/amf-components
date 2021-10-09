@@ -12,8 +12,8 @@ import '@advanced-rest-client/arc-icons/arc-icon.js';
 import { AmfParameterMixin } from '../AmfParameterMixin.js';
 
 /** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 
 const securityValue = Symbol("securityValue");
 const apiValue = Symbol("apiValue");

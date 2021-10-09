@@ -6,7 +6,7 @@ import { loadMonaco } from '../MonacoSetup.js';
 import { EventTypes } from '../../src/events/EventTypes.js';
 import { propagateResponse, responseHandler } from '../../src/elements/ApiRequestElement.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../../').ApiRequestElement} ApiRequestElement */
 /** @typedef {import('../../').ApiRequestEditorElement} ApiRequestEditorElement */
 /** @typedef {import('../../src/types').ApiConsoleResponse} ApiConsoleResponse */

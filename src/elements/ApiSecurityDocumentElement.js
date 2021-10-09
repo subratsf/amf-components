@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
-import { ns } from '@api-components/amf-helper-mixin';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import '@advanced-rest-client/highlight/arc-marked.js';
 import '@anypoint-web-components/anypoint-tabs/anypoint-tab.js';
 import '@anypoint-web-components/anypoint-tabs/anypoint-tabs.js';
+import { ns } from '../helpers/Namespace.js';
 import { 
   ApiDocumentationBase, 
   paramsSectionTemplate, 
@@ -20,16 +20,16 @@ import '../../api-parameter-document.js';
 import '../../api-response-document.js'
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityScheme} ApiSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityOpenIdConnectSettings} ApiSecurityOpenIdConnectSettings */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityScope} ApiSecurityScope */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiResponse} ApiResponse */
-/** @typedef {import('@api-components/amf-helper-mixin').SecurityScheme} SecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
+/** @typedef {import('../helpers/api').ApiSecurityScheme} ApiSecurityScheme */
+/** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../helpers/api').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
+/** @typedef {import('../helpers/api').ApiSecurityOpenIdConnectSettings} ApiSecurityOpenIdConnectSettings */
+/** @typedef {import('../helpers/api').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
+/** @typedef {import('../helpers/api').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
+/** @typedef {import('../helpers/api').ApiSecurityScope} ApiSecurityScope */
+/** @typedef {import('../helpers/api').ApiResponse} ApiResponse */
+/** @typedef {import('../helpers/amf').SecurityScheme} SecurityScheme */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('@anypoint-web-components/anypoint-tabs').AnypointTabs} AnypointTabs */
 
 export const querySecurity = Symbol('querySecurity');

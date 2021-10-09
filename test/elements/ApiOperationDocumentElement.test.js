@@ -7,9 +7,9 @@ import '../../api-request-document.js';
 /** @typedef {import('../../').ApiOperationDocumentElement} ApiOperationDocumentElement */
 /** @typedef {import('../../').ApiRequestDocumentElement} ApiRequestDocumentElement */
 /** @typedef {import('../../').ApiParameterDocumentElement} ApiParameterDocumentElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').Operation} Operation */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/amf').Operation} Operation */
 /** @typedef {import('@anypoint-web-components/anypoint-tabs').AnypointTabs} AnypointTabs */
 
 describe('ApiOperationDocumentElement', () => {

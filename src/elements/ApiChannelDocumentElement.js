@@ -12,7 +12,7 @@ import '../../api-operation-document.js'
 import '../../api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiOperation} ApiOperation */
+/** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
 
 /**
  * A web component that renders the async API Channel documentation page

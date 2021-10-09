@@ -1,15 +1,15 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
-import { ns } from '@api-components/amf-helper-mixin';
 import Oauth1, { defaultSignatureMethods } from '@advanced-rest-client/authorization/src/lib/ui/OAuth1.js';
+import { ns } from '../../helpers/Namespace.js';
 
 const securityValue = Symbol("securityValue");
 const apiValue = Symbol("apiValue");
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityOAuth1Settings} ApiSecurityOAuth1Settings */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../../helpers/api').ApiSecurityOAuth1Settings} ApiSecurityOAuth1Settings */
+/** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
 
 export default class OAuth1Auth extends Oauth1 {
   /**

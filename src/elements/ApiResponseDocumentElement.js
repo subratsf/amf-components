@@ -21,11 +21,11 @@ import {
 } from './ApiDocumentationBase.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiResponse} ApiResponse */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').Response} Response */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiTemplatedLink} ApiTemplatedLink */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiIriTemplateMapping} ApiIriTemplateMapping */
+/** @typedef {import('../helpers/api').ApiResponse} ApiResponse */
+/** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../helpers/amf').Response} Response */
+/** @typedef {import('../helpers/api').ApiTemplatedLink} ApiTemplatedLink */
+/** @typedef {import('../helpers/api').ApiIriTemplateMapping} ApiIriTemplateMapping */
 /** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
 
 export const queryResponse = Symbol('queryResponse');

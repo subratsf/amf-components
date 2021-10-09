@@ -2,7 +2,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import { html, LitElement } from 'lit-element';
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
 import '@anypoint-web-components/anypoint-input/anypoint-input.js';
 import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
@@ -12,10 +11,12 @@ import { close } from '@advanced-rest-client/arc-icons/ArcIcons.js';
 import elementStyles from './styles/ServerSelector.js';
 import { ServerEvents } from '../events/ServerEvents.js';
 import { EventTypes } from '../events/EventTypes.js';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
+import { AmfSerializer } from '../helpers/AmfSerializer.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
+/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../types').SelectionInfo} SelectionInfo */
 /** @typedef {import('../types').UpdateServersOptions} UpdateServersOptions */
 

@@ -2,7 +2,7 @@
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent } from './BaseEvents.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSummary} ApiSummary */
+/** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
 
 
 export const ApiEvents = {

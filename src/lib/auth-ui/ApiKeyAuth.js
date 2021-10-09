@@ -1,11 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-html';
-import { ns } from '@api-components/amf-helper-mixin';
+import { ns } from '../../helpers/Namespace.js';
 import ApiUiBase from './ApiUiBase.js';
 import * as InputCache from '../InputCache.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
+/** @typedef {import('../../helpers/api').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
 /** @typedef {import('../../types').OperationParameter} OperationParameter */
 

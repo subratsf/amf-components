@@ -3,9 +3,9 @@ import { AmfLoader } from '../AmfLoader.js';
 import '../../api-response-document.js';
 
 /** @typedef {import('../../').ApiResponseDocumentElement} ApiResponseDocumentElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').Response} Response */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/amf').Response} Response */
 
 describe('ApiResponseDocumentElement', () => {
   const loader = new AmfLoader();

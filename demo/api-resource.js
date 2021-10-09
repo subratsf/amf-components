@@ -4,11 +4,11 @@ import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
 import '@anypoint-web-components/anypoint-dialog/anypoint-dialog.js';
 import '@anypoint-web-components/anypoint-dialog/anypoint-dialog-scrollable.js';
 import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@api-components/api-server-selector/api-server-selector.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-resource-document.js';
 import '../api-request.js';
 import '../xhr-simple-request.js';
+import '../api-server-selector.js';
 
 class ComponentPage extends AmfDemoBase {
   constructor() {

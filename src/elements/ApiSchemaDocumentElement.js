@@ -2,13 +2,13 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
 import { classMap } from "lit-html/directives/class-map";
-import { ns } from '@api-components/amf-helper-mixin';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import { ApiSchemaGenerator } from '@api-components/api-schema';
 import '@advanced-rest-client/highlight/arc-marked.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
 import { chevronRight } from '@advanced-rest-client/arc-icons';
+import { ns } from '../helpers/Namespace.js';
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiSchema.js';
 import schemaStyles from './styles/SchemaCommon.js';
@@ -33,19 +33,19 @@ import {
 } from './ApiDocumentationBase.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').Shape} Shape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShape} ApiShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiExample} ApiExample */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiUnionShape} ApiUnionShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiFileShape} ApiFileShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSchemaShape} ApiSchemaShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiAnyShape} ApiAnyShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiTupleShape} ApiTupleShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPropertyShape} ApiPropertyShape */
+/** @typedef {import('../helpers/amf').Shape} Shape */
+/** @typedef {import('../helpers/api').ApiShape} ApiShape */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiExample} ApiExample */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../helpers/api').ApiUnionShape} ApiUnionShape */
+/** @typedef {import('../helpers/api').ApiFileShape} ApiFileShape */
+/** @typedef {import('../helpers/api').ApiSchemaShape} ApiSchemaShape */
+/** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiTupleShape} ApiTupleShape */
+/** @typedef {import('../helpers/api').ApiPropertyShape} ApiPropertyShape */
 /** @typedef {import('@api-components/api-schema').SchemaExample} SchemaExample */
 
 export const mimeTypeValue = Symbol('mimeTypeValue');

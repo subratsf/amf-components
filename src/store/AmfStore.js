@@ -1,8 +1,9 @@
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
+import { AmfSerializer } from '../helpers/AmfSerializer.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSummary} ApiSummary */
+/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
 
 /**
  * The store that provides an API to read data from the AMF graph model.

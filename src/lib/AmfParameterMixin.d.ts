@@ -7,7 +7,7 @@ import {
   ApiShapeUnion, 
   ApiTupleShape, 
   ApiUnionShape,
-} from '@api-components/amf-helper-mixin';
+} from '../helpers/api';
 import { TemplateResult } from 'lit-element';
 import { OperationParameter, ShapeTemplateOptions, ParameterRenderOptions } from '../types';
 

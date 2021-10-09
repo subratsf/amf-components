@@ -5,9 +5,9 @@ import { loadMonaco } from '../MonacoSetup.js';
 import '../../api-resource-document.js';
 
 /** @typedef {import('../../').ApiResourceDocumentElement} ApiResourceDocumentElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').Response} Response */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/amf').Response} Response */
 
 describe('ApiResourceDocumentElement', () => {
   const loader = new AmfLoader();

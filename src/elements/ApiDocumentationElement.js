@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
-import '@api-components/api-server-selector/api-server-selector.js'
 import elementStyles from './styles/ApiDocumentation.js';
 import { 
   ApiDocumentationBase,
@@ -14,14 +13,15 @@ import '../../api-resource-document.js';
 import '../../api-security-document.js';
 import '../../api-documentation-document.js';
 import '../../api-schema-document.js';
+import '../../api-server-selector.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').EndPoint} EndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').Operation} Operation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSummary} ApiSummary */
-/** @typedef {import('@api-components/api-server-selector').ServerType} ServerType */
+/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/amf').EndPoint} EndPoint */
+/** @typedef {import('../helpers/amf').Operation} Operation */
+/** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
+/** @typedef {import('../types').ServerType} ServerType */
 
 export const operationIdValue = Symbol('operationIdValue');
 export const domainTypeValue = Symbol('domainTypeValue');

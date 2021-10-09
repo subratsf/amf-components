@@ -2,7 +2,7 @@ import { html } from 'lit-html';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-payload-document.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').Payload} Payload */
+/** @typedef {import('../').Amf.Payload} Payload */
 /** 
  * @typedef ResponsePayload 
  * @property {string} code

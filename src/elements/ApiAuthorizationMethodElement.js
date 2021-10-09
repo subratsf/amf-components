@@ -36,8 +36,8 @@ export const settingsHandler = Symbol("settingsHandler");
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
 /** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
 /** @typedef {import('@advanced-rest-client/authorization').AuthUiBase} AuthUiBase */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('../lib/auth-ui/CustomAuth').default} CustomAuth */
 /** @typedef {import('../lib/auth-ui/ApiKeyAuth').default} ApiKeyAuth */
 /** @typedef {import('../lib/auth-ui/ApiUiBase').default} ApiUiBase */

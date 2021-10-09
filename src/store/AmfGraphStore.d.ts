@@ -1,4 +1,4 @@
-import { DomainElement } from '@api-components/amf-helper-mixin';
+import { DomainElement } from '../helpers/amf';
 import { AmfStore } from './AmfStore.js';
 
 /**

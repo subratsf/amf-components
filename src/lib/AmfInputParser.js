@@ -1,19 +1,19 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import { ns } from '@api-components/amf-helper-mixin';
 import { ApiSchemaValues } from '@api-components/api-schema';
+import { ns } from '../helpers/Namespace.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiTupleShape} ApiTupleShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiUnionShape} ApiUnionShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiFileShape} ApiFileShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSchemaShape} ApiSchemaShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiAnyShape} ApiAnyShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiTupleShape} ApiTupleShape */
+/** @typedef {import('../helpers/api').ApiUnionShape} ApiUnionShape */
+/** @typedef {import('../helpers/api').ApiFileShape} ApiFileShape */
+/** @typedef {import('../helpers/api').ApiSchemaShape} ApiSchemaShape */
+/** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
+/** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
 /** @typedef {import('@anypoint-web-components/anypoint-input').SupportedInputTypes} SupportedInputTypes */
 
 

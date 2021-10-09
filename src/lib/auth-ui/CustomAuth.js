@@ -1,18 +1,18 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-html';
-import { ns } from '@api-components/amf-helper-mixin';
 import '@advanced-rest-client/highlight/arc-marked.js';
+import { ns } from '../../helpers/Namespace.js';
 import ApiUiBase from './ApiUiBase.js';
 import * as InputCache from '../InputCache.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ParametrizedSecurityScheme} ParametrizedSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPropertyShape} ApiPropertyShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../helpers/amf').ParametrizedSecurityScheme} ParametrizedSecurityScheme */
+/** @typedef {import('../../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../../helpers/api').ApiPropertyShape} ApiPropertyShape */
+/** @typedef {import('../../helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
 /** @typedef {import('../../types').OperationParameter} OperationParameter */
 
