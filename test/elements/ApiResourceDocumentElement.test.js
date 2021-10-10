@@ -294,8 +294,8 @@ describe('ApiResourceDocumentElement', () => {
         const element = await tryItPanelFixture(demoModel, data['@id']);
         await aTimeout(201);
         const editor = element.shadowRoot.querySelector('api-request');
-        const { selected } = editor;
-        const values = element[requestValues][selected];
+        const { domainId } = editor;
+        const values = element[requestValues][domainId];
         assert.typeOf(values, 'object', 'has values for a request editor');
         const snippets = editor.parentElement.querySelector('http-code-snippets');
         assert.equal(snippets.url, values.url, 'snippets.url is set');

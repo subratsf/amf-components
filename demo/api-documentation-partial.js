@@ -36,7 +36,6 @@ class ComponentDemo extends AmfDemoBase {
       'renderCustomServer',
       'summaryModel', 'partialModelDocs'
     ]);
-    // @ts-ignore
     this.store = new AmfPartialGraphStore();
     this.componentName = 'api-documentation';
     this.compatibility = false;
@@ -316,7 +315,7 @@ class ComponentDemo extends AmfDemoBase {
       <anypoint-dialog-scrollable>
         <api-request
           .amf="${this.summaryModel}"
-          .selected="${this.editorOperation}"
+          .domainId="${this.editorOperation}"
           ?compatibility="${this.compatibility}"
           urlLabel
           applyAuthorization

@@ -613,7 +613,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     const content = html`
     <api-request
       .amf="${this.amf}"
-      .selected="${operation.id}"
+      .domainId="${operation.id}"
       .serverValue="${this.serverValue}"
       .serverType="${this.serverType}"
       .baseUri="${this.baseUri}"

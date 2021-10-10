@@ -10,13 +10,13 @@ describe('ApiRequestEditorElement', () => {
   describe('SE-12042', () => {
     /**
      * @param {AmfDocument} amf
-     * @param {string} selected
+     * @param {string} domainId
      * @returns {Promise<ApiRequestEditorElement>}
      */
-    async function modelFixture(amf, selected) {
+    async function modelFixture(amf, domainId) {
       return (fixture(html`<api-request-editor
         .amf="${amf}"
-        .selected="${selected}"
+        .domainId="${domainId}"
         applyAuthorization></api-request-editor>`));
     }
 

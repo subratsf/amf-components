@@ -37,8 +37,8 @@ import '../../api-response-view.js';
 /** @typedef {import('../events/RequestEvents').ApiResponseEvent} ApiResponseEvent */
 /** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
-export const selectedValue = Symbol('selectedValue');
-export const selectedChanged = Symbol('selectedChanged');
+export const domainIdValue = Symbol('domainIdValue');
+export const domainIdChanged = Symbol('domainIdChanged');
 export const appendProxy = Symbol('appendProxy');
 export const propagateResponse = Symbol('propagateResponse');
 export const responseHandler = Symbol('responseHandler');
@@ -69,11 +69,11 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
        */
       amf: { type: Object },
       /**
-       * AMF HTTP method (operation in AMF vocabulary) ID.
+       * The domain id (AMF's id) of an API operation.
        */
-      selected: { type: String },
+      domainId: { type: String },
       /**
-       * By default application hosting the element must set `selected`
+       * By default application hosting the element must set `domainId`
        * property. When using `api-navigation` element
        * by setting this property the element listens for navigation events
        * and updates the state
@@ -223,19 +223,19 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     };
   }
 
-  get selected() {
-    return this[selectedValue];
+  get domainId() {
+    return this[domainIdValue];
   }
 
-  set selected(value) {
-    const old = this[selectedValue];
+  set domainId(value) {
+    const old = this[domainIdValue];
     /* istanbul ignore if */
     if (old === value) {
       return;
     }
-    this[selectedValue] = value;
-    this.requestUpdate('selected', old);
-    this[selectedChanged](value);
+    this[domainIdValue] = value;
+    this.requestUpdate('domainId', old);
+    this[domainIdChanged](value);
   }
 
   constructor() {
@@ -439,10 +439,10 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   }
 
   /**
-   * Clears response panel when selected id changed.
-   * @param {String} id
+   * Clears response panel when the `domainId` change.
+   * @param {string} id
    */
-  [selectedChanged](id) {
+  [domainIdChanged](id) {
     if (!id) {
       return;
     }
@@ -471,7 +471,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   [navigationHandler](e) {
     if (this.handleNavigationEvents) {
       const { domainId, domainType } = e.detail;
-      this.selected = domainType === 'operation' ? domainId : undefined;
+      this.domainId = domainType === 'operation' ? domainId : undefined;
     }
   }
 
@@ -492,7 +492,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   [requestTemplate]() {
     const {
       redirectUri,
-      selected,
+      domainId,
       amf,
       urlEditor,
       urlLabel,
@@ -514,7 +514,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     return html`
     <api-request-editor
       .redirectUri="${redirectUri}"
-      .selected="${selected}"
+      .domainId="${domainId}"
       .amf="${amf}"
       ?urlEditor="${urlEditor}"
       ?urlLabel="${urlLabel}"

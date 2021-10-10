@@ -97,11 +97,10 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    */
   mimeType: string;
   /**
-  * An `@id` of selected AMF shape. When changed it computes
-  * method model for the selection.
+  * The domain id (AMF's id) of an API operation.
   * @attribute
   */
-  selected: string;
+  domainId: string;
   [domainIdValue]: string;
   /**
   * When set it renders a label with the computed URL.
@@ -389,7 +388,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   /**
    * @returns AMF graph model for an operation
    */
-  [computeMethodAmfModel](model: AmfDocument, selected: string): Operation|undefined;
+  [computeMethodAmfModel](model: AmfDocument, domainId: string): Operation|undefined;
 
   /**
    * Handles send button click.

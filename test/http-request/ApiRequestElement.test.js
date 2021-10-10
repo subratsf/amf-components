@@ -22,55 +22,55 @@ describe('ApiRequestElement', () => {
 
   /**
    * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function basicFixture(model, selected) {
-    return fixture(html`<api-request .amf="${model}" .selected="${selected}"></api-request>`);
+  async function basicFixture(model, domainId) {
+    return fixture(html`<api-request .amf="${model}" .domainId="${domainId}"></api-request>`);
   }
 
   /**
    * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function proxyFixture(model, selected) {
+  async function proxyFixture(model, domainId) {
     return fixture(
-      html`<api-request .amf="${model}" .selected="${selected}" proxy="https://proxy.domain.com/"></api-request>`
+      html`<api-request .amf="${model}" .domainId="${domainId}" proxy="https://proxy.domain.com/"></api-request>`
     );
   }
 
   /**
    * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function proxyEncFixture(model, selected) {
+  async function proxyEncFixture(model, domainId) {
     return fixture(html`<api-request
       .amf="${model}"
-      .selected="${selected}"
+      .domainId="${domainId}"
       proxy="https://proxy.domain.com/"
       proxyEncodeUrl></api-request>`);
   }
 
   /**
    * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function addHeadersFixture(model, selected) {
+  async function addHeadersFixture(model, domainId) {
     const headers = [{"name": "x-test", "value": "header-value"}];
-    return fixture(html`<api-request .amf="${model}" .selected="${selected}" .appendHeaders="${headers}"></api-request>`);
+    return fixture(html`<api-request .amf="${model}" .domainId="${domainId}" .appendHeaders="${headers}"></api-request>`);
   }
 
   /**
    * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function navigationFixture(model, selected) {
+  async function navigationFixture(model, domainId) {
     return fixture(
-      html`<api-request .amf="${model}" .selected="${selected}" handleNavigationEvents></api-request>`
+      html`<api-request .amf="${model}" .domainId="${domainId}" handleNavigationEvents></api-request>`
     );
   }
 
@@ -217,7 +217,7 @@ describe('ApiRequestElement', () => {
 
     it('Changing selection clears response', () => {
       propagate(element);
-      element.selected = 'test';
+      element.domainId = 'test';
       assert.isUndefined(element.request);
       assert.isUndefined(element.response);
     });
@@ -240,13 +240,13 @@ describe('ApiRequestElement', () => {
     it('sets the "domainId" when the domainType is "operation"', () => {
       const id = '%2Ftest-parameters%2F%7Bfeature%7D/get';
       NavigationEvents.apiNavigate(document.body, id, 'operation');
-      assert.equal(element.selected, id);
+      assert.equal(element.domainId, id);
     });
 
     it('"does not set the "domainId" when type is not "operation"', () => {
       const id = '%2Ftest-parameters%2F%7Bfeature%7D';
       NavigationEvents.apiNavigate(document.body, id, 'resource');
-      assert.isUndefined(element.selected);
+      assert.isUndefined(element.domainId);
     });
   });
 
@@ -312,7 +312,7 @@ describe('ApiRequestElement', () => {
       const spy = sinon.spy();
       panel.addEventListener('change', spy);
       const other = store.lookupOperation(model, '/people', 'post');
-      panel.selected = other['@id'];
+      panel.domainId = other['@id'];
       await nextFrame();
       assert.isTrue(spy.called);
     });

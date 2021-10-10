@@ -15,7 +15,7 @@ describe('ApiRequestEditorElement', () => {
     async function modelFixture(amf, selected) {
       return (fixture(html`<api-request-editor
         .amf="${amf}"
-        .selected="${selected}"></api-request-editor>`));
+        .domainId="${selected}"></api-request-editor>`));
     }
 
     const apiFile = 'APIC-289';

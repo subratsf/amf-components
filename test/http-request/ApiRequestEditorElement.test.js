@@ -51,7 +51,7 @@ describe('ApiRequestEditorElement', () => {
   async function modelFixture(model, selected) {
     return (fixture(html`<api-request-editor
       .amf="${model}"
-      .selected="${selected}"></api-request-editor>`));
+      .domainId="${selected}"></api-request-editor>`));
   }
 
   /**
@@ -62,7 +62,7 @@ describe('ApiRequestEditorElement', () => {
   async function urlEditorFixture(model, selected) {
     return (fixture(html`<api-request-editor
       .amf="${model}"
-      .selected="${selected}"
+      .domainId="${selected}"
       urlEditor></api-request-editor>`));
   }
 
@@ -74,7 +74,7 @@ describe('ApiRequestEditorElement', () => {
   async function urlLabelFixture(model, selected) {
     return (fixture(html`<api-request-editor
       .amf="${model}"
-      .selected="${selected}"
+      .domainId="${selected}"
       urlLabel></api-request-editor>`));
   }
 
@@ -108,7 +108,7 @@ describe('ApiRequestEditorElement', () => {
   async function hideOptionalFixture(model, selected) {
     return (fixture(html`<api-request-editor
       .amf="${model}"
-      .selected="${selected}"
+      .domainId="${selected}"
       allowHideOptional></api-request-editor>`));
   }
 
@@ -674,7 +674,7 @@ describe('ApiRequestEditorElement', () => {
           const element = await modelFixture(model, postMethod['@id']);
           await aTimeout(0);
           const getMethod = store.lookupOperation(model, '/people', 'get');
-          element.selected = getMethod['@id'];
+          element.domainId = getMethod['@id'];
           await aTimeout(0);
           const result = element.serialize();
           assert.isUndefined(result.payload);
@@ -685,7 +685,7 @@ describe('ApiRequestEditorElement', () => {
           const element = await modelFixture(model, postMethod['@id']);
           await aTimeout(0);
           const getMethod = store.lookupOperation(model, '/people', 'head');
-          element.selected = getMethod['@id'];
+          element.domainId = getMethod['@id'];
           await aTimeout(0);
           const result = element.serialize();
           assert.isUndefined(result.payload);
@@ -764,7 +764,7 @@ describe('ApiRequestEditorElement', () => {
         beforeEach(async () => {
           element = await customBaseUriSlotFixture(model);
           const op = store.lookupOperation(model, '/people/{personId}', 'get')
-          element.selected = op['@id'];
+          element.domainId = op['@id'];
           await aTimeout(0);
         });
 
@@ -1132,11 +1132,11 @@ describe('ApiRequestEditorElement', () => {
     }
 
     /**
-     * @param {Object} element
-     * @param {String} selected
+     * @param {ApiRequestEditorElement} element
+     * @param {string} domainId
      */
-    function changeSelection(element, selected) {
-      element.selected = selected;
+    function changeSelection(element, domainId) {
+      element.domainId = domainId;
     }
 
     describe(compact ? 'Compact model' : 'Full model', () => {

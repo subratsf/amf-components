@@ -242,7 +242,7 @@ class ComponentDemo extends AmfDemoBase {
       <anypoint-dialog-scrollable>
         <api-request
           .amf="${this.amf}"
-          .selected="${this.editorOperation}"
+          .domainId="${this.editorOperation}"
           ?compatibility="${this.compatibility}"
           urlLabel
           applyAuthorization

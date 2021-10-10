@@ -188,7 +188,7 @@ class ComponentDemo extends AmfDemoBase {
       <div slot="content">
         <api-request
           .amf="${amf}"
-          .selected="${selectedAmfId}"
+          .domainId="${selectedAmfId}"
           ?allowCustom="${allowCustom}"
           ?allowHideOptional="${allowHideOptional}"
           ?outlined="${outlined}"

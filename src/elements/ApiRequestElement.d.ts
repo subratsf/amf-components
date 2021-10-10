@@ -19,8 +19,8 @@ import { Oauth2Credentials } from '@advanced-rest-client/authorization';
 import { ServerType, ApiConsoleResponse, ApiConsoleRequest } from '../types';
 import { ApiRequestEvent, ApiResponseEvent } from '../events/RequestEvents';
 
-export const selectedValue: unique symbol;
-export const selectedChanged: unique symbol;
+export const domainIdValue: unique symbol;
+export const domainIdChanged: unique symbol;
 export const appendProxy: unique symbol;
 export const propagateResponse: unique symbol;
 export const responseHandler: unique symbol;
@@ -42,18 +42,18 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
    */
   amf: AmfDocument;
   /**
-  * AMF HTTP method (operation in AMF vocabulary) ID.
+  * The domain id (AMF's id) of an API operation.
   * @attribute
   */
-  selected: string;
-  [selectedValue]: string;
+  domainId: string;
+  [domainIdValue]: string;
   /**
-  * By default application hosting the element must set `selected`
-  * property. When using `api-navigation` element
-  * by setting this property the element listens for navigation events
-  * and updates the state
-  * @attribute
-  */
+   * By default application hosting the element must set `domainId`
+   * property. When using `api-navigation` element
+   * by setting this property the element listens for navigation events
+   * and updates the state
+   * @attribute
+   */
   handleNavigationEvents: boolean;
   /**
   * When set it renders the URL input above the URL parameters.
@@ -96,7 +96,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   /**
   * Created by the transport ARC `response` object.
   */
-  response: ArcResponse.Response|ArcResponse.ErrorResponse;
+  response: ArcResponse.Response | ArcResponse.ErrorResponse;
   /**
   * Forces the console to send headers defined in this string overriding any used defined
   * header.
@@ -129,7 +129,6 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   * @attribute
   */
   proxyEncodeUrl: boolean;
-  
   /**
   * ID of latest request.
   * It is received from the `api-request-editor` when `api-request`
@@ -257,9 +256,9 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   [propagateResponse](data: ApiConsoleResponse): void;
 
   /**
-   * Clears response panel when selected id changed.
+   * Clears response panel when the `domainId` change.
    */
-  [selectedChanged](id: string): void;
+  [domainIdChanged](id: string): void;
 
   /**
    * Clears response panel.
@@ -288,5 +287,5 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   /**
    * @returns A template for the response view
    */
-  [responseTemplate](): TemplateResult|string;
+  [responseTemplate](): TemplateResult | string;
 }

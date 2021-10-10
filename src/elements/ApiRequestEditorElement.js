@@ -150,10 +150,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
        */
       mimeType: { type: String, reflect: true, },
       /**
-       * An `@id` of selected AMF shape. When changed it computes
-       * method model for the selection.
+       * The domain id (AMF's id) of an API operation.
        */
-      selected: { type: String },
+      domainId: { type: String },
       /**
        * When set it renders a label with the computed URL.
        */
@@ -261,21 +260,21 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   /**
    * @returns {string} The domain id (AMF id) of the rendered operation.
    */
-  get selected() {
+  get domainId() {
     return this[domainIdValue];
   }
 
   /**
    * @param {string} value The domain id (AMF id) of the rendered operation.
    */
-  set selected(value) {
+  set domainId(value) {
     const old = this[domainIdValue];
     /* istanbul ignore if */
     if (old === value) {
       return;
     }
     this[domainIdValue] = value;
-    this.requestUpdate('selected', old);
+    this.requestUpdate('domainId', old);
     this[processSelection]();
     this.readUrlData();
     this.notifyChange();
@@ -678,12 +677,12 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   }
 
   [processSelection]() {
-    const { amf, selected } = this;
-    if (!amf || !selected) {
+    const { amf, domainId } = this;
+    if (!amf || !domainId) {
       this.reset();
       return;
     }
-    const model = this[computeMethodAmfModel](amf, selected);
+    const model = this[computeMethodAmfModel](amf, domainId);
     if (!model) {
       this.reset();
       return;
@@ -701,15 +700,15 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * Searches for the current operation endpoint and sets variables from the endpoint definition.
    */
   [processEndpoint]() {
-    const { amf, selected } = this;
-    if (!selected) {
+    const { amf, domainId } = this;
+    if (!domainId) {
       this[endpointValue] = undefined;
       this[updateEndpointParameters]();
       this[computeUrlRegexp]();
       return;
     }
     const wa = this._computeWebApi(amf);
-    const model = this._computeMethodEndpoint(wa, this.selected);
+    const model = this._computeMethodEndpoint(wa, domainId);
     const factory = new AmfSerializer(amf);
     const endpoint = factory.endPoint(model);
     this[endpointValue] = endpoint;
@@ -858,7 +857,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * endpoint model is set.
    */
   [processServers]() {
-    const { selected: methodId } = this;
+    const { domainId: methodId } = this;
     const endpoint = this[endpointValue];
     const endpointId = endpoint ? endpoint.id : '';
     const servers = this._getServers({ endpointId, methodId });
@@ -871,11 +870,11 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
 
   /**
    * @param {any} model
-   * @param {string} selected
+   * @param {string} domainId
    * @returns {Operation|undefined} AMF graph model for an operation
    */
-  [computeMethodAmfModel](model, selected) {
-    if (!model || !selected) {
+  [computeMethodAmfModel](model, domainId) {
+    if (!model || !domainId) {
       return undefined;
     }
     let api = model;
@@ -884,14 +883,14 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     }
     if (this._hasType(api, this.ns.aml.vocabularies.document.Document)) {
       const webApi = this._computeWebApi(api);
-      return this._computeMethodModel(webApi, selected);
+      return this._computeMethodModel(webApi, domainId);
     }
     const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation);
     const methods = this._ensureArray(api[key]);
     if (!methods) {
       return undefined;
     }
-    return methods.find((item) => item['@id'] === selected);
+    return methods.find((item) => item['@id'] === domainId);
   }
 
   /**
@@ -987,7 +986,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   serialize() {
     const op = this[operationValue];
     if (!op) {
-      throw new Error(`No API is operation defined on the editor`);
+      throw new Error(`No API operation defined on the editor`);
     }
     const method = (op.method || 'get').toUpperCase();
     const params = [];
@@ -1537,7 +1536,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
       outlined,
       compatibility,
       serverSelectorHidden,
-      selected,
+      domainId,
     } = this;
     return html`
     <api-server-selector
@@ -1546,7 +1545,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
       .amf="${amf}"
       .value="${serverValue}"
       .type="${serverType}"
-      .selectedShape="${selected}"
+      .selectedShape="${domainId}"
       selectedShapeType="method"
       autoSelect
       ?compatibility="${compatibility}"

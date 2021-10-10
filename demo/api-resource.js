@@ -246,7 +246,7 @@ class ComponentPage extends AmfDemoBase {
       <anypoint-dialog-scrollable>
         <api-request
           .amf="${this.amf}"
-          .selected="${this.selectedOperation}"
+          .domainId="${this.selectedOperation}"
           ?compatibility="${this.compatibility}"
           urlLabel
           applyAuthorization
