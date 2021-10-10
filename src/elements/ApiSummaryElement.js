@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
-import { Styles as HttpStyles } from '@api-components/http-method-label';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import '@advanced-rest-client/highlight/arc-marked.js';
+import HttpStyles from './styles/HttpLabel.js';
 import elementStyles from './styles/ApiSummary.js';
 import commonStyles from './styles/Common.js';
 import { 
@@ -54,7 +54,7 @@ export const methodTemplate = Symbol('methodTemplate');
  */
 export default class ApiSummaryElement extends ApiDocumentationBase {
   get styles() {
-    return [elementStyles, commonStyles, HttpStyles.default, MarkdownStyles];
+    return [elementStyles, commonStyles, HttpStyles, MarkdownStyles];
   }
 
   /**

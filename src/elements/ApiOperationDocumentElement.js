@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
-import { Styles as HttpStyles } from '@api-components/http-method-label';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import { ApiSchemaValues, ApiSchemaGenerator } from '@api-components/api-schema';
 import '@advanced-rest-client/highlight/arc-marked.js';
@@ -9,6 +8,7 @@ import '@anypoint-web-components/anypoint-tabs/anypoint-tab.js';
 import '@anypoint-web-components/anypoint-tabs/anypoint-tabs.js';
 import '@advanced-rest-client/arc-icons/arc-icon.js';
 import '@advanced-rest-client/http-code-snippets/http-code-snippets.js';
+import HttpStyles from './styles/HttpLabel.js';
 import { ns } from "../helpers/Namespace.js";
 import { QueryParameterProcessor } from '../lib/QueryParameterProcessor.js';
 import elementStyles from './styles/ApiOperation.js';
@@ -95,7 +95,7 @@ export const computeOperationModel = Symbol('computeOperationModel');
  */
 export default class ApiOperationDocumentElement extends ApiDocumentationBase {
   get styles() {
-    return [elementStyles, commonStyles, HttpStyles.default, MarkdownStyles, schemaStyles];
+    return [elementStyles, commonStyles, HttpStyles, MarkdownStyles, schemaStyles];
   }
 
   /** 
