@@ -707,8 +707,21 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
       this[computeUrlRegexp]();
       return;
     }
-    const wa = this._computeWebApi(amf);
-    const model = this._computeMethodEndpoint(wa, domainId);
+    let model;
+    if (this._hasType(amf, this.ns.aml.vocabularies.apiContract.EndPoint)) {
+      model = amf;
+    } else {
+      const wa = this._computeWebApi(amf);
+      if (wa) {
+        model = this._computeMethodEndpoint(wa, domainId);
+      }
+    }
+    if (!model) {
+      this[endpointValue] = undefined;
+      this[updateEndpointParameters]();
+      this[computeUrlRegexp]();
+      return;
+    }
     const factory = new AmfSerializer(amf);
     const endpoint = factory.endPoint(model);
     this[endpointValue] = endpoint;

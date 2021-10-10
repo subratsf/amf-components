@@ -36,7 +36,7 @@ class ComponentDemo extends AmfDemoBase {
       'renderCustomServer',
       'summaryModel', 'partialModelDocs'
     ]);
-    this.store = new AmfPartialGraphStore();
+    this.partialStore = new AmfPartialGraphStore();
     this.componentName = 'api-documentation';
     this.compatibility = false;
     this.editorOpened = false;
@@ -45,7 +45,7 @@ class ComponentDemo extends AmfDemoBase {
     this.domainType = undefined;
     this.operationId = undefined;
     this.tryItButton = true;
-    this.tryItPanel = false;
+    this.tryItPanel = true;
     this.overrideBaseUri = false;
     this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
     // this.redirectUri = 'https://auth.advancedrestclient.com/oauth-popup.html';
@@ -67,14 +67,14 @@ class ComponentDemo extends AmfDemoBase {
     if (Array.isArray(amf)) {
       [amf] = amf;
     }
-    this.store.amf = amf;
+    this.partialStore.amf = amf;
     this.context = amf['@context'];
     await this.loadSummary();
   }
   
   async loadSummary() {
     // debugger
-    const model = this.store.summary();
+    const model = this.partialStore.summary();
     this.summaryModel = model;
     this.partialModelDocs = model;
     console.log(model);
@@ -91,26 +91,26 @@ class ComponentDemo extends AmfDemoBase {
     }
     this.operationId = undefined;
     if (domainType === 'schema') {
-      this.partialModelDocs = this.store.schema(domainId, this.context);
+      this.partialModelDocs = this.partialStore.schema(domainId, this.context);
       this.domainId = domainId;
       this.domainType = domainType;
       return;
     }
     if (domainType === 'security') {
-      this.partialModelDocs = this.store.securityRequirement(domainId, this.context);
+      this.partialModelDocs = this.partialStore.securityRequirement(domainId, this.context);
       this.domainId = domainId;
       this.domainType = domainType;
       return;
     }
     if (domainType === 'resource') {
-      this.partialModelDocs = this.store.endpoint(domainId, this.context);
+      this.partialModelDocs = this.partialStore.endpoint(domainId, this.context);
       this.domainId = domainId;
       this.domainType = domainType;
       return
     }
     if (domainType === 'operation') {
       if (!this.partialModelDocs || this.partialModelDocs['@id'] !== parentId) {
-        this.partialModelDocs = this.store.endpoint(parentId, this.context);
+        this.partialModelDocs = this.partialStore.endpoint(parentId, this.context);
       }
       this.domainId = parentId;
       this.operationId = domainId;

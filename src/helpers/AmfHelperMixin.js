@@ -1035,6 +1035,9 @@ export const AmfHelperMixin = (base) => class extends base {
    * @returns {EndPoint} An endpoint definition
    */
   _computeEndpointModel(webApi, id) {
+    if (this._hasType(webApi, this.ns.aml.vocabularies.apiContract.EndPoint)) {
+      return webApi;
+    }
     const endpoints = this._computeEndpoints(webApi);
     if (!endpoints) {
       return undefined;
@@ -1106,6 +1109,9 @@ export const AmfHelperMixin = (base) => class extends base {
   _computeMethodEndpoint(webApi, methodId) {
     if (!webApi || !methodId) {
       return undefined;
+    }
+    if (this._hasType(webApi, this.ns.aml.vocabularies.apiContract.EndPoint)) {
+      return webApi;
     }
     const endpoints = this._computeEndpoints(webApi);
     if (!endpoints) {

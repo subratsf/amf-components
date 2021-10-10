@@ -359,6 +359,11 @@ export class AmfPartialGraphStore extends AmfHelperMixin(Object) {
     if (sm) {
       result[smKey] = sm;
     }
+    const srvKey = this._getAmfKey(ns.aml.vocabularies.apiContract.server);
+    const servers = webApi[srvKey];
+    if (!Array.isArray(result[srvKey]) || !result[srvKey].length && servers) {
+      result[srvKey] = [...servers];
+    }
     if (Array.isArray(result[operationsKey])) {
       result[operationsKey] = result[operationsKey].map((op) => {
         const item = { ...op };
