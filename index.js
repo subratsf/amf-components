@@ -16,6 +16,7 @@ export { default as ApiRequestEditorElement } from './src/elements/ApiRequestEdi
 export { default as ApiAuthorizationEditorElement } from './src/elements/ApiAuthorizationEditorElement.js';
 export { default as ApiAuthorizationMethodElement } from './src/elements/ApiAuthorizationMethodElement.js';
 export { default as ApiServerSelectorElement } from './src/elements/ApiServerSelectorElement.js';
+export { default as HttpMethodLabelElement } from './src/elements/HttpMethodLabelElement.js';
 export * from './src/events/EventTypes.js';
 export * from './src/events/RequestEvents.js';
 export * as InputCache from './src/lib/InputCache.js';
@@ -24,3 +25,4 @@ export * as Utils from './src/lib/Utils.js';
 export { AmfHelperMixin } from './src/helpers/AmfHelperMixin.js';
 export { AmfSerializer } from './src/helpers/AmfSerializer.js';
 export { ns } from './src/helpers/Namespace.js';
+export * as HttpStyles from './src/elements/styles/HttpLabel.js';

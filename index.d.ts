@@ -16,6 +16,7 @@ export { default as ApiRequestEditorElement } from './src/elements/ApiRequestEdi
 export { default as ApiAuthorizationEditorElement } from './src/elements/ApiAuthorizationEditorElement';
 export { default as ApiAuthorizationMethodElement } from './src/elements/ApiAuthorizationMethodElement';
 export { default as ApiServerSelectorElement } from './src/elements/ApiServerSelectorElement';
+export { default as HttpMethodLabelElement } from './src/elements/HttpMethodLabelElement';
 export * from './src/events/EventTypes';
 export * from './src/events/RequestEvents';
 export * as InputCache from './src/lib/InputCache';
@@ -27,3 +28,4 @@ export { AmfSerializer } from './src/helpers/AmfSerializer';
 export { ns } from './src/helpers/Namespace';
 export * as Amf from './src/helpers/amf';
 export * as Api from './src/helpers/api';
+export * as HttpStyles from './src/elements/styles/HttpLabel';
