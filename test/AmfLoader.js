@@ -21,6 +21,7 @@ import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 /** @typedef {import('../src/helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../src/helpers/api').ApiDocumentation} ApiDocumentation */
 /** @typedef {import('../src/helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../src/helpers/api').ApiParameter} ApiParameter */
 
 /**
  * @typedef EndpointOperation
@@ -518,5 +519,46 @@ export class AmfLoader extends AmfHelperMixin(Object) {
       throw new Error(`Operation ${operation} of endpoint ${payload} has no request payload for ${mime}.`);
     }
     return payload;
+  }
+
+  /**
+   * Reads a request parameter from an operation for: URI, query params, headers, and cookies.
+   * 
+   * @param {AmfDocument} model 
+   * @param {string} endpoint The endpoint path
+   * @param {string} operation The operation path
+   * @param {string} param The param name
+   * @returns {ApiParameter} 
+   */
+  getParameter(model, endpoint, operation, param) {
+    const expects = this.lookupExpects(model, endpoint, operation);
+    if (!expects) {
+      throw new Error(`The operation ${operation} of endpoint ${endpoint} has no request.`);
+    }
+
+    const serializer = new AmfSerializer(model);
+    const request = serializer.request(expects);
+    if (!request) {
+      throw new Error(`The operation ${operation} of endpoint ${endpoint} has no request.`);
+    }
+    /** @type ApiParameter[] */
+    let pool = [];
+    if (Array.isArray(request.uriParameters)) {
+      pool = pool.concat(request.uriParameters);
+    }
+    if (Array.isArray(request.cookieParameters)) {
+      pool = pool.concat(request.cookieParameters);
+    }
+    if (Array.isArray(request.queryParameters)) {
+      pool = pool.concat(request.queryParameters);
+    }
+    if (Array.isArray(request.headers)) {
+      pool = pool.concat(request.headers);
+    }
+    const result = pool.find(i => i.name === param);
+    if (!result) {
+      throw new Error(`Parameter ${param} not found.`);
+    }
+    return result;
   }
 }

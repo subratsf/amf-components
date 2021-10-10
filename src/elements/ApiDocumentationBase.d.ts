@@ -3,7 +3,7 @@ import { ApiParameter, ApiCustomDomainProperty, ApiExample } from '../helpers/ap
 import { DomainElement } from '../helpers/amf';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
 import { AmfSerializer } from '../helpers/AmfSerializer';
-import { SchemaExample } from '@api-components/api-schema';
+import { SchemaExample } from '../types';
 
 export declare const sectionToggleClickHandler: unique symbol;
 export declare const processDebounce: unique symbol;

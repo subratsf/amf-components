@@ -16,7 +16,7 @@ import '../../api-schema-document.js';
 /** @typedef {import('../helpers/amf').Payload} Payload */
 /** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../helpers/api').ApiExample} ApiExample */
-/** @typedef {import('@api-components/api-schema').SchemaExample} SchemaExample */
+/** @typedef {import('../types').SchemaExample} SchemaExample */
 
 export const queryPayload = Symbol('queryPayload');
 export const queryExamples = Symbol('queryExamples');

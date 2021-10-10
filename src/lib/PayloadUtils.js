@@ -1,4 +1,6 @@
-import { ApiExampleGenerator, ApiMonacoSchemaGenerator, ApiSchemaGenerator } from '@api-components/api-schema';
+import { ApiExampleGenerator } from '../schema/ApiExampleGenerator.js';
+import { ApiMonacoSchemaGenerator } from '../schema/ApiMonacoSchemaGenerator.js';
+import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
 
 /** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
 /** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */

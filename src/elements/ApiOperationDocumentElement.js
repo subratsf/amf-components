@@ -2,7 +2,8 @@
 import { html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
-import { ApiSchemaValues, ApiSchemaGenerator } from '@api-components/api-schema';
+import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
+import { ApiSchemaValues } from '../schema/ApiSchemaValues.js';
 import '@advanced-rest-client/highlight/arc-marked.js';
 import '@anypoint-web-components/anypoint-tabs/anypoint-tab.js';
 import '@anypoint-web-components/anypoint-tabs/anypoint-tabs.js';

@@ -19,9 +19,9 @@ export { default as ApiServerSelectorElement } from './src/elements/ApiServerSel
 export { default as HttpMethodLabelElement } from './src/elements/HttpMethodLabelElement';
 export { default as ApiNavigationElement } from './src/elements/ApiNavigationElement';
 export * from './src/events/EventTypes';
-export * from './src/events/RequestEvents';
+export * from './src/events/Events';
 export * as InputCache from './src/lib/InputCache';
-export * as UrlLib from './src/lib/UrlUtils.js';
+export * as UrlLib from './src/lib/UrlUtils';
 export * as Utils from './src/lib/Utils';
 export * from './src/types'
 export { AmfHelperMixin } from './src/helpers/AmfHelperMixin';
@@ -30,3 +30,7 @@ export { ns } from './src/helpers/Namespace';
 export * as Amf from './src/helpers/amf';
 export * as Api from './src/helpers/api';
 export * as HttpStyles from './src/elements/styles/HttpLabel';
+export { ApiExampleGenerator } from './src/schema/ApiExampleGenerator';
+export { ApiMonacoSchemaGenerator } from './src/schema/ApiMonacoSchemaGenerator';
+export { ApiSchemaValues } from './src/schema/ApiSchemaValues';
+export { ApiSchemaGenerator } from './src/schema/ApiSchemaGenerator';

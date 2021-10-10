@@ -3,7 +3,7 @@
 import { html } from 'lit-element';
 import { classMap } from "lit-html/directives/class-map";
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
-import { ApiSchemaGenerator } from '@api-components/api-schema';
+import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
 import '@advanced-rest-client/highlight/arc-marked.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
@@ -46,7 +46,7 @@ import {
 /** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
 /** @typedef {import('../helpers/api').ApiTupleShape} ApiTupleShape */
 /** @typedef {import('../helpers/api').ApiPropertyShape} ApiPropertyShape */
-/** @typedef {import('@api-components/api-schema').SchemaExample} SchemaExample */
+/** @typedef {import('../types').SchemaExample} SchemaExample */
 
 export const mimeTypeValue = Symbol('mimeTypeValue');
 export const querySchema = Symbol('querySchema');

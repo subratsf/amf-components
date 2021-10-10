@@ -4,7 +4,7 @@
 // eslint-disable-next-line no-unused-vars
 import { html } from 'lit-element';
 import { dedupeMixin } from '@open-wc/dedupe-mixin';
-import { ApiSchemaValues } from '@api-components/api-schema';
+import { ApiSchemaValues } from '../schema/ApiSchemaValues.js';
 import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item.js';

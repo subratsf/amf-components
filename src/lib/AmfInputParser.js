@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import { ApiSchemaValues } from '@api-components/api-schema';
+import { ApiSchemaValues } from '../schema/ApiSchemaValues.js';
 import { ns } from '../helpers/Namespace.js';
 
 /** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
