@@ -13,6 +13,7 @@ import {
 } from './ApiDocumentationBase.js';
 import { sanitizeHTML } from '../lib/Utils.js';
 import * as UrlLib from '../lib/UrlUtils.js';
+import { NavigationEvents } from '../events/NavigationEvents.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiDocumentation} ApiDocumentation */
@@ -24,6 +25,7 @@ import * as UrlLib from '../lib/UrlUtils.js';
 /** @typedef {import('../helpers/amf').EndPoint} EndPoint */
 /** @typedef {import('../types').ApiSummaryEndpoint} ApiSummaryEndpoint */
 /** @typedef {import('../types').ApiSummaryOperation} ApiSummaryOperation */
+/** @typedef {import('../types').SelectionType} SelectionType */
 
 export const summaryValue = Symbol('summaryValue');
 export const serversValue = Symbol('serversValue');
@@ -191,15 +193,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     if (!data.id || !data.shapeType) {
       return;
     }
-    const ev = new CustomEvent('api-navigation-selection-changed', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        selected: data.id,
-        type: data.shapeType,
-      }
-    });
-    this.dispatchEvent(ev);
+    NavigationEvents.apiNavigate(this, data.id, /** @type SelectionType */ (data.shapeType), data.parent);
   }
 
   render() {
@@ -419,7 +413,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
       class="endpoint-path"
       href="#${item.path}"
       data-id="${item.id}"
-      data-shape-type="endpoint"
+      data-shape-type="resource"
       title="Open endpoint documentation">${item.path}</a>
     `;
   }
@@ -437,7 +431,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
       class="endpoint-path"
       href="#${item.path}"
       data-id="${item.id}"
-      data-shape-type="endpoint"
+      data-shape-type="resource"
       title="Open endpoint documentation">${item.name}</a>
     <p class="endpoint-path-name">${item.path}</p>
     `;
@@ -455,7 +449,8 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
         class="method-label"
         data-method="${item.method}"
         data-id="${item.id}"
-        data-shape-type="method"
+        data-shape-type="operation"
+        data-parent="${endpoint.id}"
         title="Open method documentation">${item.method}</a>
     `;
   }

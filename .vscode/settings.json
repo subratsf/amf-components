@@ -1,6 +1,9 @@
 {
   "cSpell.words": [
+    "amfstoreapisummary",
+    "apinavigate",
     "apirequest",
+    "apiresponse",
     "apiserverchanged",
     "Applian",
     "Arrable",
@@ -15,6 +18,8 @@
     "notryit",
     "onapiserverchange",
     "onserverscountchange",
+    "populateannotatedfields",
+    "redirecturichange",
     "securitysettingsinfochanged",
     "serverscountchanged",
     "signedup",

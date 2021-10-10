@@ -7,6 +7,7 @@ import {
   serializerValue,
   processDebounce,
 } from './ApiDocumentationBase.js';
+import { EventTypes } from '../events/EventTypes.js';
 import '../../api-summary.js'
 import '../../api-operation-document.js'
 import '../../api-resource-document.js';
@@ -22,6 +23,8 @@ import '../../api-server-selector.js';
 /** @typedef {import('../helpers/amf').Operation} Operation */
 /** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
 /** @typedef {import('../types').ServerType} ServerType */
+/** @typedef {import('../types').SelectionType} SelectionType */
+/** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 export const operationIdValue = Symbol('operationIdValue');
 export const domainTypeValue = Symbol('domainTypeValue');
@@ -72,8 +75,6 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     return {
       /**
        * Type of the selected domain item.
-       * One of `documentation`, `type`, `security`, `endpoint`, `method`,
-       * or `summary`.
        */
       domainType: { type: String },
       /** 
@@ -159,14 +160,14 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
   }
 
   /** 
-   * @returns {string|undefined} The domain id of the object to render.
+   * @returns {SelectionType|undefined} The domain id of the object to render.
    */
   get domainType() {
     return this[domainTypeValue];
   }
 
   /** 
-   * @returns {string|undefined} The domain id of the object to render.
+   * @returns {SelectionType|undefined} The domain id of the object to render.
    */
   set domainType(value) {
     const old = this[domainTypeValue];
@@ -250,9 +251,9 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
   /** @returns {boolean} */
   get renderSelector() {
     const { domainType, serversCount, httpAllowCustomBaseUri } = this;
-		const isMethodOrEndpoint = !!domainType && (['method', 'endpoint'].includes(domainType));
+		const isOperationOrEndpoint = !!domainType && (['operation', 'resource'].includes(domainType));
 		const moreThanOneServer = serversCount >= 2;
-		if (isMethodOrEndpoint) {
+		if (isOperationOrEndpoint) {
 			return httpAllowCustomBaseUri || moreThanOneServer;
 		}
 		return false;
@@ -260,7 +261,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
 
   constructor() {
     super();
-    /** @type {string} */
+    /** @type {SelectionType} */
     this.domainType = undefined;
     /** @type {string} */
     this.operationId = undefined;
@@ -306,42 +307,42 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
   }
 
   /**
-   * Registers `api-navigation-selection-changed` event listener handler
-   * on window object.
+   * Registers the api navigation event listener handler
+   * on the window object.
    */
   [registerNavigationEvents]() {
     this[navEventsRegistered] = true;
-    window.addEventListener('api-navigation-selection-changed', this[navigationHandler]);
+    window.addEventListener(EventTypes.Navigation.apiNavigate, this[navigationHandler]);
   }
 
   /**
-   * Removes event listener from window object for `api-navigation-selection-changed` event.
+   * Removes event listener from window object for the API navigation event.
    */
   [unregisterNavigationEvents]() {
     this[navEventsRegistered] = false;
-    window.removeEventListener('api-navigation-selection-changed', this[navigationHandler]);
+    window.removeEventListener(EventTypes.Navigation.apiNavigate, this[navigationHandler]);
   }
 
   /**
-   * Handler for `api-navigation-selection-changed` event.
+   * Handler for the API navigation event.
    * 
-   * Note, when the current type is set to `method` then the `operationId` is
+   * Note, when the current type is set to `operation` then the `operationId` is
    * set instead of `domainId`, which is set to the parent endpoint id.
    *
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   [navigationHandler](e) {
-    const { selected, type, endpointId, passive } = e.detail;
+    const { domainId, domainType, parentId, passive } = e.detail;
     if (passive === true) {
       return;
     }
-    this.domainType = type;
-    if (type === 'method') {
-      this.operationId = selected;
-      this.domainId = endpointId;  
+    this.domainType = domainType;
+    if (domainType === 'operation') {
+      this.operationId = domainId;
+      this.domainId = parentId;  
     } else {
       this.operationId = undefined;
-      this.domainId = selected;
+      this.domainId = domainId;
     }
     this.processGraph();
   }
@@ -378,7 +379,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
       return;
     }
     if (this._hasType(amf, this.ns.aml.vocabularies.shapes.DataTypeFragment)) {
-      this[processFragment](amf, 'type');
+      this[processFragment](amf, 'schema');
       return;
     }
     if (this._hasType(amf, this.ns.aml.vocabularies.core.CreativeWork)) {
@@ -394,7 +395,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
       return;
     }
     if (this._hasType(amf, this.ns.w3.shacl.Shape) || this._hasType(amf, this.ns.aml.vocabularies.document.DomainElement)) {
-      this[processPartial](amf, 'type');
+      this[processPartial](amf, 'schema');
     }
   }
 
@@ -415,14 +416,14 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     switch (domainType) {
       case 'summary': result = model; break;
       case 'security': result = this[computeSecurityApiModel](model, domainId); break;
-      case 'type': result = this[computeTypeApiModel](model, domainId); break;
+      case 'schema': result = this[computeTypeApiModel](model, domainId); break;
       case 'documentation': result = this[computeDocsApiModel](model, domainId); break;
-      case 'endpoint':
+      case 'resource':
         result = this[computeResourceApiModel](model, domainId);
         break;
-      case 'method':
+      case 'operation':
         if (tryItPanel) {
-          domainType = 'endpoint';
+          domainType = 'resource';
           result = this[computeEndpointApiMethodModel](model, domainId);
         } else {
           result = this[computeMethodApiModel](model, domainId);
@@ -451,7 +452,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     let result;
     switch (domainType) {
       case 'security':
-      case 'type': 
+      case 'schema': 
         result = this[computeDeclById](model, domainId); 
         break;
       default:
@@ -467,7 +468,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * Processes fragment model and sets current selection and the model.
    * 
    * @param {AmfDocument} model RAML fragment model
-   * @param {string} domainType The selected domain type.
+   * @param {SelectionType} domainType The selected domain type.
    */
   [processFragment](model, domainType) {
     const result = this._computeEncodes(model);
@@ -480,7 +481,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * Sets the partial model to be rendered.
    * 
    * @param {AmfDocument} model RAML partial model
-   * @param {string} domainType The domain type representing the partial model.
+   * @param {SelectionType} domainType The domain type representing the partial model.
    */
   [processPartial](model, domainType) {
     this[renderedModelValue] = model;
@@ -500,10 +501,10 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     const { tryItPanel } = this;
     let { domainType } = this;
 		if (!domainType || tryItPanel) {
-			domainType = 'endpoint';
+			domainType = 'resource';
 		}
-    if (!['method', 'endpoint'].includes(domainType)) {
-      domainType = 'endpoint';
+    if (!['operation', 'resource'].includes(domainType)) {
+      domainType = 'resource';
     }
 		this[endpointValue] = model;
 		this[renderedModelValue] = model;
@@ -724,9 +725,9 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
       case 'summary': return this[summaryTemplate]();
       case 'security': return this[securityTemplate]();
       case 'documentation': return this[documentationTemplate]();
-      case 'type': return this[schemaTemplate]();
-      case 'endpoint':
-      case 'method':
+      case 'schema': return this[schemaTemplate]();
+      case 'resource':
+      case 'operation':
         return this[resourceTemplate]();
       default: return '';
     }

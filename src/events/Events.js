@@ -3,6 +3,7 @@
 // import { OperationEvents } from './OperationEvents.js';
 import { ApiEvents } from './ApiEvents.js';
 import { ServerEvents } from './ServerEvents.js';
+import { NavigationEvents } from './NavigationEvents.js';
 // import { DocumentationEvents } from './DocumentationEvents.js';
 // import { SecurityEvents } from './SecurityEvents.js';
 // import { TypeEvents } from './TypeEvents.js';
@@ -27,6 +28,7 @@ export const Events = {
   // Parameter: ParameterEvents,
   // Example: ExampleEvents,
   // CustomProperty: CustomPropertyEvents,
+  Navigation: NavigationEvents,
 };
 
 Object.freeze(Events);

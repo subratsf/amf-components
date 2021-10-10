@@ -1,13 +1,15 @@
 import { html } from 'lit-html';
 import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@api-components/api-navigation/api-navigation.js';
 import '@advanced-rest-client/authorization/oauth2-authorization.js';
 import '@advanced-rest-client/authorization/oauth1-authorization.js';
 import '@advanced-rest-client/authorization/oidc-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
+import '../api-navigation.js';
 import '../xhr-simple-request.js';
 import '../api-request.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentDemo extends AmfDemoBase {
   constructor() {
@@ -58,11 +60,14 @@ class ComponentDemo extends AmfDemoBase {
     this.authSettingsValue = value ? JSON.stringify(value, null, 2) : '';
   }
 
+  /**
+   * @param {ApiNavigationEvent} e
+   */
   _navChanged(e) {
     this.selectedAmfId = undefined;
-    const { selected, type } = e.detail;
-    if (type === 'method') {
-      this.selectedAmfId = selected;
+    const { domainId, domainType } = e.detail;
+    if (domainType === 'operation') {
+      this.selectedAmfId = domainId;
       this.hasData = true;
     } else {
       this.hasData = false;

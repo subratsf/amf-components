@@ -1,9 +1,11 @@
 import { html } from 'lit-html';
 import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@api-components/api-navigation/api-navigation.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-server-selector.js';
+import '../api-navigation.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentDemo extends AmfDemoBase {
   constructor() {
@@ -40,16 +42,16 @@ class ComponentDemo extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e 
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type } = e.detail;
-    if (["method", "endpoint"].indexOf(type) === -1) {
+    const { domainId, domainType } = e.detail;
+    if (["operation", "resource"].indexOf(domainType) === -1) {
       this.servers = null;
       return;
     }
-    this.selectedShape = selected;
-    this.selectedShapeType = type;
+    this.selectedShape = domainId;
+    this.selectedShapeType = domainType;
   }
 
   /**

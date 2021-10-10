@@ -3,6 +3,8 @@ import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-payload-document.js';
 
 /** @typedef {import('../').Amf.Payload} Payload */
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+
 /** 
  * @typedef ResponsePayload 
  * @property {string} code
@@ -24,17 +26,17 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive } = e.detail;
+    const { domainId, domainType, passive } = e.detail;
     if (passive) {
       return;
     }
     this.request = [];
     this.response = [];
-    if (type === 'method') {
-      this.setPayloads(selected);
+    if (domainType === 'operation') {
+      this.setPayloads(domainId);
     }
   }
 

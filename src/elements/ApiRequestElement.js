@@ -35,6 +35,7 @@ import '../../api-response-view.js';
 /** @typedef {import('../types').ApiConsoleResponse} ApiConsoleResponse */
 /** @typedef {import('../events/RequestEvents').ApiRequestEvent} ApiRequestEvent */
 /** @typedef {import('../events/RequestEvents').ApiResponseEvent} ApiResponseEvent */
+/** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 export const selectedValue = Symbol('selectedValue');
 export const selectedChanged = Symbol('selectedChanged');
@@ -295,10 +296,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     this.addEventListener(EventTypes.Request.apiRequest, this[requestHandler]);
     node.addEventListener(EventTypes.Request.apiResponse, this[responseHandler]);
     node.addEventListener(EventTypes.Request.apiResponseLegacy, this[responseHandler]);
-    node.addEventListener(
-      'api-navigation-selection-changed',
-      this[navigationHandler]
-    );
+    node.addEventListener(EventTypes.Navigation.apiNavigate, this[navigationHandler]);
   }
 
   /**
@@ -308,10 +306,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     this.removeEventListener(EventTypes.Request.apiRequest, this[requestHandler]);
     node.removeEventListener(EventTypes.Request.apiResponse, this[responseHandler]);
     node.removeEventListener(EventTypes.Request.apiResponseLegacy, this[responseHandler]);
-    node.removeEventListener(
-      'api-navigation-selection-changed',
-      this[navigationHandler]
-    );
+    node.removeEventListener(EventTypes.Navigation.apiNavigate, this[navigationHandler]);
   }
 
   /**
@@ -471,12 +466,12 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
    *
    * When `handleNavigationEvents` is set then it also manages the selection.
    *
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   [navigationHandler](e) {
     if (this.handleNavigationEvents) {
-      const { selected: id, type } = e.detail;
-      this.selected = type === 'method' ? id : undefined;
+      const { domainId, domainType } = e.detail;
+      this.selected = domainType === 'operation' ? domainId : undefined;
     }
   }
 

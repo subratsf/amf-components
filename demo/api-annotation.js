@@ -3,6 +3,8 @@ import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-annotation-document.js';
 
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+
 class ComponentPage extends AmfDemoBase {
   constructor() {
     super();
@@ -15,16 +17,16 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type } = e.detail;
-    if (type === 'type') {
-      this.setTypeData(selected);
-    } else if (type === 'endpoint') {
-      this.setEndpointData(selected);
-    } else if (type === 'method') {
-      this.setMethodData(selected);
+    const { domainId, domainType } = e.detail;
+    if (domainType === 'schema') {
+      this.setTypeData(domainId);
+    } else if (domainType === 'resource') {
+      this.setEndpointData(domainId);
+    } else if (domainType === 'operation') {
+      this.setMethodData(domainId);
     } else {
       this.shape = undefined;
     }

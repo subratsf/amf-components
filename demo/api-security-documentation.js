@@ -5,6 +5,8 @@ import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-security-document.js';
 
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+
 class ComponentPage extends AmfDemoBase {
   constructor() {
     super();
@@ -21,16 +23,16 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive } = e.detail;
+    const { domainId, domainType, passive } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'security') {
-      this.selectedId = selected;
-      this.selectedType = type;
+    if (domainType === 'security') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;

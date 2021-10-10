@@ -3,11 +3,12 @@ import { html } from 'lit-html';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@api-components/api-navigation/api-navigation.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-schema-document.js';
+import '../api-navigation.js';
 
 /** @typedef {import('../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {
@@ -29,10 +30,10 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive } = e.detail;
+    const { domainId, domainType, passive } = e.detail;
     if (passive) {
       return;
     }
@@ -42,10 +43,10 @@ class ComponentPage extends AmfDemoBase {
     this.mediaTypes = undefined;
     this.mediaType = undefined;
 
-    if (type === 'type') {
-      this.setTypeData(selected);
-    } else if (type === 'method') {
-      this.setBodyData(selected);
+    if (domainType === 'schema') {
+      this.setTypeData(domainId);
+    } else if (domainType === 'operation') {
+      this.setBodyData(domainId);
     }
   }
 

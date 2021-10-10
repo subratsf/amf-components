@@ -5,6 +5,8 @@ import '@advanced-rest-client/authorization/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-channel-document.js';
 
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+
 class ComponentPage extends AmfDemoBase {
   constructor() {
     super();
@@ -20,21 +22,21 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive, endpointId } = e.detail;
+    const { domainId, domainType, passive, parentId } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'endpoint') {
-      this.selectedId = selected;
-      this.selectedType = type;
+    if (domainType === 'resource') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
       this.selectedOperation = undefined;
-    } else if (type === 'method') {
-      this.selectedId = endpointId;
+    } else if (domainType === 'operation') {
+      this.selectedId = parentId;
       this.selectedType = 'endpoint';
-      this.selectedOperation = selected;
+      this.selectedOperation = domainId;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;

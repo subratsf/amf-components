@@ -17,6 +17,7 @@ export { default as ApiAuthorizationEditorElement } from './src/elements/ApiAuth
 export { default as ApiAuthorizationMethodElement } from './src/elements/ApiAuthorizationMethodElement';
 export { default as ApiServerSelectorElement } from './src/elements/ApiServerSelectorElement';
 export { default as HttpMethodLabelElement } from './src/elements/HttpMethodLabelElement';
+export { default as ApiNavigationElement } from './src/elements/ApiNavigationElement';
 export * from './src/events/EventTypes';
 export * from './src/events/RequestEvents';
 export * as InputCache from './src/lib/InputCache';

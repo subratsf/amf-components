@@ -4,13 +4,15 @@ import { MonacoLoader } from "@advanced-rest-client/monaco-support";
 import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@api-components/api-navigation/api-navigation.js';
 import { DomEventsAmfStore } from "../../src/store/DomEventsAmfStore.js";
 import { AmfHelperMixin } from "../../src/helpers/AmfHelperMixin.js";
+import { EventTypes } from '../../src/events/EventTypes.js';
+import '../../api-navigation.js';
 import './ApiStyles.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 /** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
+/** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 /**
  * Base class for API components demo page.
@@ -72,8 +74,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
      * @default false
      */
     this.noApiNavigation = false;
-    this._navChanged = this._navChanged.bind(this);
-    window.addEventListener('api-navigation-selection-changed', this._navChanged);
+    window.addEventListener(EventTypes.Navigation.apiNavigate, this._navChanged.bind(this));
 
     document.body.classList.add('api');
     this.autoLoad();
@@ -131,12 +132,12 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
 
   /**
    * This method to be overridden in child class to handle navigation.
-   * @param {CustomEvent} e Dispatched navigation event
+   * @param {ApiNavigationEvent} e Dispatched navigation event
    */
    _navChanged(e) {
-    const { selected, type } = e.detail;
+    const { domainId, domainType } = e.detail;
     // eslint-disable-next-line no-console
-    console.log(`Navigation changed. Type: ${type}, selected: ${selected}`);
+    console.log(`Navigation changed. Type: ${domainId}, selected: ${domainType}`);
   }
 
   /**

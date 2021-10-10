@@ -31,7 +31,7 @@ export const methodTemplate: unique symbol;
  * A web component that renders the documentation page for an API documentation (like in RAML documentations) built from 
  * the AMF graph model.
  * 
- * @fires api-navigation-selection-changed
+ * @fires apinavigate
  */
 export default class ApiSummaryElement extends ApiDocumentationBase {
   get summary(): ApiSummary;

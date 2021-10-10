@@ -22,12 +22,16 @@ interface Server {
 declare interface ApiEvents {
   summary: string;
 }
+declare interface Navigation {
+  apiNavigate: string;
+}
 
 interface IEventTypes {
   Security: Readonly<Security>;
   Request: Readonly<Request>;
   Server: Readonly<Server>;
   Api: Readonly<ApiEvents>;
+  Navigation: Readonly<Navigation>;
 }
 
 export const EventTypes: Readonly<IEventTypes>;

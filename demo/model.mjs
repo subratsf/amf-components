@@ -7,6 +7,7 @@ const config = new Map();
 config.set('demo-api/demo-api.raml', { type: "RAML 1.0" });
 config.set('amf-helper-api/amf-helper-api.raml', { type: "RAML 1.0" });
 config.set('arc-demo-api/arc-demo-api.raml', { type: "RAML 1.0" });
+config.set('navigation-api/navigation-api.raml', { type: "RAML 1.0" });
 config.set('array-body/array-body.raml', { type: "RAML 1.0" });
 config.set('google-drive-api/google-drive-api.raml', { type: "RAML 1.0" });
 config.set('appian-api/appian-api.raml', { type: "RAML 1.0" });
@@ -22,12 +23,18 @@ config.set('APIC-282/APIC-282.raml', { type: "RAML 1.0" });
 config.set('APIC-289/APIC-289.yaml', { type: "OAS 2.0", mime: 'application/yaml' });
 config.set('APIC-298/APIC-298.json', { type: 'OAS 2.0', mime: 'application/json' });
 config.set('APIC-332/APIC-332.raml', { type: 'RAML 1.0' });
+config.set('APIC-349-cache-resolution/APIC-349-cache-resolution.raml', { type: 'RAML 1.0' });
 config.set('APIC-390/APIC-390.raml', { type: "RAML 1.0" });
 config.set('APIC-429/APIC-429.yaml', { type: "OAS 3.0", mime: 'application/yaml' });
+config.set('APIC-435/APIC-435.yaml', { type: "OAS 2.0", mime: 'application/yaml' });
+config.set('APIC-449/APIC-449.yaml', { type: "OAS 3.0", mime: 'application/yaml' });
 config.set('APIC-480/APIC-480.raml', { type: 'RAML 1.0' });
 config.set('APIC-483/APIC-483.raml', { type: "RAML 1.0" });
 config.set('APIC-463/APIC-463.raml', { type: "RAML 1.0" });
+config.set('APIC-550/APIC-550.raml', { type: "RAML 1.0" });
 config.set('APIC-553/APIC-553.raml', { type: "RAML 1.0" });
+config.set('APIC-554/APIC-554.raml', { type: "RAML 1.0" });
+config.set('APIC-554-ii/APIC-554-ii.raml', { type: "RAML 1.0" });
 config.set('APIC-560/APIC-560.yaml', { type: "ASYNC 2.0" });
 config.set('APIC-582/APIC-582.yaml', { type: "ASYNC 2.0" });
 config.set('APIC-613/APIC-613.raml', { type: 'RAML 1.0' });
@@ -51,6 +58,7 @@ config.set('SE-12752/SE-12752.raml', { type: "RAML 1.0" });
 config.set('SE-12957/SE-12957.json', { type: "OAS 2.0", mime: 'application/json' });
 config.set('SE-12959/SE-12959.json', { type: "OAS 2.0", mime: 'application/json' });
 config.set('SE-17897/SE-17897.yaml', { type: "OAS 3.0", mime: 'application/yaml' });
+config.set('SE-19215/SE-19215.raml', { type: "RAML 1.0" });
 config.set('SE-19500/SE-19500.raml', { type: "RAML 1.0" });
 config.set('oauth1-fragment/oauth1-fragment.raml', { type: "RAML 1.0" });
 config.set('oauth2-fragment/oauth2-fragment.raml', { type: "RAML 1.0" });
@@ -91,6 +99,11 @@ config.set('no-servers-api/no-servers-api.yaml', { type: 'OAS 3.0', mime: 'appli
 config.set('multiple-servers/multiple-servers.yaml', { type: 'OAS 3.0', mime: 'application/yaml' });
 config.set('flattened-api/flattened-api.raml', { type: 'RAML 1.0', mime: 'application/yaml', flattened: true });
 config.set('expanded-api/expanded-api.raml', { type: 'RAML 1.0', mime: 'application/yaml', flattened: false });
+config.set('ext-docs/ext-docs.yaml', { type: 'OAS 3.0' });
+config.set('missing-endpoints/missing-endpoints.raml', { type: 'RAML 1.0' });
+config.set('unordered-endpoints/unordered-endpoints.raml', { type: 'RAML 1.0' });
+config.set('rearrange-api/rearrange-api.raml', { type: 'RAML 1.0' });
+config.set('simple-api/simple-api.raml', { type: 'RAML 1.0' });
 
 generator.generate(config, {
   dest: 'demo/models/',

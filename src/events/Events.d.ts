@@ -2,6 +2,7 @@
 // import { IOperationEvents } from './OperationEvents';
 import { IApiEvents } from './ApiEvents';
 import { IServerEvents } from './ServerEvents';
+import { INavigationEvents } from './NavigationEvents';
 // import { IDocumentationEvents } from './DocumentationEvents';
 // import { ISecurityEvents } from './SecurityEvents';
 // import { ITypeEvents } from './TypeEvents';
@@ -26,6 +27,7 @@ declare interface IEvents {
   // Parameter: IParameterEvents;
   // Example: IExampleEvents;
   // CustomProperty: ICustomPropertyEvents;
+  Navigation: INavigationEvents;
 }
 
 export const Events: Readonly<IEvents>;

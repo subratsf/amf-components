@@ -63,7 +63,6 @@
     "@anypoint-web-components/anypoint-dialog": "^0.1.10",
     "@anypoint-web-components/anypoint-styles": "^1.0.2",
     "@api-components/api-model-generator": "^0.2.14",
-    "@api-components/api-navigation": "^4.3.2",
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
     "@open-wc/eslint-config": "^4.3.0",

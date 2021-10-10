@@ -12,6 +12,7 @@ import '../api-request.js';
 import '../xhr-simple-request.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 /**
  * @param {Event} e
@@ -82,48 +83,48 @@ class ComponentDemo extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, endpointId, passive } = e.detail;
+    const { domainId, domainType, parentId, passive } = e.detail;
     if (passive === true) {
       return;
     }
     this.operationId = undefined;
-    if (type === 'type') {
-      this.partialModelDocs = this.store.schema(selected, this.context);
-      this.domainId = selected;
-      this.domainType = type;
+    if (domainType === 'schema') {
+      this.partialModelDocs = this.store.schema(domainId, this.context);
+      this.domainId = domainId;
+      this.domainType = domainType;
       return;
     }
-    if (type === 'security') {
-      this.partialModelDocs = this.store.securityRequirement(selected, this.context);
-      this.domainId = selected;
-      this.domainType = type;
+    if (domainType === 'security') {
+      this.partialModelDocs = this.store.securityRequirement(domainId, this.context);
+      this.domainId = domainId;
+      this.domainType = domainType;
       return;
     }
-    if (type === 'endpoint') {
-      this.partialModelDocs = this.store.endpoint(selected, this.context);
-      this.domainId = selected;
-      this.domainType = type;
+    if (domainType === 'resource') {
+      this.partialModelDocs = this.store.endpoint(domainId, this.context);
+      this.domainId = domainId;
+      this.domainType = domainType;
       return
     }
-    if (type === 'method') {
-      if (!this.partialModelDocs || this.partialModelDocs['@id'] !== endpointId) {
-        this.partialModelDocs = this.store.endpoint(endpointId, this.context);
+    if (domainType === 'operation') {
+      if (!this.partialModelDocs || this.partialModelDocs['@id'] !== parentId) {
+        this.partialModelDocs = this.store.endpoint(parentId, this.context);
       }
-      this.domainId = endpointId;
-      this.operationId = selected;
-      this.domainType = type;
+      this.domainId = parentId;
+      this.operationId = domainId;
+      this.domainType = domainType;
       return
     }
-    if (type === 'summary') {
+    if (domainType === 'summary') {
       this.partialModelDocs = this.summaryModel;
-      this.domainId = selected;
-      this.domainType = type;
+      this.domainId = domainId;
+      this.domainType = domainType;
       return;
     }
-    console.log(selected, type, endpointId, passive);
+    console.log(domainId, domainType, parentId, passive);
     // this.domainType = type;
     // if (type === 'method') {
     //   this.operationId = selected;

@@ -2,6 +2,7 @@
 import { fixture, assert, html, aTimeout, nextFrame } from '@open-wc/testing';
 import * as sinon from 'sinon/pkg/sinon-esm.js';
 import { AmfLoader } from '../amf-loader.js';
+import { NavigationEvents } from '../../src/events/NavigationEvents.js';
 import '../../api-documentation.js';
 
 /** @typedef {import('../..').ApiDocumentationElement} ApiDocumentationElement */
@@ -539,16 +540,8 @@ describe('ApiDocumentationElement', () => {
       await aTimeout(0);
       assert.isTrue(element.handleNavigationEvents, 'getter returns the value');
       const op = AmfLoader.lookupOperation(amf, '/people', 'get');
-      const e = new CustomEvent('api-navigation-selection-changed', {
-        bubbles: true,
-        detail: {
-          passive: false,
-          selected: op['@id'],
-          type: 'method'
-        }
-      });
 
-      document.body.dispatchEvent(e);
+      NavigationEvents.apiNavigate(document.body, op['@id'], 'operation');
       await aTimeout(0);
       const node = element.shadowRoot.querySelector('api-method-documentation');
       assert.ok(node, 'method is rendered');
@@ -559,16 +552,7 @@ describe('ApiDocumentationElement', () => {
       element.handleNavigationEvents = true;
       await aTimeout(0);
       const op = AmfLoader.lookupOperation(amf, '/people', 'get');
-      const e = new CustomEvent('api-navigation-selection-changed', {
-        bubbles: true,
-        detail: {
-          passive: true,
-          selected: op['@id'],
-          type: 'method'
-        }
-      });
-
-      document.body.dispatchEvent(e);
+      NavigationEvents.apiNavigate(document.body, op['@id'], 'operation', undefined, true);
       await aTimeout(0);
       const node = element.shadowRoot.querySelector('api-method-documentation');
       assert.notOk(node, 'method is not rendered');
@@ -580,17 +564,7 @@ describe('ApiDocumentationElement', () => {
       await aTimeout(0);
       element.handleNavigationEvents = false;
       const op = AmfLoader.lookupOperation(amf, '/people', 'get');
-
-      const e = new CustomEvent('api-navigation-selection-changed', {
-        bubbles: true,
-        detail: {
-          passive: false,
-          selected: op['@id'],
-          type: 'method'
-        }
-      });
-
-      document.body.dispatchEvent(e);
+      NavigationEvents.apiNavigate(document.body, op['@id'], 'operation');
       await aTimeout(0);
       const node = element.shadowRoot.querySelector('api-method-documentation');
       assert.notOk(node, 'method is not rendered');
@@ -1047,7 +1021,7 @@ describe('ApiDocumentationElement', () => {
         it('renders SiteId type defined in library', async () => {
           const type = AmfLoader.lookupType(amf, 'SiteId');
           const element = await modelFixture(amf, 'type', type['@id']);
-          await aTimeout();
+          await aTimeout(0);
           const node = element.shadowRoot.querySelector('api-type-documentation');
           assert.ok(node, 'type is rendered');
           assert.typeOf(node.amf, 'array', 'amf is set');
@@ -1057,7 +1031,7 @@ describe('ApiDocumentationElement', () => {
         it('renders Language type defined in uses node in library', async () => {
           const type = AmfLoader.lookupType(amf, 'LocaleCode');
           const element = await modelFixture(amf, 'type', type['@id']);
-          await aTimeout();
+          await aTimeout(0);
           const node = element.shadowRoot.querySelector('api-type-documentation');
           assert.ok(node, 'type is rendered');
           assert.typeOf(node.amf, 'array', 'amf is set');

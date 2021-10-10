@@ -1,11 +1,14 @@
 import { fixture, assert, nextFrame, html, aTimeout } from '@open-wc/testing';
+import sinon from 'sinon';
 import { endpointsValue } from '../../src/elements/ApiSummaryElement.js';
 import { AmfLoader } from '../AmfLoader.js';
 import '../../api-summary.js';
+import { EventTypes } from '../../src/events/EventTypes.js';
 
 /** @typedef {import('../../').ApiSummaryElement} ApiSummaryElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 describe('ApiSummaryElement', () => {
   const loader = new AmfLoader();
@@ -254,7 +257,7 @@ describe('ApiSummaryElement', () => {
             node,
             `<a
               class="endpoint-path"
-              data-shape-type="endpoint"
+              data-shape-type="resource"
               href="#/people"
               title="Open endpoint documentation"
               >
@@ -288,57 +291,63 @@ describe('ApiSummaryElement', () => {
           assert.lengthOf(nodes, 4);
         });
 
-        it('renders operation method', () => {
+        it('renders an operation', () => {
           const node = element.shadowRoot.querySelectorAll('.endpoint-item')[2].querySelector('.method-label');
           assert.dom.equal(
             node,
             `<a
               class="method-label"
               data-method="get"
-              data-shape-type="method"
+              data-shape-type="operation"
               href="#/people/get"
               title="Open method documentation"
               >get</a>`,
             {
-              ignoreAttributes: ['data-id']
+              ignoreAttributes: ['data-id', 'data-parent']
             }
           );
         });
 
-        it('dispatches the navigation event from the endpoint node', (done) => {
+        it('dispatches the navigation event from the endpoint node', () => {
+          const spy = sinon.spy();
+          element.addEventListener(EventTypes.Navigation.apiNavigate, spy);
+
           const node = element.shadowRoot.querySelector(`.endpoint-path[data-id]`);
-          element.addEventListener('api-navigation-selection-changed', (e) => {
-            // @ts-ignore
-            const {detail} = e;
-            assert.typeOf(detail.selected, 'string');
-            assert.equal(detail.type, 'endpoint');
-            done();
-          });
           /** @type HTMLElement */ (node).click();
+
+          assert.isTrue(spy.calledOnce, 'the event is dispatched');
+          const e = /** @type ApiNavigationEvent */ (spy.args[0][0]);
+          const { detail } = e;
+          assert.typeOf(detail.domainId, 'string');
+          assert.equal(detail.domainType, 'resource');
         });
 
-        it('dispatches the navigation event from the endpoint path', (done) => {
+        it('dispatches the navigation event from the endpoint path', () => {
+          const spy = sinon.spy();
+          element.addEventListener(EventTypes.Navigation.apiNavigate, spy);
+
           const node = element.shadowRoot.querySelector(`.endpoint-path[data-id]`);
-          element.addEventListener('api-navigation-selection-changed', (e) => {
-            // @ts-ignore
-            const {detail} = e;
-            assert.typeOf(detail.selected, 'string');
-            assert.equal(detail.type, 'endpoint');
-            done();
-          });
           /** @type HTMLElement */ (node).click();
+
+          assert.isTrue(spy.calledOnce, 'the event is dispatched');
+          const e = /** @type ApiNavigationEvent */ (spy.args[0][0]);
+          const { detail } = e;
+          assert.typeOf(detail.domainId, 'string');
+          assert.equal(detail.domainType, 'resource');
         });
 
-        it('dispatches the navigation event from the operation click', (done) => {
+        it('dispatches the navigation event from the operation click', () => {
+          const spy = sinon.spy();
+          element.addEventListener(EventTypes.Navigation.apiNavigate, spy);
+
           const node = element.shadowRoot.querySelector(`.method-label[data-id]`);
-          element.addEventListener('api-navigation-selection-changed', (e) => {
-            // @ts-ignore
-            const {detail} = e;
-            assert.typeOf(detail.selected, 'string');
-            assert.equal(detail.type, 'method');
-            done();
-          });
           /** @type HTMLElement */ (node).click();
+
+          assert.isTrue(spy.calledOnce, 'the event is dispatched');
+          const e = /** @type ApiNavigationEvent */ (spy.args[0][0]);
+          const { detail } = e;
+          assert.typeOf(detail.domainId, 'string');
+          assert.equal(detail.domainType, 'operation');
         });
       });
 

@@ -10,6 +10,8 @@ import '../api-request.js';
 import '../api-server-selector.js';
 import '../xhr-simple-request.js';
 
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+
 class ComponentPage extends AmfDemoBase {
   constructor() {
     super();
@@ -72,17 +74,17 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive, endpointId } = e.detail;
+    const { domainId, domainType, passive, parentId } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'method') {
-      this.selectedId = selected;
-      this.selectedType = type;
-      this.parentEndpoint = endpointId;
+    if (domainType === 'operation') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
+      this.parentEndpoint = parentId;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;

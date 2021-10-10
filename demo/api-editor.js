@@ -9,6 +9,8 @@ import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../xhr-simple-request.js';
 import '../api-request-editor.js';
 
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+
 class ComponentDemo extends AmfDemoBase {
   constructor() {
     super();
@@ -56,12 +58,15 @@ class ComponentDemo extends AmfDemoBase {
     this.authSettingsValue = value ? JSON.stringify(value, null, 2) : '';
   }
 
+  /**
+   * @param {ApiNavigationEvent} e
+   */
   _navChanged(e) {
     this.selectedAmfId = undefined;
     this.responseBody = undefined;
-    const { selected, type } = e.detail;
-    if (type === 'method') {
-      this.selectedAmfId = selected;
+    const { domainId, domainType } = e.detail;
+    if (domainType === 'operation') {
+      this.selectedAmfId = domainId;
       this.hasData = true;
     } else {
       this.hasData = false;

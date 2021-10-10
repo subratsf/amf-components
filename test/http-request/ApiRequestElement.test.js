@@ -4,6 +4,7 @@ import { AmfLoader } from '../AmfLoader.js';
 import '../../api-request.js';
 import { loadMonaco } from '../MonacoSetup.js';
 import { EventTypes } from '../../src/events/EventTypes.js';
+import { NavigationEvents } from '../../src/events/NavigationEvents.js';
 import { propagateResponse, responseHandler } from '../../src/elements/ApiRequestElement.js';
 
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
@@ -236,29 +237,15 @@ describe('ApiRequestElement', () => {
       element = await navigationFixture();
     });
 
-    function dispatch(selected, type) {
-      // eslint-disable-next-line no-param-reassign
-      type = type || 'method';
-      document.body.dispatchEvent(
-        new CustomEvent('api-navigation-selection-changed', {
-          detail: {
-            selected,
-            type,
-          },
-          bubbles: true,
-        })
-      );
-    }
-
-    it('Sets "selected" when type is "method"', () => {
+    it('sets the "domainId" when the domainType is "operation"', () => {
       const id = '%2Ftest-parameters%2F%7Bfeature%7D/get';
-      dispatch(id);
+      NavigationEvents.apiNavigate(document.body, id, 'operation');
       assert.equal(element.selected, id);
     });
 
-    it('"selected" is undefined when type is not "method"', () => {
+    it('"does not set the "domainId" when type is not "operation"', () => {
       const id = '%2Ftest-parameters%2F%7Bfeature%7D';
-      dispatch(id, 'endpoint');
+      NavigationEvents.apiNavigate(document.body, id, 'resource');
       assert.isUndefined(element.selected);
     });
   });

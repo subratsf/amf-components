@@ -64,7 +64,7 @@ class ComponentPage extends AmfDemoBase {
       <api-summary
         .amf="${amf}"
         .baseUri="${overrideBaseUri ? 'https://custom.api.com' : undefined}"
-        @api-navigation-selection-changed="${this._navigationHandler}"
+        @apinavigate="${this._navigationHandler}"
         slot="content"
       >
       </api-summary>

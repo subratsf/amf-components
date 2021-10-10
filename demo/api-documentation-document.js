@@ -1,8 +1,10 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@api-components/api-navigation/api-navigation.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
+import '../api-navigation.js';
 import '../api-documentation-document.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {
@@ -20,16 +22,16 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive } = e.detail;
+    const { domainId, domainType, passive } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'documentation') {
-      this.selectedId = selected;
-      this.selectedType = type;
+    if (domainType === 'documentation') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;
