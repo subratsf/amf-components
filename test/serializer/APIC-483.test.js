@@ -30,7 +30,7 @@ describe('AmfSerializer', () => {
 
     it('serializes a TupleShape', () => {
       const expects = loader.lookupExpects(api, '/banks', 'post');
-      const payload = loader._computePayload(expects)[0];
+      const payload = expects[loader._getAmfKey(loader.ns.aml.vocabularies.apiContract.payload)][0];
       const shape = payload[serializer._getAmfKey(serializer.ns.aml.vocabularies.shapes.schema)][0];
       const result = /** @type ApiNodeShape */ (serializer.unknownShape(shape));
       const { examples, properties } = result;

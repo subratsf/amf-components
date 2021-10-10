@@ -45,25 +45,6 @@ export const getArrayItems = Symbol('getArrayItems');
 
 /**
  * Common functions used by AMF components to compute AMF values.
- *
- * ## Updating API's base URI
- *
- * (Only applies when using `_computeUri()` function)
- *
- * By default the component render the documentation as it is defined
- * in the AMF model. Sometimes, however, you may need to replace the base URI
- * of the API with something else. It is useful when the API does not
- * have base URI property defined (therefore this component render relative
- * paths instead of URIs) or when you want to manage different environments.
- *
- * To update base URI value update the `baseUri` property.
- *
- * When the component constructs the final URI for the endpoint it does the following:
- * - if `baseUri` is set it uses this value as a base uri for the endpoint
- * - else if `amf` is set then it computes base uri value from main
- * model document
- * Then it concatenates computed base URI with `endpoint`'s path property.
- *
  * @param {*} base
  * @returns {*}
  * @mixin
@@ -392,172 +373,6 @@ export const AmfHelperMixin = (base) => class extends base {
   }
 
   /**
-   * Computes a value of a property in a model (shape).
-   * It takes first value of a property, if exists.
-   *
-   * @param {DomainElement} shape AMF shape object
-   * @param {string} key Property name
-   * @returns {string|number|boolean|null|Object|undefined}
-   */
-  _computePropertyObject(shape, key) {
-    /* eslint-disable-next-line no-param-reassign */
-    key = this._getAmfKey(key);
-    const data = this._computePropertyArray(shape, key);
-    return data && data[0];
-  }
-
-  /**
-   * Tests if a passed argument exists.
-   *
-   * @param {string|Object|number} value A value to test
-   * @returns {boolean}
-   */
-  _computeHasStringValue(value) {
-    return !!value || value === 0;
-  }
-
-  /**
-   * Computes if passed argument is an array and has a value.
-   * It does not check for type or value of the array items.
-   * @param {Array} value Value to test
-   * @returns {boolean}
-   */
-  _computeHasArrayValue(value) {
-    return !!(value instanceof Array && value.length);
-  }
-
-  /**
-   * Computes description for a shape.
-   * @param {DomainElement} shape AMF shape
-   * @returns {string} Description value.
-   */
-  _computeDescription(shape) {
-    return /** @type string */ (this._getValue(shape, this.ns.schema.desc));
-  }
-
-  /**
-   * Computes a list of headers
-   * @param {DomainElement} shape
-   * @returns {Parameter[]|Parameter|undefined}
-   */
-  _computeHeaders(shape) {
-    return this._computePropertyArray(shape, this.ns.aml.vocabularies.apiContract.header) || this._computeHeaderSchema(shape);
-  }
-
-  /**
-   * 
-   * @param {DomainElement} shape 
-   * @returns {Parameter|undefined}
-   */
-  _computeHeaderSchema(shape) {
-    return this._computePropertyObject(shape, this.ns.aml.vocabularies.apiContract.headerSchema);
-  }
-
-  /**
-   * Computes a list of query parameters
-   * @param {DomainElement} shape
-   * @returns {Parameter[]|undefined}
-   */
-  _computeQueryParameters(shape) {
-    return this._computePropertyArray(shape, this.ns.aml.vocabularies.apiContract.parameter);
-  }
-
-  /**
-   * In OAS URI parameters can be defined on an operation level under `uriParameter` property.
-   * Normally `_computeQueryParameters()` function would be used to extract parameters from an endpoint.
-   * This is a fallback option to test when an API is OAS.
-   * @param {Operation|Request} shape Method or Expects model
-   * @returns {Parameter[]}
-   */
-  _computeUriParameters(shape) {
-    if (!shape) {
-      return undefined;
-    }
-    const { apiContract } = this.ns.aml.vocabularies;
-    let object = shape;
-    if (this._hasType(object, apiContract.Operation)) {
-      const typed = /** @type Operation */ (object);
-      object = this._computeExpects(typed);
-    }
-    return this._computePropertyArray(object, apiContract.uriParameter);
-  }
-
-  /**
-   * Computes a list of responses
-   * @param {Operation} shape
-   * @returns {Response[]|undefined}
-   */
-  _computeResponses(shape) {
-    return this._computePropertyArray(shape, this.ns.aml.vocabularies.apiContract.response);
-  }
-
-  /**
-   * Computes value for `serverVariables` property.
-   *
-   * @param {Server} server AMF API model for Server.
-   * @returns {Parameter[]|undefined} Variables if defined.
-   */
-  _computeServerVariables(server) {
-    return this._computePropertyArray(server, this.ns.aml.vocabularies.apiContract.variable);
-  }
-
-  /**
-   * Computes value for `endpointVariables` property.
-   *
-   * @param {EndPoint} endpoint Endpoint model
-   * @param {Operation=} method Optional method to be used to lookup the parameters from
-   * This is used for OAS model which can defined path parameters on a method level.
-   * @returns {Parameter[]|undefined} Parameters if defined.
-   */
-  _computeEndpointVariables(endpoint, method) {
-    let result = this._computeQueryParameters(endpoint);
-    if (!result && method) {
-      result = this._computeUriParameters(method);
-    }
-    return result;
-  }
-
-  /**
-   * Computes value for the `payload` property
-   *
-   * @param {Request} expects Current value of `expects` property.
-   * @returns {Payload[]|undefined} Payload model if defined.
-   */
-  _computePayload(expects) {
-    return this._computePropertyArray(expects, this.ns.aml.vocabularies.apiContract.payload);
-  }
-
-  /**
-   * Computes value for `returns` property
-   *
-   * @param {Operation} method AMF `supportedOperation` model
-   * @returns {Response[]|undefined}
-   */
-  _computeReturns(method) {
-    return this._computePropertyArray(method, this.ns.aml.vocabularies.apiContract.returns);
-  }
-
-  /**
-   * Computes value for `security` property
-   *
-   * @param {Operation} method AMF `supportedOperation` model
-   * @returns {SecurityRequirement[]|undefined}
-   */
-  _computeSecurity(method) {
-    return this._computePropertyArray(method, this.ns.aml.vocabularies.security.security);
-  }
-
-  /**
-   * Computes value for `hasCustomProperties` property.
-   *
-   * @param {DomainElement} shape AMF `supportedOperation` model
-   * @returns {boolean}
-   */
-  _computeHasCustomProperties(shape) {
-    return this._hasProperty(shape, this.ns.aml.vocabularies.document.customDomainProperties);
-  }
-
-  /**
    * Computes API version from the AMF model.
    *
    * @param {AmfDocument} amf
@@ -714,22 +529,6 @@ export const AmfHelperMixin = (base) => class extends base {
   }
 
   /**
-   * Computes value for `server` property that is later used with other computations.
-   *
-   * @param {AmfDocument} model AMF model for an API
-   * @returns {Server|undefined} The server model
-   */
-  _computeServer(model) {
-    const api = this._computeApi(model);
-    if (!api) {
-      return undefined;
-    }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.server);
-    const srv = this._ensureArray(api[key]);
-    return srv ? srv[0] : undefined;
-  }
-
-  /**
    * Determines whether a partial model is valid for reading servers from
    * Current valid values:
    * - Operation
@@ -810,158 +609,6 @@ export const AmfHelperMixin = (base) => class extends base {
   }
 
   /**
-   * Compute values for `server` property based on node an optional selected id.
-   *
-   * @param {ServerQueryOptions=} options Server query options
-   * @returns {Server[]|undefined} The server list or undefined if node has no servers
-   */
-  _getServer(options = {}) {
-    const { endpointId, methodId, id } = options;
-    const servers = this._getServers({ endpointId, methodId });
-    return servers ? servers.filter((srv) => this._getValue(srv, '@id') === id) : undefined;
-  }
-
-  /**
-   * Computes endpoint's URI based on `amf` and `endpoint` models.
-   *
-   * @param {Server} server Server model of AMF API.
-   * @param {EndPoint} endpoint Endpoint model
-   * @param {string=} baseUri Current value of `baseUri` property
-   * @param {string=} version API current version
-   * @returns {string} Endpoint's URI
-   * @deprecated Use `_computeUri()` instead
-   */
-  _computeEndpointUri(server, endpoint, baseUri, version) {
-    let baseValue = this._getBaseUri(baseUri, server) || '';
-    if (baseValue && baseValue[baseValue.length - 1] === '/') {
-      baseValue = baseValue.substr(0, baseValue.length - 1);
-    }
-    baseValue = this._ensureUrlScheme(baseValue);
-    const path = this._getValue(endpoint, this.ns.aml.vocabularies.apiContract.path);
-    let result = baseValue + (path || '');
-    if (version && result) {
-      result = result.replace('{version}', version);
-    }
-    return result;
-  }
-
-  /**
-   * Computes endpoint's URI based on `endpoint` model.
-   *
-   * @param {EndPoint} endpoint Model for the endpoint
-   * @param {ComputeUriOptions=} options Configuration options
-   * @returns {string} The base uri for the endpoint.
-   */
-  _computeUri(endpoint, options = {}) {
-    const { server, baseUri, version, ignoreBase=false, protocols, ignorePath = false } = options;
-    let baseValue = '';
-    if (ignoreBase === false) {
-      baseValue = this._getBaseUri(baseUri, server, protocols) || '';
-      if (baseValue && baseValue[baseValue.length - 1] === '/') {
-        baseValue = baseValue.substr(0, baseValue.length - 1);
-      }
-      baseValue = this._ensureUrlScheme(baseValue, protocols);
-    }
-    let result = baseValue;
-    if (version && result) {
-      result = result.replace('{version}', version);
-    }
-    if (!ignorePath) {
-      result = this._appendPath(result, endpoint);
-    }
-    return result;
-  }
-
-  /**
-   * Appends endpoint's path to url
-   * @param {string} url
-   * @param {EndPoint} endpoint
-   * @returns {string}
-   */
-  _appendPath(url, endpoint) {
-    const path = this._getValue(endpoint, this.ns.aml.vocabularies.apiContract.path);
-    return url + (path || '');
-  }
-
-  /**
-   * Computes base URI value from either `baseUri` or `amf` value (in this order).
-   *
-   * @param {string} baseUri Value of `baseUri` property
-   * @param {Server} server AMF API model for Server.
-   * @param {string[]=} protocols List of supported protocols
-   * @returns {string} Base uri value. Can be empty string.
-   */
-  _getBaseUri(baseUri, server, protocols) {
-    if (baseUri) {
-      return baseUri;
-    }
-    return this._getAmfBaseUri(server, protocols) || '';
-  }
-
-  /**
-   * Computes base URI from AMF model.
-   *
-   * @param {Server} server AMF API model for Server.
-   * @param {string[]=} protocols The list of supported protocols. If not
-   * provided and required to compute the url it uses `amf` to compute
-   * protocols
-   * @returns {string|undefined} Base uri value if exists.
-   */
-  _getAmfBaseUri(server, protocols) {
-    const key = this.ns.aml.vocabularies.core.urlTemplate;
-    let value = /** @type string */ (this._getValue(server, key));
-    value = this._ensureUrlScheme(value, protocols);
-    return value;
-  }
-
-  /**
-   * A function that makes sure that the URL has a scheme definition.
-   * If no supported protocols information is available it assumes `http`.
-   *
-   * @param {string} value A url value
-   * @param {string[]=} protocols List of supported by the API protocols
-   * An array of string like: `['HTTP', 'HTTPS']`. It lowercase the value.
-   * If not set it tries to read supported protocols value from `amf`
-   * property.
-   * @returns {string} Url with scheme.
-   */
-  _ensureUrlScheme(value, protocols) {
-    if (value && typeof value === 'string') {
-      if (value.indexOf('http') !== 0) {
-        if (!protocols || !protocols.length) {
-          /* eslint-disable-next-line no-param-reassign */
-          protocols = this._computeProtocols(this.amf);
-        }
-        if (protocols && protocols.length) {
-          const protocol = protocols[0].toLowerCase();
-          if (!value.startsWith(protocol)) {
-            /* eslint-disable-next-line no-param-reassign */
-            value = `${protocol}://${value}`;
-          }
-        } else {
-          /* eslint-disable-next-line no-param-reassign */
-          value = `http://${value}`;
-        }
-      }
-    }
-    return value;
-  }
-
-  /**
-   * Computes supported protocols by the API.
-   *
-   * @param {AmfDocument} model AMF data model
-   * @returns {string[]|undefined}
-   */
-  _computeProtocols(model) {
-    const api = this._computeApi(model);
-    if (!api) {
-      return undefined;
-    }
-    return /** @type string[]} */ (this._getValueArray(api, this.ns.aml.vocabularies.apiContract.scheme));
-  }
-
-  /**
    * Computes value for the `expects` property.
    *
    * @param {Operation} method AMF `supportedOperation` model
@@ -978,39 +625,6 @@ export const AmfHelperMixin = (base) => class extends base {
       }
     }
     return undefined;
-  }
-
-  /**
-   * Finds an example value (whether it's default value or from an
-   * example) to put it into snippet's values.
-   *
-   * @param {Parameter} item A http://raml.org/vocabularies/http#Parameter property
-   * @returns {string|undefined}
-   */
-  _computePropertyValue(item) {
-    const exKey = this.ns.aml.vocabularies.apiContract.examples;
-    const schemaKey = this.ns.aml.vocabularies.shapes.schema;
-    const rawKey = this.ns.aml.vocabularies.document.raw;
-    const sKey = this._getAmfKey(schemaKey);
-    let schema = item && item[sKey];
-    if (!schema) {
-      return undefined;
-    }
-    if (Array.isArray(schema)) {
-      [schema] = schema;
-    }
-    let value = this._getValue(schema, this.ns.w3.shacl.defaultValue);
-    if (!value) {
-      const examplesKey = this._getAmfKey(exKey);
-      let example = schema[examplesKey];
-      if (example) {
-        if (example instanceof Array) {
-          [example] = example;
-        }
-        value = this._getValue(example, rawKey);
-      }
-    }
-    return /** @type string */ (value);
   }
 
   /**
@@ -1046,31 +660,6 @@ export const AmfHelperMixin = (base) => class extends base {
   }
 
   /**
-   * Computes model for an endpoint documentation using it's path.
-   *
-   * @param {WebApi} webApi Current value of `webApi` property
-   * @param {string} path Endpoint path
-   * @returns {EndPoint|undefined} An endpoint definition
-   */
-  _computeEndpointByPath(webApi, path) {
-    if (!path || !webApi) {
-      return undefined;
-    }
-    const endpoints = this._computeEndpoints(webApi);
-    if (!endpoints) {
-      return undefined;
-    }
-    const pathKey = this.ns.aml.vocabularies.apiContract.path;
-    for (let i = 0; i < endpoints.length; i++) {
-      const ePath = this._getValue(endpoints[i], pathKey);
-      if (ePath === path) {
-        return endpoints[i];
-      }
-    }
-    return undefined;
-  }
-
-  /**
    * Computes method for the method documentation.
    *
    * @param {WebApi} webApi Current value of `webApi` property
@@ -1083,21 +672,6 @@ export const AmfHelperMixin = (base) => class extends base {
       return undefined;
     }
     return methods.find((item) => item['@id'] === selected);
-  }
-
-  /**
-   * Computes list of operations in an endpoint
-   * @param {WebApi} webApi The WebApi AMF model
-   * @param {string} id Endpoint ID
-   * @returns {Operation[]} List of SupportedOperation objects
-   */
-  _computeOperations(webApi, id) {
-    const endpoint = this._computeEndpointModel(webApi, id);
-    if (!endpoint) {
-      return [];
-    }
-    const opKey = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation);
-    return this._ensureArray(endpoint[opKey]);
   }
 
   /**
@@ -1271,20 +845,6 @@ export const AmfHelperMixin = (base) => class extends base {
       [result] = result;
     }
     return this._resolve(result);
-  }
-
-  /**
-   * Computes model for selected security definition.
-   *
-   * @param {DomainElement[]} declares Current value of `declares` property
-   * @param {string} selected Selected shape
-   * @returns {SecurityScheme|undefined} A security definition
-   */
-  _computeSecurityModel(declares, selected) {
-    if (!declares || !selected) {
-      return undefined;
-    }
-    return declares.find((item) => item['@id'] === selected);
   }
 
   /**

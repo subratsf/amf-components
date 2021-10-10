@@ -51,7 +51,7 @@ class ComponentPage extends AmfDemoBase {
     }
     const expects = this._computeExpects(operation);
     if (expects) {
-      let payloads = this._computePayload(expects);
+      let payloads = expects[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)];
       if (payloads) {
         if (!Array.isArray(payloads)) {
           payloads = [payloads];
@@ -60,12 +60,12 @@ class ComponentPage extends AmfDemoBase {
       }
     }
 
-    const returns = this._computeReturns(operation);
+    const returns = operation[this._getAmfKey(this.ns.aml.vocabularies.apiContract.returns)];
     if (Array.isArray(returns)) {
       const result = [];
       returns.forEach((response) => {
         const code = this._getValue(response, this.ns.aml.vocabularies.apiContract.statusCode);
-        let payloads = this._computePayload(response);
+        let payloads = response[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)];
         if (payloads) {
           if (!Array.isArray(payloads)) {
             payloads = [payloads];

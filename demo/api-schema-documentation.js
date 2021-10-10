@@ -66,7 +66,7 @@ class ComponentPage extends AmfDemoBase {
     const webApi = this._computeWebApi(this.amf);
     const method = this._computeMethodModel(webApi, id);
     const expects = this._computeExpects(method);
-    const payload = /** @type DomainElement */ (expects ? this._computePayload(expects)[0] : {});
+    const payload = /** @type DomainElement */ (expects ? expects[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)][0] : {});
     const mt = this._getValue(payload, this.ns.aml.vocabularies.core.mediaType);
     const key = this._getAmfKey(this.ns.aml.vocabularies.shapes.schema);
     let schema = payload && payload[key];

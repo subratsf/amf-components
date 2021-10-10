@@ -181,7 +181,7 @@ describe('AmfSerializer', () => {
 
     it('processes a SchemaShape', () => {
       const expects = loader.lookupExpects(api, '/xml', 'post');
-      const payload = loader._computePayload(expects)[0];
+      const payload = expects[loader._getAmfKey(loader.ns.aml.vocabularies.apiContract.payload)][0];
       const shape = payload[serializer._getAmfKey(serializer.ns.aml.vocabularies.shapes.schema)][0];
       const result = /** @type ApiSchemaShape */ (serializer.unknownShape(shape));
       assert.equal(result.mediaType, 'application/xml', 'has media type');
@@ -195,7 +195,7 @@ describe('AmfSerializer', () => {
     it('resolves links', () => {
       // takes any operation that has a link-target in the shape
       const expects = loader.lookupExpects(api, '/files/{fileId}/comments', 'post');
-      const payload = loader._computePayload(expects)[0];
+      const payload = expects[loader._getAmfKey(loader.ns.aml.vocabularies.apiContract.payload)][0];
       const shape = payload[serializer._getAmfKey(serializer.ns.aml.vocabularies.shapes.schema)][0];
       const result = /** @type ApiNodeShape */ (serializer.unknownShape(shape));
       assert.equal(result.linkLabel, 'CommentWritable', 'has linkLabel');
@@ -218,7 +218,7 @@ describe('AmfSerializer', () => {
 
     it('processes the oneOf shape (xone)', () => {
       const expects = loader.lookupExpects(api, '/unions', 'patch');
-      const payload = serializer._computePayload(expects)[0];
+      const payload = expects[serializer._getAmfKey(serializer.ns.aml.vocabularies.apiContract.payload)][0];
       const schema = payload[serializer._getAmfKey(serializer.ns.aml.vocabularies.shapes.schema)][0];
       const result = serializer.unknownShape(schema);
       // Not sure why is this "any" shape.
@@ -232,7 +232,7 @@ describe('AmfSerializer', () => {
 
     it('processes the allOf shape (and)', () => {
       const expects = loader.lookupExpects(api, '/unions', 'post');
-      const payload = serializer._computePayload(expects)[0];
+      const payload = expects[serializer._getAmfKey(serializer.ns.aml.vocabularies.apiContract.payload)][0];
       const schema = payload[serializer._getAmfKey(serializer.ns.aml.vocabularies.shapes.schema)][0];
       const result = serializer.unknownShape(schema);
       assert.include(result.types, serializer.ns.w3.shacl.NodeShape, 'has the NodeShape type');
@@ -244,7 +244,7 @@ describe('AmfSerializer', () => {
 
     it('processes the anyOf shape (or)', () => {
       const returns = loader.lookupReturns(api, '/pet/listCommon', 'get');
-      const payload = serializer._computePayload(returns[0])[0];
+      const payload = returns[0][serializer._getAmfKey(serializer.ns.aml.vocabularies.apiContract.payload)][0];
       const schema = payload[serializer._getAmfKey(serializer.ns.aml.vocabularies.shapes.schema)][0];
       const result = /** @type ApiArrayShape */ (serializer.unknownShape(schema));
       const type = result.items;

@@ -14,6 +14,7 @@ import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 /** @typedef {import('../src/helpers/amf').Response} Response */
 /** @typedef {import('../src/helpers/amf').Request} Request */
 /** @typedef {import('../src/helpers/amf').Server} Server */
+/** @typedef {import('../src/helpers/amf').Parameter} Parameter */
 /** @typedef {import('../src/helpers/api').ApiEndPoint} ApiEndPoint */
 /** @typedef {import('../src/helpers/api').ApiOperation} ApiOperation */
 /** @typedef {import('../src/helpers/api').ApiPayload} ApiPayload */
@@ -59,7 +60,19 @@ export class AmfLoader extends AmfHelperMixin(Object) {
   lookupEndpoint(model, path) {
     this.amf = model;
     const webApi = this._computeApi(model);
-    return this._computeEndpointByPath(webApi, path);
+    if (!webApi) {
+      throw new Error('This AMF model does not contain API definition.');
+    }
+    const endpoints = webApi[this._getAmfKey(this.ns.aml.vocabularies.apiContract.endpoint)];
+    if (!Array.isArray(endpoints) || !endpoints.length) {
+      throw new Error('This API does not contain endpoints.');
+    }
+    const pathKey = this.ns.aml.vocabularies.apiContract.path;
+    const ep = endpoints.find(i => this._getValue(i, pathKey) === path);
+    if (!ep) {
+      throw new Error(`An endpoint with path ${path} does not exist in this API.`);
+    }
+    return ep;
   }
 
   /**
@@ -150,7 +163,7 @@ export class AmfLoader extends AmfHelperMixin(Object) {
    */
   lookupPayloads(model, endpoint, operation) {
     const expects = this.lookupExpects(model, endpoint, operation);
-    let payloads = this._computePayload(expects);
+    let payloads = expects[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)];
     if (payloads && !Array.isArray(payloads)) {
       payloads = [payloads];
     }
@@ -332,7 +345,7 @@ export class AmfLoader extends AmfHelperMixin(Object) {
    */
   lookupResponses(model, endpoint, operation) {
     const method = this.lookupOperation(model, endpoint, operation);
-    return this._computeReturns(method);
+    return method[this._getAmfKey(this.ns.aml.vocabularies.apiContract.returns)];
   }
 
   /**
@@ -498,7 +511,7 @@ export class AmfLoader extends AmfHelperMixin(Object) {
    */
   lookupRequestPayloads(model, path, operation) {
     const request = this.lookupExpects(model, path, operation);
-    const payload = this._computePayload(request);
+    const payload = request[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)];
     if (!payload || !payload.length) {
       throw new Error(`Operation ${operation} of endpoint ${payload} has no request payload.`);
     }
@@ -560,5 +573,32 @@ export class AmfLoader extends AmfHelperMixin(Object) {
       throw new Error(`Parameter ${param} not found.`);
     }
     return result;
+  }
+
+  /**
+   * @param {Request|Response} source 
+   * @returns {Parameter[]|undefined}
+   */
+  readHeaders(source) {
+    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.header);
+    let values = source[key];
+    if (values && !Array.isArray(values)) {
+      values = [values];
+    }
+    return values;
+  }
+
+  /**
+   * Computes a list of query parameters
+   * @param {Request} source 
+   * @returns {Parameter[]|undefined}
+   */
+  readQueryParameters(source) {
+    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.parameter);
+    let values = source[key];
+    if (values && !Array.isArray(values)) {
+      values = [values];
+    }
+    return values;
   }
 }
