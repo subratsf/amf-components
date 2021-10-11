@@ -7,7 +7,8 @@ import {
   PropertyShape, RecursiveShape, Request, Response, ScalarNode, ScalarShape, SchemaShape,
   Scope, SecurityRequirement, SecurityScheme, Server, Settings, Shape, SynthesizedField,
   Tag, TemplatedLink, TupleShape, UnionShape, Api, WebApi, AsyncApi, Organization, License,
-} from "./amf.js";
+  ParametrizedDeclaration, ParametrizedTrait, ParametrizedResourceType, VariableValue, AbstractDeclaration,
+} from "./amf";
 import {
   ApiAnyShape, ApiArrayNode, ApiArrayShape, ApiCallback, ApiCustomDomainProperty, ApiDataArrangeShape,
   ApiDataNode, ApiDataNodeUnion, ApiDocumentation, ApiDocumentSourceMaps, ApiEndPoint, ApiExample,
@@ -18,8 +19,13 @@ import {
   ApiSecurityOpenIdConnectSettings, ApiSecurityRequirement, ApiSecurityScheme, ApiSecurityScope,
   ApiSecuritySettings, ApiSecuritySettingsUnion, ApiServer, ApiShape, ApiShapeUnion, ApiSynthesizedField,
   ApiTag, ApiTupleShape, ApiUnionShape, ApiXMLSerializer, ApiOrganization, ApiSummary, ApiBase,
-  ApiWeb, ApiAsync, ApiLicense,
-} from "./types.js";
+  ApiWeb, ApiAsync, ApiLicense, ApiParametrizedDeclaration, ApiParametrizedTrait, ApiParametrizedResourceType,
+  ApiVariableValue, ApiAbstractDeclaration,
+} from "./api";
+import {
+  ApiEndPointWithOperationsListItem,
+  ApiOperationListItem,
+} from '../types'
 
 /**
  * A class that takes AMF's ld+json model and outputs JavaScript interface of it.
@@ -179,4 +185,21 @@ export declare class AmfSerializer extends AmfHelperMixin(Object) {
    */
   sourceMap(object: DocumentSourceMaps): ApiDocumentSourceMaps | undefined;
   synthesizedField(object: SynthesizedField): ApiSynthesizedField;
+  parametrizedDeclaration(object: ParametrizedDeclaration): ApiParametrizedDeclaration;
+  parametrizedTrait(object: ParametrizedTrait): ApiParametrizedTrait;
+  parametrizedResourceType(object: ParametrizedResourceType): ApiParametrizedResourceType;
+  variableValue(object: VariableValue): ApiVariableValue;
+  abstractDeclaration(object: AbstractDeclaration): ApiAbstractDeclaration;
+
+  /**
+   * @param object The EndPoint to serialize as a list item.
+   * @returns Serialized EndPoint as a list item.
+   */
+  endPointWithOperationsListItem(object: EndPoint): ApiEndPointWithOperationsListItem;
+
+  /**
+   * @param object The Operation to serialize as a list item.
+   * @returns Serialized Operation as a list item.
+   */
+  operationListItem(object: Operation): ApiOperationListItem;
 }

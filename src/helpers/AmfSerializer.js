@@ -115,6 +115,8 @@ import { AmfHelperMixin, expandKey, findAmfType, getArrayItems } from "./AmfHelp
 /** @typedef {import('./amf').AbstractDeclaration} AbstractDeclaration */
 /** @typedef {import('./amf').Organization} Organization */
 /** @typedef {import('./amf').License} License */
+/** @typedef {import('../types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
+/** @typedef {import('../types').ApiOperationListItem} ApiOperationListItem */
 
 /**
  * A class that takes AMF's ld+json model and outputs JavaScript interface of it.
@@ -2230,6 +2232,51 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
     if (Array.isArray(dataNode)) {
       const [item] = dataNode;
       result.dataNode = this.unknownDataNode(item);
+    }
+    return result;
+  }
+
+  /**
+   * @param {EndPoint} object The EndPoint to serialize as a list item.
+   * @returns {ApiEndPointWithOperationsListItem} Serialized EndPoint as a list item.
+   */
+  endPointWithOperationsListItem(object) {
+    const { ns } = this;
+    const path = this._getValue(object, ns.aml.vocabularies.apiContract.path);
+
+    const result = /** @type ApiEndPointWithOperationsListItem */ ({
+      id: object['@id'],
+      path,
+      operations: [],
+    });
+    const operations = this[getArrayItems](object, ns.aml.vocabularies.apiContract.supportedOperation);
+    if (Array.isArray(operations) && operations.length) {
+      result.operations = operations.map(i => this.operationListItem(/** @type Operation */ (i)));
+    }
+    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    if (name && typeof name === 'string') {
+      result.name = name;
+    }
+    return result;
+  }
+
+  /**
+   * @param {Operation} object The Operation to serialize as a list item.
+   * @returns {ApiOperationListItem} Serialized Operation as a list item.
+   */
+  operationListItem(object) {
+    const result = /** @type ApiOperationListItem */ ({
+      id: object['@id'],
+      method: '',
+    });
+    const { ns } = this;
+    const method = this._getValue(object, ns.aml.vocabularies.apiContract.method);
+    if (method && typeof method === 'string') {
+      result.method = method;
+    }
+    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    if (name && typeof name === 'string') {
+      result.name = name;
     }
     return result;
   }

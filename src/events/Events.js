@@ -1,5 +1,5 @@
 // import { StoreEvents } from './StoreEvents.js';
-// import { EndpointEvents } from './EndpointEvents.js';
+import { EndpointEvents } from './EndpointEvents.js';
 // import { OperationEvents } from './OperationEvents.js';
 import { ApiEvents } from './ApiEvents.js';
 import { ServerEvents } from './ServerEvents.js';
@@ -16,7 +16,7 @@ import { RequestEvents } from './RequestEvents.js';
 
 export const Events = {
   Api: ApiEvents,
-  // Endpoint: EndpointEvents,
+  Endpoint: EndpointEvents,
   // Operation: OperationEvents,
   Server: ServerEvents,
   // Documentation: DocumentationEvents,

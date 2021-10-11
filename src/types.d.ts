@@ -344,3 +344,30 @@ export interface ApiSchemaReadOptions {
    */
   fromExamples?: boolean;
 }
+
+export interface ApiEndPointListItem {
+  /**
+   * The domain id of the endpoint.
+   * It may be undefined when the endpoint is created "abstract" endpoint vor the visualization.
+   */
+  id?: string;
+  path: string;
+  name?: string;
+}
+
+export interface ApiEndPointWithOperationsListItem extends ApiEndPointListItem {
+  operations: ApiOperationListItem[];
+}
+
+export interface ApiOperationListItem {
+  id: string;
+  method: string;
+  name?: string;
+}
+
+export interface ApiEndpointsTreeItem extends ApiEndPointWithOperationsListItem {
+  label: string;
+  indent: number;
+  hasShortPath?: boolean;
+  hasChildren?: boolean;
+}

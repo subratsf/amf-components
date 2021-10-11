@@ -26,12 +26,19 @@ declare interface Navigation {
   apiNavigate: string;
 }
 
+declare interface EndpointEvents {
+  get: string;
+  byPath: string;
+  list: string;
+}
+
 interface IEventTypes {
   Security: Readonly<Security>;
   Request: Readonly<Request>;
   Server: Readonly<Server>;
   Api: Readonly<ApiEvents>;
   Navigation: Readonly<Navigation>;
+  Endpoint: Readonly<EndpointEvents>;
 }
 
 export const EventTypes: Readonly<IEventTypes>;

@@ -24,4 +24,9 @@ export const EventTypes = Object.freeze({
   Navigation: Object.freeze({
     apiNavigate: 'apinavigate',
   }),
+  Endpoint: {
+    get: 'amfstoreendpointget',
+    byPath: 'amfstoreendpointbypath',
+    list: 'amfstoreendpointlist',
+  },
 });

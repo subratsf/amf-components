@@ -1,4 +1,4 @@
-// import { IEndpointEvents } from './EndpointEvents';
+import { IEndpointEvents } from './EndpointEvents';
 // import { IOperationEvents } from './OperationEvents';
 import { IApiEvents } from './ApiEvents';
 import { IServerEvents } from './ServerEvents';
@@ -15,7 +15,7 @@ import { IRequestEvents } from './RequestEvents';
 
 declare interface IEvents {
   Api: IApiEvents;
-  // Endpoint: IEndpointEvents;
+  Endpoint: IEndpointEvents;
   // Operation: IOperationEvents;
   Server: IServerEvents;
   // Documentation: IDocumentationEvents;

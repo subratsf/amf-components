@@ -1,6 +1,9 @@
 {
   "cSpell.words": [
     "amfstoreapisummary",
+    "amfstoreendpointbypath",
+    "amfstoreendpointget",
+    "amfstoreendpointlist",
     "apinavigate",
     "apirequest",
     "apiresponse",
