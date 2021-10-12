@@ -11,7 +11,6 @@ import '../../api-parametrized-security-scheme.js';
 /** @typedef {import('../helpers/amf').SecurityRequirement} SecurityRequirement */
 
 export const securityRequirementValue = Symbol('securityRequirementValue');
-export const findSecurity = Symbol('findSecurity');
 export const findOperationSecurity = Symbol('findOperationSecurity');
 
 export default class ApiSecurityRequirementDocumentElement extends ApiDocumentationBase {
@@ -54,49 +53,13 @@ export default class ApiSecurityRequirementDocumentElement extends ApiDocumentat
     let processModel = domainModel;
     if (!processModel && domainId) {
       if (!this[securityRequirementValue] || this[securityRequirementValue].id !== domainId) {
-        processModel = this[findSecurity](domainId);
-        if (!processModel) {
-          processModel = this[findOperationSecurity](domainId);
-        }
+        processModel = this[findOperationSecurity](domainId);
       }
     }
     if (processModel) {
       this[securityRequirementValue] = this[serializerValue].securityRequirement(processModel);
     }
     await this.requestUpdate();
-  }
-
-  /**
-   * @param {string} id
-   * @returns {SecurityRequirement|undefined} 
-   */
-  [findSecurity](id) {
-    const { amf } = this;
-    if (!amf) {
-      return undefined;
-    }
-    const declares = this._computeDeclares(amf);
-    if (declares) {
-      const result = declares.find((item) => item['@id'] === id);
-      if (result) {
-        return this._resolve(result);
-      }
-    }
-    const references = this._computeReferences(amf) || [];
-    for (const reference of references) {
-      if (!this._hasType(reference, this.ns.aml.vocabularies.document.Module)) {
-        const referencedDeclares = this._computeDeclares(reference) || [];
-        for (let declare of referencedDeclares) {
-          if (Array.isArray(declare)) {
-            [declare] = declare;
-          }
-          if (declare['@id'] === id) {
-            return this._resolve(declare);
-          }
-        }
-      }
-    }
-    return undefined;
   }
 
   /**

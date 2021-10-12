@@ -2,7 +2,10 @@ export default {
   files: 'test/**/*.test.js',
   // files: 'test/navigation/*.test.js',
   // files: 'test/elements/ApiServerSelectorElement.test.js',
-  // files: 'test/serializer/Endpoints.test.js',
+  // files: [
+  //   'test/elements/ApiSecurityRequirementDocumentElement.test.js',
+  //   'test/elements/ApiOperationDocumentElement.test.js',
+  // ],
   nodeResolve: true,
   testFramework: {
     config: {

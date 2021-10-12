@@ -537,7 +537,8 @@ describe('ApiOperationDocumentElement', () => {
           assert.ok(doc, 'has the security documentation');
 
           assert.isTrue(doc.amf === model, 'passes the model');
-          assert.typeOf(doc.domainId, 'string', 'passes the security id');
+          assert.typeOf(doc.securityRequirement, 'object', 'passes the security object');
+          // assert.typeOf(doc.domainId, 'string', 'passes the security id');
         });
 
         it('renders multiple security options', async () => {
@@ -551,7 +552,8 @@ describe('ApiOperationDocumentElement', () => {
           assert.ok(doc, 'has the security documentation');
 
           assert.isTrue(doc.amf === model, 'passes the model');
-          assert.typeOf(doc.domainId, 'string', 'passes the security id');
+          assert.typeOf(doc.securityRequirement, 'object', 'passes the security object');
+          // assert.typeOf(doc.domainId, 'string', 'passes the security id');
         });
 
         it('switches between the security schemes', async () => {
@@ -568,7 +570,8 @@ describe('ApiOperationDocumentElement', () => {
           const doc = element.shadowRoot.querySelector('api-security-requirement-document');
           assert.ok(doc, 'has the security documentation');
 
-          assert.equal(doc.domainId, tabs[1].dataset.id, 'passes the security id');
+          // assert.equal(doc.domainId, tabs[1].dataset.id, 'passes the security id');
+          assert.equal(doc.securityRequirement.id, tabs[1].dataset.id, 'passes the security object');
         });
       });
 

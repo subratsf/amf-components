@@ -42,7 +42,7 @@ describe('ApiSecurityDocumentElement', () => {
     return /** @type ApiSecurityDocumentElement */ (element);
   }
 
-  [false].forEach((compact) => {
+  [false, true].forEach((compact) => {
     describe(compact ? 'Compact model' : 'Full model', () => {
       describe('Basic auth', () => {
         /** @type AmfDocument */

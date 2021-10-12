@@ -20,6 +20,7 @@ export { default as HttpMethodLabelElement } from './src/elements/HttpMethodLabe
 export { default as ApiNavigationElement } from './src/elements/ApiNavigationElement';
 export { default as ApiSecurityDocumentElement } from './src/elements/ApiSecurityDocumentElement';
 export { default as ApiParametrizedSecuritySchemeElement } from './src/elements/ApiParametrizedSecuritySchemeElement';
+export { default as ApiSecurityRequirementDocumentElement } from './src/elements/ApiSecurityRequirementDocumentElement';
 export * from './src/events/EventTypes';
 export * from './src/events/Events';
 export * as InputCache from './src/lib/InputCache';

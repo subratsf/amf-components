@@ -20,6 +20,7 @@ export const mergeSettings = Symbol('mergeSettings');
 
 export default class ApiParametrizedSecuritySchemeElement extends ApiSecurityDocumentElement {
   get styles() {
+    // @ts-ignore
     return [...super.styles, elementStyles];
   }
 

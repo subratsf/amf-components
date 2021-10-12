@@ -8,6 +8,7 @@ import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 /** @typedef {import('../src/helpers/amf').Operation} Operation */
 /** @typedef {import('../src/helpers/amf').Payload} Payload */
 /** @typedef {import('../src/helpers/amf').SecurityRequirement} SecurityRequirement */
+/** @typedef {import('../src/helpers/amf').SecurityScheme} SecurityScheme */
 /** @typedef {import('../src/helpers/amf').Shape} Shape */
 /** @typedef {import('../src/helpers/amf').CreativeWork} CreativeWork */
 /** @typedef {import('../src/helpers/amf').WebApi} WebApi */
@@ -19,6 +20,7 @@ import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 /** @typedef {import('../src/helpers/api').ApiOperation} ApiOperation */
 /** @typedef {import('../src/helpers/api').ApiPayload} ApiPayload */
 /** @typedef {import('../src/helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../src/helpers/api').ApiSecurityScheme} ApiSecurityScheme */
 /** @typedef {import('../src/helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../src/helpers/api').ApiDocumentation} ApiDocumentation */
 /** @typedef {import('../src/helpers/api').ApiServer} ApiServer */
@@ -188,13 +190,10 @@ export class AmfLoader extends AmfHelperMixin(Object) {
   /**
    * @param {AmfDocument} model 
    * @param {string} name 
-   * @returns {SecurityRequirement}
+   * @returns {SecurityScheme}
    */
   lookupSecurity(model, name) {
     this.amf = model;
-    // const webApi = this._hasType(model, this.ns.aml.vocabularies.document.Document) ?
-    //   this._computeApi(model) :
-    //   model;
     const declares = this._computeDeclares(model) || [];
     let security = declares.find((item) => {
       if (Array.isArray(item)) {
@@ -229,7 +228,7 @@ export class AmfLoader extends AmfHelperMixin(Object) {
   /**
    * @param {AmfDocument} model
    * @param {string} name 
-   * @return {ApiSecurityRequirement}
+   * @return {ApiSecurityScheme}
    */
   getSecurity(model, name) {
     const security = this.lookupSecurity(model, name);
@@ -237,7 +236,7 @@ export class AmfLoader extends AmfHelperMixin(Object) {
       throw new Error(`No security named ${name}`);
     }
     const serializer = new AmfSerializer(model);
-    return serializer.securityRequirement(security);
+    return serializer.securityScheme(security);
   }
 
   /**

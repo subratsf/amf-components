@@ -1003,9 +1003,10 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
    * @returns {TemplateResult} 
    */
   [securityTemplate](security) {
+    // .domainId="${security.id}" 
     return html`<api-security-requirement-document 
       .amf="${this.amf}" 
-      .domainId="${security.id}" 
+      .securityRequirement="${security}"
       ?anypoint="${this.anypoint}"
     ></api-security-requirement-document>`
   }
