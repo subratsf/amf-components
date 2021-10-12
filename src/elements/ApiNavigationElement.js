@@ -906,18 +906,21 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
   [appendSecurityItem](item, target) {
     const voc = this.ns.aml.vocabularies;
     let name = this._getValue(item, voc.core.displayName);
+    const secType = /** @type string */ (this._getValue(item, voc.security.type));
+    if (!secType) {
+      // this is a case when the security scheme is referenced from a library.
+      // This creates an entry in the graph model but there is no actual definition of the 
+      // security.
+      // The definition will be discovered when scanning references.
+      return;
+    }
     if (!name) {
       name = this._getValue(item, voc.security.name);
     }
     if (!name) {
-      const apiName = this._getValue(item, voc.core.name);
-      const secType = /** @type string */ (this._getValue(item, voc.security.type));
-      let result = '';
-      if (apiName) {
-        result = `${apiName} - `;
-      }
-      name = result + mapAuthName(secType);
+      name = this._getValue(item, voc.core.name);
     }
+    name = `${name || ''} - ${mapAuthName(secType)}`
     const id = item['@id'];
     target.securitySchemes.push({
       label: String(name),
@@ -1924,6 +1927,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
     if (this.noOverview) {
       return '';
     }
+    const style = /** @type string */ (this[computeMethodPadding](item.indent, this.indentSize));
     return html`
     <div
       part="api-navigation-list-item"
@@ -1934,7 +1938,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
       data-shape="resource"
       data-endpoint-overview="${item.path}"
       @click="${this[itemClickHandler]}"
-      style="${this[computeMethodPadding](item.indent, this.indentSize)}"
+      style="${style}"
     >
       Overview
     </div>`

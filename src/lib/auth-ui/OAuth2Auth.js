@@ -31,6 +31,7 @@ const gtValue = Symbol("gtValue");
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2CustomParameter} OAuth2CustomParameter */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.Oauth2GrantType} Oauth2GrantType */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2DeliveryMethod} OAuth2DeliveryMethod */
 /** @typedef {import('../../types').OperationParameter} OperationParameter */
 
 export default class OAuth2Auth extends AmfParameterMixin(Oauth2) {
@@ -171,6 +172,9 @@ export default class OAuth2Auth extends AmfParameterMixin(Oauth2) {
     const info = this.getOauth2DeliveryMethod(scheme);
     if (this.oauthDeliveryMethod !== info.method) {
       this.oauthDeliveryMethod = info.method;
+    }
+    if (this.ccDeliveryMethod !== info.method) {
+      this.ccDeliveryMethod = /** @type OAuth2DeliveryMethod */ (info.method);
     }
     if (this.oauthDeliveryName !== info.name) {
       this.oauthDeliveryName = info.name;

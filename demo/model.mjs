@@ -9,6 +9,7 @@ config.set('amf-helper-api/amf-helper-api.raml', { type: "RAML 1.0" });
 config.set('arc-demo-api/arc-demo-api.raml', { type: "RAML 1.0" });
 config.set('navigation-api/navigation-api.raml', { type: "RAML 1.0" });
 config.set('schema-api/schema-api.raml', { type: "RAML 1.0" });
+config.set('security-api/security-api.raml', { type: "RAML 1.0" });
 config.set('array-body/array-body.raml', { type: "RAML 1.0" });
 config.set('google-drive-api/google-drive-api.raml', { type: "RAML 1.0" });
 config.set('appian-api/appian-api.raml', { type: "RAML 1.0" });

@@ -25,11 +25,13 @@ import '../../api-response-document.js'
 /** @typedef {import('../helpers/api').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
 /** @typedef {import('../helpers/api').ApiSecurityOpenIdConnectSettings} ApiSecurityOpenIdConnectSettings */
 /** @typedef {import('../helpers/api').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
+/** @typedef {import('../helpers/api').ApiSecurityOAuth1Settings} ApiSecurityOAuth1Settings */
 /** @typedef {import('../helpers/api').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
 /** @typedef {import('../helpers/api').ApiSecurityScope} ApiSecurityScope */
 /** @typedef {import('../helpers/api').ApiResponse} ApiResponse */
 /** @typedef {import('../helpers/amf').SecurityScheme} SecurityScheme */
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/amf').SecurityRequirement} SecurityRequirement */
 /** @typedef {import('@anypoint-web-components/anypoint-tabs').AnypointTabs} AnypointTabs */
 
 export const querySecurity = Symbol('querySecurity');
@@ -64,6 +66,9 @@ export const scopeTemplate = Symbol('scopeTemplate');
 export const grantTitleTemplate = Symbol('grantTitleTemplate');
 export const setModel = Symbol('setModel');
 export const computeReferenceSecurity = Symbol('computeReferenceSecurity');
+export const oAuth1SettingsTemplate = Symbol('oAuth1SettingsTemplate');
+export const tokenCredentialsUriTemplate = Symbol('tokenCredentialsUriTemplate');
+export const signaturesTemplate = Symbol('signaturesTemplate');
 
 /**
  * A web component that renders the documentation page for an API response object.
@@ -182,7 +187,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
    * Computes a security model from a reference (library for example).
    * @param {DomainElement} reference AMF model for a reference to extract the data from
    * @param {string} selected Node ID to look for
-   * @return {any|undefined} Type definition or undefined if not found.
+   * @return {SecurityRequirement|undefined} Type definition or undefined if not found.
    */
   [computeReferenceSecurity](reference, selected) {
     const declare = this._computeDeclares(reference);
@@ -314,7 +319,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     if (!Array.isArray(scheme.queryParameters) || !scheme.queryParameters.length) {
       return '';
     }
-    const content = scheme.queryParameters.map((param) => this[schemaItemTemplate](param));
+    const content = scheme.queryParameters.map((param) => this[schemaItemTemplate](param, 'query'));
     return this[paramsSectionTemplate]('Parameters', 'parametersOpened', content);
   }
 
@@ -326,7 +331,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     if (!Array.isArray(scheme.headers) || !scheme.headers.length) {
       return '';
     }
-    const content = scheme.headers.map((param) => this[schemaItemTemplate](param));
+    const content = scheme.headers.map((param) => this[schemaItemTemplate](param, 'header'));
     return this[paramsSectionTemplate]('Headers', 'headersOpened', content);
   }
 
@@ -398,6 +403,9 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     }
     if (types.includes(ns.aml.vocabularies.security.OAuth2Settings)) {
       return this[oAuth2SettingsTemplate](/** @type ApiSecurityOAuth2Settings */ (settings));
+    }
+    if (types.includes(ns.aml.vocabularies.security.OAuth1Settings)) {
+      return this[oAuth1SettingsTemplate](/** @type ApiSecurityOAuth1Settings */ (settings));
     }
     return '';
   }
@@ -643,5 +651,58 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
       ${description ? html`<span class="scope-description">${description}</span>` : ''}
     </li>
     `;
+  }
+
+  /**
+   * @param {ApiSecurityOAuth1Settings} settings
+   * @returns {TemplateResult|string} The template for OAuth 1 security definition.
+   */
+  [oAuth1SettingsTemplate](settings) {
+    const { signatures=[], authorizationUri, requestTokenUri, tokenCredentialsUri } = settings;
+    const content = /** @type TemplateResult[] */ ([]);
+    if (authorizationUri) {
+      content.push(/** @type TemplateResult */ (this[authorizationUriTemplate](authorizationUri)));
+    }
+    if (requestTokenUri) {
+      content.push(/** @type TemplateResult */ (this[accessTokenUriTemplate](requestTokenUri)));
+    }
+    if (tokenCredentialsUri) {
+      content.push(/** @type TemplateResult */ (this[tokenCredentialsUriTemplate](tokenCredentialsUri)));
+    }
+    if (signatures.length) {
+      content.push(this[signaturesTemplate](signatures));
+    }
+    return this[paramsSectionTemplate]('Settings', 'settingsOpened', content);
+  }
+
+  /**
+   * @param {string} uri The token credentials URI
+   * @returns {TemplateResult|string} The template for the token credentials URI
+   */
+  [tokenCredentialsUriTemplate](uri) {
+    if (!uri) {
+      return '';
+    }
+    return html`
+    <div class="flow-section">
+      <h5 data-type="token-credentials-uri" class="value-title">Token credentials URI</h5>
+      <div class="example-content">
+        <pre class="code-value"><code>${uri}</code></pre>
+      </div>
+    </div>`;
+  }
+
+  /**
+   * @param {string[]} signatures The OAuth1 signatures.
+   * @returns {TemplateResult} The template for the OAuth1 signatures.
+   */
+  [signaturesTemplate](signatures) {
+    return html`
+    <div class="flow-section">
+      <h5 data-type="signatures" class="value-title">Supported signatures</h5>
+      <ul>
+      ${signatures.map((item) => html`<li><pre class="code-value"><code>${item}</code></pre></li>`)}
+      </ul>
+    </div>`;
   }
 }

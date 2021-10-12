@@ -48,7 +48,7 @@ describe('ApiNavigationElement', () => {
           const result = element[securityValue];
           assert.lengthOf(result, 1);
           assert.typeOf(result[0].id, 'string');
-          assert.equal(result[0].label, 'MyOauth');
+          assert.equal(result[0].label, 'MyOauth - OAuth 2.0');
         });
 
         it('Endpoints is undefined', () => {

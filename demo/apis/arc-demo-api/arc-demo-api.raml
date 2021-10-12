@@ -110,7 +110,6 @@ securitySchemes:
   oauth_2_0: !include securitySchemes/oauth_2_0.raml
   x-custom: !include securitySchemes/x-custom.raml
   basic: !include securitySchemes/basic.raml
-  libOauth: myLib.oauthLib
 
 documentation:
   - title: Test doc
@@ -120,7 +119,7 @@ securedBy: [basic]
 
 /test-parameters/{feature}:
   (deprecated): This endpoint is deprecated and will be removed.
-  securedBy: [libOauth]
+  securedBy: [myLib.oauthLib]
   uriParameters:
     feature:
       type: string

@@ -192,7 +192,6 @@ types:
   FileType:
     minLength: 1024
     maxLength: 2048
-    required: true
     type: file
     fileTypes:
       - application/mulesoft+modeling
@@ -430,7 +429,7 @@ securitySchemes:
   oauth2noDelivery: !include securitySchemes/oauth2-no-delivery.raml
   oauth2noGrants: !include securitySchemes/oauth2-no-grants.raml
   oauth2pkce: !include securitySchemes/oauth2-pkce.raml
-  libOauth: myLib.oauthLib
+  # libOauth: myLib.oauthLib
 
 documentation:
   - title: Test doc
@@ -439,7 +438,7 @@ documentation:
 
 /test-parameters/{feature}:
   (deprecated): This endpoint is deprecated and will be removed.
-  securedBy: [libOauth]
+  securedBy: [myLib.oauthLib]
   uriParameters:
     feature:
       type: string

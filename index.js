@@ -18,6 +18,8 @@ export { default as ApiAuthorizationMethodElement } from './src/elements/ApiAuth
 export { default as ApiServerSelectorElement } from './src/elements/ApiServerSelectorElement.js';
 export { default as HttpMethodLabelElement } from './src/elements/HttpMethodLabelElement.js';
 export { default as ApiNavigationElement } from './src/elements/ApiNavigationElement.js';
+export { default as ApiSecurityDocumentElement } from './src/elements/ApiSecurityDocumentElement.js';
+export { default as ApiParametrizedSecuritySchemeElement } from './src/elements/ApiParametrizedSecuritySchemeElement.js';
 export * from './src/events/EventTypes.js';
 export * from './src/events/Events.js';
 export * as InputCache from './src/lib/InputCache.js';

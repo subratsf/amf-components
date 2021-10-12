@@ -102,7 +102,7 @@ paths:
               parameters:
                 one: $response.body#/one
                 two: $response.body#/two
-        402:
+        '402':
           description: Not OK. Payment is required
           content:
             application/json:

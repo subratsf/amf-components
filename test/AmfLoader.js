@@ -192,17 +192,19 @@ export class AmfLoader extends AmfHelperMixin(Object) {
    */
   lookupSecurity(model, name) {
     this.amf = model;
-    const webApi = this._hasType(model, this.ns.aml.vocabularies.document.Document) ?
-      this._computeApi(model) :
-      model;
-    const declares = this._computeDeclares(webApi) || [];
+    // const webApi = this._hasType(model, this.ns.aml.vocabularies.document.Document) ?
+    //   this._computeApi(model) :
+    //   model;
+    const declares = this._computeDeclares(model) || [];
     let security = declares.find((item) => {
       if (Array.isArray(item)) {
         [item] = item;
       }
-      const result = this._getValue(item, this.ns.aml.vocabularies.core.name) === name;
-      if (result) {
-        return result;
+      if (this._getValue(item, this.ns.aml.vocabularies.core.displayName) === name) {
+        return true;
+      }
+      if (this._getValue(item, this.ns.aml.vocabularies.core.name) === name) {
+        return true;
       }
       return this._getValue(item, this.ns.aml.vocabularies.security.name) === name;
     });

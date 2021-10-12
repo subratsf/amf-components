@@ -443,7 +443,7 @@ describe('ApiAuthorizationEditorElement', () => {
         });
 
         it('marks invalid when no token', async () => {
-          const security = await getSecurityRequirement(model, '/oauth2', 'post');
+          const security = getSecurityRequirement(model, '/oauth2', 'post');
           const element = await basicFixture(model, security);
 
           const form = element.shadowRoot.querySelector('api-authorization-method');
@@ -458,7 +458,7 @@ describe('ApiAuthorizationEditorElement', () => {
         });
 
         it('respects delivery method (query)', async () => {
-          const security = await getSecurityRequirement(model, '/oauth2-query-delivery', 'get');
+          const security = getSecurityRequirement(model, '/oauth2-query-delivery', 'get');
           const element = await basicFixture(model, security);
 
           const form = element.shadowRoot.querySelector('api-authorization-method');
@@ -476,7 +476,7 @@ describe('ApiAuthorizationEditorElement', () => {
         });
 
         it('respects delivery method (header)', async () => {
-          const security = await getSecurityRequirement(model, '/oauth2-header-delivery', 'get');
+          const security = getSecurityRequirement(model, '/oauth2-header-delivery', 'get');
           const element = await basicFixture(model, security);
 
           const form = element.shadowRoot.querySelector('api-authorization-method');
@@ -494,7 +494,7 @@ describe('ApiAuthorizationEditorElement', () => {
         });
 
         it('uses default delivery', async () => {
-          const security = await getSecurityRequirement(model, '/oauth2-no-delivery', 'get');
+          const security = getSecurityRequirement(model, '/oauth2-no-delivery', 'get');
           const element = await basicFixture(model, security);
 
           const form = element.shadowRoot.querySelector('api-authorization-method');

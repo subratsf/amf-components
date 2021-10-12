@@ -11,4 +11,5 @@ paths:
     get:
       summary: "A get method"
       responses:
-        200:
+        '200':
+          description: OK response
