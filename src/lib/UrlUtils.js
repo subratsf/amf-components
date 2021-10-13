@@ -20,10 +20,11 @@ export function setProtocol(url='', options={}) {
   }
 
   let result = url;
-  const hasHttpProtocol = !!result && (result.startsWith('http:') || result.startsWith('https:'));
-  if (result && !hasHttpProtocol && schemes.length) {
+  // this also run when an Async API is loaded so the protocol may be whatever.
+  const hasProtocol = !!result && result.includes('://');
+  if (result && !hasProtocol && schemes.length) {
     result = `${schemes[0]}://${result}`;
-  } else if (result && !hasHttpProtocol && options.forceHttpProtocol) {
+  } else if (result && !hasProtocol && options.forceHttpProtocol) {
     result = `http://${result}`;
   }
   return result;

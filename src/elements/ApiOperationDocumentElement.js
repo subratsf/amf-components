@@ -756,6 +756,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     const label = name || method;
     const labelClasses = {
       label: true,
+      'text-selectable': true,
       deprecated,
     };
     const subTitle = this.asyncApi ? 'Async operation' : 'API operation';
@@ -782,7 +783,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     const value = joinTraitNames(traits);
     return html`
     <section class="extensions">
-      <p>Mixes in <span class="trait-name">${value}</span>.</p>
+      <p>Mixes in <span class="trait-name text-selectable">${value}</span>.</p>
     </section>`;
   }
 
@@ -796,7 +797,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
       return '';
     }
     return html`
-    <p class="summary">${summary}</p>
+    <p class="summary text-selectable">${summary}</p>
     `;
   }
 
@@ -828,7 +829,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     return html`
     <div class="deprecated-message">
       <arc-icon icon="warning"></arc-icon>
-      <span class="message">
+      <span class="message text-selectable">
       This operation is marked as deprecated.
       </span>
     </div>
@@ -848,7 +849,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     return html`
     <div class="endpoint-url">
       <div class="method-label" data-method="${method}">${method}</div>
-      <div class="url-value">${url}</div>
+      <div class="url-value text-selectable">${url}</div>
     </div>
     `;
   }
@@ -932,11 +933,14 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
 
   /**
    * @param {ApiResponse[]} responses The responses to render.
-   * @returns {TemplateResult} The template for the responses selector.
+   * @returns {TemplateResult|string} The template for the responses selector.
    */
   [responseTabsTemplate](responses) {
     const { selectedStatus, anypoint } = this;
     const filtered = responses.filter((item) => !!item.statusCode);
+    if (!filtered.length) {
+      return '';
+    }
     return html`
     <div class="status-codes-selector">
       <anypoint-tabs

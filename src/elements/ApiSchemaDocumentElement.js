@@ -3,11 +3,11 @@
 import { html } from 'lit-element';
 import { classMap } from "lit-html/directives/class-map";
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
-import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
 import '@advanced-rest-client/highlight/arc-marked.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
 import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
 import { chevronRight } from '@advanced-rest-client/arc-icons';
+import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
 import { ns } from '../helpers/Namespace.js';
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiSchema.js';
@@ -422,8 +422,8 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     return html`
     <div class="schema-header">
       <div class="${classMap(headerCss)}">
-        <span class="label">${prefix}${label}</span>
-        ${typeName ? html`<span class="type-name" title="Schema name">(${typeName})</span>` : ''}
+        <span class="label text-selectable">${prefix}${label}</span>
+        ${typeName ? html`<span class="type-name text-selectable" title="Schema name">(${typeName})</span>` : ''}
       </div>
     </div>
     `;
@@ -598,7 +598,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     const { name='' } = shape;
     const hasName = !!name && !name.startsWith('item');
     if (hasName) {
-      return html`<p class="inheritance-label">Properties inherited from <b>${name}</b>.</p>`;
+      return html`<p class="inheritance-label text-selectable">Properties inherited from <b>${name}</b>.</p>`;
     }
     return '';
     // return html`<p class="inheritance-label">Properties defined inline.</p>`;
@@ -696,7 +696,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     }
     return html`
     <div class="schema-content">
-    <pre class="code-value"><code>${raw}</code></pre>
+    <pre class="code-value text-selectable"><code>${raw}</code></pre>
     </div>
     `;
   }
@@ -718,7 +718,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
       const label = readPropertyTypeLabel(schema, true);
       labelTemplate = html`
       <div class="schema-property-item">
-        <div class="schema-property-label">${label}</div>
+        <div class="schema-property-label text-selectable">${label}</div>
       </div>
       `;
     }
@@ -740,7 +740,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
       return '';
     }
     if (!items) {
-      return html`<div class="empty-info">Items are not defined for this array.</div>`;
+      return html`<div class="empty-info text-selectable">Items are not defined for this array.</div>`;
     }
     return html`
     <div class="params-section">
@@ -761,7 +761,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     if (and.length || or.length || xone.length) {
       return this[unionShapeTemplate](/** @type ApiUnionShape */ (schema));
     }
-    return html`<p class="any-info">Any schema is accepted as the value here.</p>`;
+    return html`<p class="any-info text-selectable">Any schema is accepted as the value here.</p>`;
   }
 
   /**
@@ -772,7 +772,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     if (schema.readOnly && this.noReadOnly) {
       return '';
     }
-    return html`<p class="nil-info">The value of this property is <b>nil</b>.</p>`;
+    return html`<p class="nil-info text-selectable">The value of this property is <b>nil</b>.</p>`;
   }
 
   /**
@@ -884,7 +884,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     <div class="property-container">
       <div class="name-column">
         ${paramNameTemplate(label, required, deprecated)}
-        <div class="param-type">
+        <div class="param-type text-selectable">
           Unknown type
         </div>
       </div>

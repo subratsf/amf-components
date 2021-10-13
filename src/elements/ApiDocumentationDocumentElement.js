@@ -92,7 +92,7 @@ export default class ApiDocumentationDocumentElement extends ApiDocumentationBas
     return html`
     <div class="documentation-header">
       <div class="documentation-title">
-        <span class="label">${title}</span>
+        <span class="label text-selectable">${title}</span>
       </div>
     </div>
     `;

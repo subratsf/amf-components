@@ -1420,7 +1420,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     if (!urlLabel) {
       return '';
     }
-    return html`<div class="url-label" title="Current request URL">${url}</div>`;
+    return html`<div class="url-label text-selectable" title="Current request URL">${url}</div>`;
   }
 
   [authorizationTemplate]() {

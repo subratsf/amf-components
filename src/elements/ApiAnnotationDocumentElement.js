@@ -195,7 +195,7 @@ export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElem
     <div class="custom-property">
       <arc-icon class="info-icon" icon="infoOutline"></arc-icon>
       <div class="info-value">
-        <span class="name">${name}</span>
+        <span class="name text-selectable">${name}</span>
         ${content || ''}
       </div>
     </div>
@@ -208,7 +208,7 @@ export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElem
    * @returns {TemplateResult} The template for the custom property.
    */
   [scalarTemplate](name, scalar) {
-    const content = html`<span class="scalar-value">${this[scalarValue](scalar)}</span>`;
+    const content = html`<span class="scalar-value text-selectable">${this[scalarValue](scalar)}</span>`;
     return this[annotationWrapperTemplate](name, content);
   }
 
@@ -239,8 +239,8 @@ export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElem
     const value = this[scalarValue](scalar);
     return html`
     <div class="object-property">
-      <span class="object-name">${name}</span>
-      <span class="object-value">${value}</span>
+      <span class="object-name text-selectable">${name}</span>
+      <span class="object-value text-selectable">${value}</span>
     </div>
     `;
   }

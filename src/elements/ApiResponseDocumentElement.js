@@ -268,9 +268,9 @@ export default class ApiResponseDocumentElement extends ApiDocumentationBase {
   [linkTemplate](link) {
     const { name, mapping, operationId, } = link;
     return html`
-    <div class="link-header">${name}</div>
+    <div class="link-header text-selectable">${name}</div>
     ${this[linkOperationTemplate](operationId)}
-    <div slot="markdown-html" class="link-table">
+    <div slot="markdown-html" class="link-table text-selectable">
       ${this[linkMappingsTemplate](mapping)}
     </div>
     `;
@@ -287,7 +287,7 @@ export default class ApiResponseDocumentElement extends ApiDocumentationBase {
     return html`
     <div class="operation-id">
       <span class="label">Operation ID:</span>
-      <span class="operation-name">${operationId}</span>
+      <span class="operation-name text-selectable">${operationId}</span>
     </div>
     `;
   }
@@ -301,7 +301,7 @@ export default class ApiResponseDocumentElement extends ApiDocumentationBase {
       return '';
     }
     return html`
-    <table class="mapping-table">
+    <table class="mapping-table text-selectable">
       <tr>
         <th>Variable</th>
         <th>Expression</th>

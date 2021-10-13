@@ -26,6 +26,7 @@ import '../../api-server-selector.js';
 /** @typedef {import('../types').SelectionType} SelectionType */
 /** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
+export const isAsyncValue = Symbol('isAsyncValue');
 export const operationIdValue = Symbol('operationIdValue');
 export const domainTypeValue = Symbol('domainTypeValue');
 export const navigationHandler = Symbol('navigationHandler');
@@ -259,6 +260,14 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
 		return false;
   }
 
+  /**
+   * This is a computed value from the AMF model.
+   * @returns {boolean} true when whe currently loaded API is an async API.
+   */
+  get isAsync() {
+    return this[isAsyncValue];
+  }
+
   constructor() {
     super();
     /** @type {SelectionType} */
@@ -359,6 +368,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     if (Array.isArray(amf)) {
       [amf] = amf;
     }
+    this[isAsyncValue] = this._isAsyncAPI(amf);
     const api = this._computeApi(amf);
     if (api) {
       const summary = this[serializerValue].apiSummary(api);
@@ -787,7 +797,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string} The template for the API endpoint page.
    */
   [resourceTemplate]() {
-    const { amf, domainId, operationId } = this;
+    const { amf, domainId, operationId, isAsync } = this;
     const model = this[renderedModelValue];
     return html`<api-resource-document
       .amf="${amf}"
@@ -803,6 +813,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
       ?anypoint="${this.anypoint}"
       ?httpUrlEditor="${this.httpUrlEditor}"
       httpNoServerSelector
+      ?asyncApi="${isAsync}"
     ></api-resource-document>`;
   }
 }

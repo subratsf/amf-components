@@ -127,7 +127,7 @@ export default class ApiPayloadDocumentElement extends ApiDocumentationBase {
       return '';
     }
     return html`
-    <div class="payload-name">${name}</div>
+    <div class="payload-name text-selectable">${name}</div>
     `;
   }
 

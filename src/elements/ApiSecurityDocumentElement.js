@@ -304,9 +304,9 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     return html`
     <div class="security-header">
       <div class="security-title">
-        <span class="label">${title}</span>
+        <span class="label text-selectable">${title}</span>
       </div>
-      <p class="sub-header">${type}</p>
+      <p class="sub-header text-selectable">${type}</p>
     </div>
     `;
   }
@@ -378,7 +378,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     const { selectedStatus } = this;
     const response = responses.find((item) => item.statusCode === selectedStatus);
     if (!response) {
-      return html`<div class="empty-info">Select a response to render the documentation.</div>`;
+      return html`<div class="empty-info text-selectable">Select a response to render the documentation.</div>`;
     }
     return html`
     <api-response-document .amf="${this.amf}" .response="${response}" ?anypoint="${this.anypoint}" headersOpened payloadOpened></api-response-document>
@@ -418,8 +418,8 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     const { in: paramLocation='Unknown', name } = settings;
     const content = html`
     <div class="param-info">
-      <div class="location">Location: ${paramLocation}</div>
-      ${name ? html`<div class="label">Parameter: ${name}</div>` : ''}
+      <div class="location text-selectable">Location: ${paramLocation}</div>
+      ${name ? html`<div class="label text-selectable">Parameter: ${name}</div>` : ''}
     </div>
     ${paramLocation === 'header' ? this[apiKeyHeaderExample](name) : ''}
     ${paramLocation === 'cookie' ? this[apiKeyCookieExample](name) : ''}
@@ -464,7 +464,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     <details class="schema-example" open>
       <summary>Example</summary>
       <div class="example-content">
-        <pre class="code-value"><code>${value}</code></pre>
+        <pre class="code-value text-selectable"><code>${value}</code></pre>
       </div>
     </details>
     `;
@@ -483,7 +483,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     <div class="param-info">
       <div class="location">OpenID Connect Discovery URL</div>
       <div class="example-content">
-        <pre class="code-value"><code>${url}</code></pre>
+        <pre class="code-value text-selectable"><code>${url}</code></pre>
       </div>
     </div>
     `;
@@ -583,7 +583,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     <div class="flow-section">
       <h5 data-type="token-uri" class="value-title">Access token URI</h5>
       <div class="example-content">
-        <pre class="code-value"><code>${uri}</code></pre>
+        <pre class="code-value text-selectable"><code>${uri}</code></pre>
       </div>
     </div>`;
   }
@@ -600,7 +600,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     <div class="flow-section">
       <h5 data-type="authorization-uri" class="value-title">Authorization URI</h5>
       <div class="example-content">
-        <pre class="code-value"><code>${uri}</code></pre>
+        <pre class="code-value text-selectable"><code>${uri}</code></pre>
       </div>
     </div>`;
   }
@@ -617,7 +617,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     <div class="flow-section">
       <h5 data-type="refresh-uri" class="value-title">Token refresh URI</h5>
       <div class="example-content">
-        <pre class="code-value"><code>${uri}</code></pre>
+        <pre class="code-value text-selectable"><code>${uri}</code></pre>
       </div>
     </div>`;
   }
@@ -647,8 +647,8 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     const { name, description } = scope;
     return html`
     <li class="scope-value">
-      <span class="scope-name">${name}</span>
-      ${description ? html`<span class="scope-description">${description}</span>` : ''}
+      <span class="scope-name text-selectable">${name}</span>
+      ${description ? html`<span class="scope-description text-selectable">${description}</span>` : ''}
     </li>
     `;
   }
@@ -685,9 +685,9 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     }
     return html`
     <div class="flow-section">
-      <h5 data-type="token-credentials-uri" class="value-title">Token credentials URI</h5>
+      <h5 data-type="token-credentials-uri" class="value-title text-selectable">Token credentials URI</h5>
       <div class="example-content">
-        <pre class="code-value"><code>${uri}</code></pre>
+        <pre class="code-value text-selectable"><code>${uri}</code></pre>
       </div>
     </div>`;
   }
@@ -701,7 +701,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     <div class="flow-section">
       <h5 data-type="signatures" class="value-title">Supported signatures</h5>
       <ul>
-      ${signatures.map((item) => html`<li><pre class="code-value"><code>${item}</code></pre></li>`)}
+      ${signatures.map((item) => html`<li><pre class="code-value text-selectable"><code>${item}</code></pre></li>`)}
       </ul>
     </div>`;
   }

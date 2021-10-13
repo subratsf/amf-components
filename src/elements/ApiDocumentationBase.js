@@ -305,7 +305,7 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
         sanitize
         @click="${this[clickHandler]}"
       >
-        <div slot="markdown-html" class="markdown-body"></div>
+        <div slot="markdown-html" class="markdown-body text-selectable"></div>
       </arc-marked>
     </div>`;
   }
@@ -354,8 +354,8 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
     <details class="schema-example">
       <summary>Example${label ? `: ${label}` : ''}</summary>
       <div class="example-content">
-        ${description ? html`<div class="example-description">${description}</div>` : ''}
-        <pre class="code-value"><code>${renderValue}</code></pre>
+        ${description ? html`<div class="example-description text-selectable">${description}</div>` : ''}
+        <pre class="code-value text-selectable"><code>${renderValue}</code></pre>
       </div>
     </details>
     `;

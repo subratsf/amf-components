@@ -522,7 +522,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     return html`
     <div class="endpoint-header">
       <div class="endpoint-title">
-        <span class="label">${label}</span>
+        <span class="label text-selectable">${label}</span>
       </div>
       <p class="sub-header">${subLabel}</p>
     </div>
@@ -536,7 +536,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     const url = this[urlValue];
     return html`
     <div class="endpoint-url">
-      <div class="url-value">${url}</div>
+      <div class="url-value text-selectable">${url}</div>
     </div>
     `;
   }
@@ -650,7 +650,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
       payload = '';
     }
     return html`
-    <section class="snippets">
+    <section class="snippets text-selectable">
       <http-code-snippets
         scrollable
         .url="${values.url}"
@@ -695,7 +695,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     if (!label) {
       return '';
     }
-    return html`<span>Implements </span><span class="resource-type-name" title="Resource type applied to this endpoint">${label}</span>.`;
+    return html`<span>Implements </span><span class="resource-type-name text-selectable" title="Resource type applied to this endpoint">${label}</span>.`;
   }
 
   /**
@@ -706,6 +706,6 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     if (!label) {
       return '';
     }
-    return html`<span>Mixes in </span><span class="trait-name">${label}</span>.`;
+    return html`<span>Mixes in </span><span class="trait-name text-selectable">${label}</span>.`;
   }
 }

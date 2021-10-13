@@ -29,4 +29,8 @@ export default css`
   width: 24px;
   height: 24px;
 }
+
+.text-selectable {
+  user-select: text;
+}
 `;

@@ -226,7 +226,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     return html`
     <div class="api-title" role="heading" aria-level="${titleLevel}" part="api-title">
       <label part="api-title-label">API title:</label>
-      <span>${summary.name}</span>
+      <span class="text-selectable">${summary.name}</span>
     </div>`;
   }
 
@@ -241,7 +241,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     return html`
     <p class="inline-description version" part="api-version">
       <label>Version:</label>
-      <span>${summary.version}</span>
+      <span class="text-selectable">${summary.version}</span>
     </p>`;
   }
 
@@ -293,7 +293,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     const uri = UrlLib.computeApiBaseUri({ baseUri, server, protocols, });
     const { description } = server;
     return html`
-    <li>
+    <li class="text-selectable">
       ${uri}
       ${description ? html`<arc-marked .markdown=${description} class="server-description"></arc-marked>` : ''}
     </li>`;
@@ -307,7 +307,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     if (!summary || !summary.schemes || !summary.schemes.length) {
       return '';
     }
-    const result = summary.schemes.map((item) => html`<span class="chip">${item}</span>`);
+    const result = summary.schemes.map((item) => html`<span class="chip text-selectable">${item}</span>`);
 
     return html`
     <label class="section">Supported protocols</label>
@@ -321,16 +321,16 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     }
     const { name='', email, url } = summary.provider;
     const link = url ? sanitizeHTML(
-      `<a href="${url}" target="_blank" class="app-link provider-url">${url}</a>`,
+      `<a href="${url}" target="_blank" class="app-link provider-url text-selectable">${url}</a>`,
     ) : 'undefined';
     return html`
     <section role="contentinfo" class="docs-section" part="info-section">
       <label class="section">Contact information</label>
       <p class="inline-description" part="info-inline-desc">
-        <span class="provider-name">${name}</span>
-        ${email ? html`<a class="app-link link-padding provider-email" href="mailto:${email}">${email}</a>` : ''}
+        <span class="provider-name text-selectable">${name}</span>
+        ${email ? html`<a class="app-link link-padding provider-email text-selectable" href="mailto:${email}">${email}</a>` : ''}
       </p>
-      ${url ? html` <p class="inline-description" part="info-inline-desc">${unsafeHTML(link)}</p>` : ''}
+      ${url ? html` <p class="inline-description text-selectable" part="info-inline-desc">${unsafeHTML(link)}</p>` : ''}
     </section>`;
   }
 
@@ -344,7 +344,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
       return '';
     }
     const link = sanitizeHTML(
-      `<a href="${url}" target="_blank" class="app-link">${name}</a>`,
+      `<a href="${url}" target="_blank" class="app-link text-selectable">${name}</a>`,
     );
     return html`
     <section aria-labelledby="licenseLabel" class="docs-section" part="license-section">
@@ -364,7 +364,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     <section aria-labelledby="tocLabel" class="docs-section">
       <label class="section" id="tocLabel">Terms of service</label>
       <arc-marked .markdown="${summary.termsOfService}" sanitize>
-        <div slot="markdown-html" class="markdown-body"></div>
+        <div slot="markdown-html" class="markdown-body text-selectable"></div>
       </arc-marked>
     </section>`;
   }
@@ -410,7 +410,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   [endpointPathTemplate](item) {
     return html`
     <a
-      class="endpoint-path"
+      class="endpoint-path text-selectable"
       href="#${item.path}"
       data-id="${item.id}"
       data-shape-type="resource"
@@ -428,7 +428,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     }
     return html`
     <a
-      class="endpoint-path"
+      class="endpoint-path text-selectable"
       href="#${item.path}"
       data-id="${item.id}"
       data-shape-type="resource"

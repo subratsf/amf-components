@@ -23,6 +23,7 @@
     "onserverscountchange",
     "populateannotatedfields",
     "redirecturichange",
+    "Renderable",
     "securitysettingsinfochanged",
     "serverscountchanged",
     "signedup",

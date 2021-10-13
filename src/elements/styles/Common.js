@@ -121,4 +121,8 @@ export default css`
 .example-description {
   margin: 12px 0;
 }
+
+.text-selectable {
+  user-select: text;
+}
 `;

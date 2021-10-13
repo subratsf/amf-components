@@ -68,7 +68,7 @@ export default class ApiChannelDocumentElement extends ApiResourceDocumentElemen
     const url = this[urlValue];
     return html`
     <div class="endpoint-url">
-      <div class="url-value">${url}</div>
+      <div class="url-value text-selectable">${url}</div>
     </div>
     `;
   }
