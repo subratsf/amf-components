@@ -143,11 +143,11 @@ export default class ApiResponseDocumentElement extends ApiDocumentationBase {
     if (domainModel) {
       this[responseValue] = this[serializerValue].response(domainModel);
     }
-    this[queryPayloads]();
+    await this[queryPayloads]();
     await this.requestUpdate();
   }
 
-  [queryPayloads]() {
+  async [queryPayloads]() {
     const { response } = this;
     if (!response || !Array.isArray(response.payloads) || !response.payloads.length) {
       this[payloadsValue] = undefined;

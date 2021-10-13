@@ -2,17 +2,11 @@ import { ApiExampleGenerator } from '../schema/ApiExampleGenerator.js';
 import { ApiMonacoSchemaGenerator } from '../schema/ApiMonacoSchemaGenerator.js';
 import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
 
+/** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
 /** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
 /** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
-/** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
-
-/** 
- * @typedef PayloadInfo
- * @property {string|FormData|Blob} value
- * @property {ApiType[]=} model
- * @property {any[]=} schemas Monaco schemas
- */
+/** @typedef {import('./PayloadUtils').PayloadInfo} PayloadInfo */
 
 /** @type {Map<string, PayloadInfo>} */
 const cache = new Map();

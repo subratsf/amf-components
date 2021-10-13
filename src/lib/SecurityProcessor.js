@@ -125,6 +125,7 @@ export class SecurityProcessor {
   }
 
   /**
+   * Applies authorization configuration to the API Console request object.
    * @param {ApiConsoleRequest} request
    * @param {RequestAuthorization[]} authorization
    */
@@ -272,7 +273,7 @@ export class SecurityProcessor {
   /**
    * Injects the PassThrough configuration into the request
    * @param {ApiConsoleRequest} request 
-   * @param {ApiKeyAuthorization} config 
+   * @param {PassThroughAuthorization} config 
    */
   static applyPassThrough(request, config) {
     const { header, query, } = config;

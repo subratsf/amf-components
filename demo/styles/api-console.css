@@ -5,7 +5,7 @@
 
 html,
 body {
-  background-color: #F5F5F5;
+  background-color: #ffffff;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -39,13 +39,14 @@ h2.title {
 
 header {
   height: 64px;
-  background-color: #fff;
   display: flex;
   flex-direction: row;
   align-items: center;
   border-bottom: 1px solid #e5e5e5;
   padding: 20px;
   box-sizing: border-box;
+  background-color: var(--api-console-toolbar-background-color, #212121);
+  color: var(--api-console-toolbar-color, #fff);
 }
 
 header.tall {
@@ -68,7 +69,8 @@ main {
   background: var(--secondary-background-color, #ffffff);
   height: 100%;
   overflow: auto;
-  padding: 0 24px;
+  padding: 00px 24px;
+  margin: 40px 0;
 }
 
 .menu-divider {

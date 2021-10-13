@@ -36,11 +36,20 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * The AMF graph model of the API.
    */
   amf: AmfDocument;
-  // Current HTTP method. Passed by digest method.
+  /**
+   * Current HTTP method. Passed by digest method.
+   * @attribute
+   */
   httpMethod: string;
-  // Current request URL. Passed by digest method.
+  /**
+   * Current request URL. Passed by digest method.
+   * @attribute
+   */
   requestUrl: string;
-  // Current request body. Passed by digest method.
+  /**
+   * Current request body. Passed by digest method.
+   * @attribute
+   */
   requestBody: string;
   /**
   * Whether or not the element is invalid. The validation state changes

@@ -26,6 +26,7 @@ export * from './src/events/Events';
 export * as InputCache from './src/lib/InputCache';
 export * as UrlLib from './src/lib/UrlUtils';
 export * as Utils from './src/lib/Utils';
+export { SecurityProcessor } from './src/lib/SecurityProcessor';
 export * from './src/types'
 export { AmfHelperMixin } from './src/helpers/AmfHelperMixin';
 export { AmfSerializer } from './src/helpers/AmfSerializer';

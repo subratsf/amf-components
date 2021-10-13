@@ -26,6 +26,7 @@ export * from './src/events/Events.js';
 export * as InputCache from './src/lib/InputCache.js';
 export * as UrlLib from './src/lib/UrlUtils.js';
 export * as Utils from './src/lib/Utils.js';
+export { SecurityProcessor } from './src/lib/SecurityProcessor.js';
 export { AmfHelperMixin } from './src/helpers/AmfHelperMixin.js';
 export { AmfSerializer } from './src/helpers/AmfSerializer.js';
 export { ns } from './src/helpers/Namespace.js';
