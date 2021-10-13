@@ -28,13 +28,6 @@ npm install --save @api-components/amf-components
       import '@api-components/amf-components/xhr-simple-request.js';
       import '@advanced-rest-client/authorization/oidc-authorization.js';
       import '@advanced-rest-client/authorization/oauth2-authorization.js';
-      import { AmfDomStore } from '@api-components/amf-components';
-      // read the AMF's json+ld representation of the graph model.
-      const amfModel = await getAmfModelSomehow();
-      // initialize the store with the support of the DOM events.
-      const store = new AmfDomStore(amfModel);
-      // the argument is the node on which to listen for the events.
-      store.listen(window);
     </script>
   </head>
   <body>
@@ -55,6 +48,16 @@ npm install --save @api-components/amf-components
       <!-- The HTTP request editor. Renders forms for user input to make an HTTP request -->
       <api-request handleNavigationEvents></api-request>
     </aside>
+
+    <script>
+      (async () => {
+        const model = getAmfModelSomehow();
+        const nodes = document.querySelectorAll('api-navigation,api-documentation,api-request');
+        Array.from(nodes).forEach((element) => {
+          element.amf = model;
+        });
+      })();
+    </script>
   </body>
 </html>
 ```

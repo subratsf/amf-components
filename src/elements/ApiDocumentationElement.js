@@ -137,7 +137,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
        * Optional property to set on the request editor. 
        * When true, the server selector is not rendered
        */
-      httpNoServerSelector: { type: Boolean },
+      noServerSelector: { type: Boolean },
       /**
        * When set it renders "add custom" item button in the HTTP request editor.
        * If the element is to be used without AMF model this should always
@@ -148,7 +148,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
        * Optional property to set on the request editor. 
        * If true, the server selector custom base URI option is rendered
        */
-      httpAllowCustomBaseUri: { type: Boolean },
+      allowCustomBaseUri: { type: Boolean },
       /**
        * The URI of the server currently selected in the server selector
        */
@@ -251,11 +251,11 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
 
   /** @returns {boolean} */
   get renderSelector() {
-    const { domainType, serversCount, httpAllowCustomBaseUri } = this;
+    const { domainType, serversCount, allowCustomBaseUri } = this;
 		const isOperationOrEndpoint = !!domainType && (['operation', 'resource'].includes(domainType));
 		const moreThanOneServer = serversCount >= 2;
 		if (isOperationOrEndpoint) {
-			return httpAllowCustomBaseUri || moreThanOneServer;
+			return allowCustomBaseUri || moreThanOneServer;
 		}
 		return false;
   }
@@ -283,9 +283,9 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     /** @type {boolean} */
     this.httpUrlEditor = undefined;
     /** @type {boolean} */
-    this.httpNoServerSelector = undefined;
+    this.noServerSelector = undefined;
     /** @type {boolean} */
-    this.httpAllowCustomBaseUri = undefined;
+    this.allowCustomBaseUri = undefined;
     /** @type {boolean} */
     this.httpAllowCustom = undefined;
     /** @type {string} */
@@ -704,10 +704,10 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string} The template for the server selector.
    */
   [serverSelectorTemplate]() {
-    if (this.httpNoServerSelector) {
+    if (this.noServerSelector) {
       return '';
     }
-    const { amf, anypoint, serverType, serverValue, httpAllowCustomBaseUri, renderSelector, domainId, domainType } = this;
+    const { amf, anypoint, serverType, serverValue, allowCustomBaseUri, renderSelector, domainId, domainType } = this;
     return html`
       <api-server-selector
         class="server-selector"
@@ -717,7 +717,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
         .value="${serverValue}"
         .type="${serverType}"
         ?hidden="${!renderSelector}"
-        ?allowCustom="${httpAllowCustomBaseUri}"
+        ?allowCustom="${allowCustomBaseUri}"
         ?compatibility="${anypoint}"
         autoSelect
         @serverscountchanged="${this[serversCountHandler]}"

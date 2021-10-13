@@ -130,7 +130,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * When true, the server selector is not rendered
    * @attribute
    */
-  httpNoServerSelector: boolean;
+  noServerSelector: boolean;
   /**
    * When set it renders "add custom" item button in the HTTP request editor.
    * If the element is to be used without AMF model this should always
@@ -143,7 +143,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * If true, the server selector custom base URI option is rendered
    * @attribute
    */
-  httpAllowCustomBaseUri: boolean;
+  allowCustomBaseUri: boolean;
   /**
    * The URI of the server currently selected in the server selector
    * @attribute
