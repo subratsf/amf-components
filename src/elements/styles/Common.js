@@ -125,4 +125,8 @@ export default css`
 .text-selectable {
   user-select: text;
 }
+
+.markdown-body {
+  color: var(--api-description-color, rgba(0, 0, 0, 0.74));
+}
 `;

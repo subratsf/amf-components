@@ -118,13 +118,15 @@ export default css`
 
 .list-item.selected {
   font-weight: var(--api-navigation-list-item-selected-weight, bold);
-  background-color: var(
-    --api-navigation-list-item-selected-background-color,
-    var(--accent-color)
-  );
+  background-color: var(--api-navigation-list-item-selected-background-color, var(--accent-color));
   color: var(--api-navigation-list-item-selected-color, #fff);
   /* For Anypoint styling */
   border-left: var(--api-navigation-list-item-selected-border-left, initial);
+}
+
+.list-item.selected .toggle-button .icon,
+.list-item.selected .endpoint-toggle-button .icon {
+  color: var(--api-navigation-list-item-selected-icon-color, #fff);
 }
 
 .list-item.passive-selected {
