@@ -71,13 +71,13 @@ describe('ApiSecurityDocumentElement', () => {
           it('renders the title', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .label');
-            assert.dom.equal(node, '<span class="label">basic</span>');
+            assert.dom.equal(node, '<span class="label text-selectable">basic</span>');
           });
 
           it('renders the sub-header', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .sub-header');
-            assert.dom.equal(node, '<p class="sub-header">Basic Authentication</p>');
+            assert.dom.equal(node, '<p class="sub-header text-selectable">Basic Authentication</p>');
           });
 
           it('renders the description', async () => {
@@ -141,13 +141,13 @@ describe('ApiSecurityDocumentElement', () => {
           it('renders the title', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .label');
-            assert.dom.equal(node, '<span class="label">x-custom</span>');
+            assert.dom.equal(node, '<span class="label text-selectable">x-custom</span>');
           });
 
           it('renders the sub-header', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .sub-header');
-            assert.dom.equal(node, '<p class="sub-header">x-custom</p>');
+            assert.dom.equal(node, '<p class="sub-header text-selectable">x-custom</p>');
           });
 
           it('renders the description', async () => {
@@ -226,13 +226,13 @@ describe('ApiSecurityDocumentElement', () => {
           it('renders the title', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .label');
-            assert.dom.equal(node, '<span class="label">digest</span>');
+            assert.dom.equal(node, '<span class="label text-selectable">digest</span>');
           });
 
           it('renders the sub-header', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .sub-header');
-            assert.dom.equal(node, '<p class="sub-header">Digest Authentication</p>');
+            assert.dom.equal(node, '<p class="sub-header text-selectable">Digest Authentication</p>');
           });
 
           it('renders the description', async () => {
@@ -295,13 +295,13 @@ describe('ApiSecurityDocumentElement', () => {
           it('renders the title', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .label');
-            assert.dom.equal(node, '<span class="label">pass_through</span>');
+            assert.dom.equal(node, '<span class="label text-selectable">pass_through</span>');
           });
 
           it('renders the sub-header', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .sub-header');
-            assert.dom.equal(node, '<p class="sub-header">Pass Through</p>');
+            assert.dom.equal(node, '<p class="sub-header text-selectable">Pass Through</p>');
           });
 
           it('renders the description', async () => {
@@ -372,13 +372,13 @@ describe('ApiSecurityDocumentElement', () => {
           it('renders the title', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .label');
-            assert.dom.equal(node, '<span class="label">oauth_1_0</span>');
+            assert.dom.equal(node, '<span class="label text-selectable">oauth_1_0</span>');
           });
 
           it('renders the sub-header', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .sub-header');
-            assert.dom.equal(node, '<p class="sub-header">OAuth 1.0</p>');
+            assert.dom.equal(node, '<p class="sub-header text-selectable">OAuth 1.0</p>');
           });
 
           it('renders the description', async () => {
@@ -492,13 +492,13 @@ describe('ApiSecurityDocumentElement', () => {
           it('renders the title', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .label');
-            assert.dom.equal(node, '<span class="label">Regular OAuth 2.0 definition</span>');
+            assert.dom.equal(node, '<span class="label text-selectable">Regular OAuth 2.0 definition</span>');
           });
 
           it('renders the sub-header', async () => {
             const element = await amfModelFixture(model, security);
             const node = element.shadowRoot.querySelector('.security-header .sub-header');
-            assert.dom.equal(node, '<p class="sub-header">OAuth 2.0</p>');
+            assert.dom.equal(node, '<p class="sub-header text-selectable">OAuth 2.0</p>');
           });
 
           it('renders the description', async () => {
@@ -634,11 +634,11 @@ describe('ApiSecurityDocumentElement', () => {
             const readScope = items[0];
             assert.dom.equal(
               readScope.querySelector('.scope-name'),
-              '<span class="scope-name">read_pets</span>'
+              '<span class="scope-name text-selectable">read_pets</span>'
             );
             assert.dom.equal(
               readScope.querySelector('.scope-description'),
-              '<span class="scope-description">read your pets</span>'
+              '<span class="scope-description text-selectable">read your pets</span>'
             );
           });
         });

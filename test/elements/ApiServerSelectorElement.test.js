@@ -765,7 +765,7 @@ describe('ApiServerSelectorElement', () => {
         it('selects first slot element if there are no model servers', async () => {
           const element = await autoSelectFixtureWithSlots(model);
           assert.equal(element.value, 'http://customServer.com');
-          assert.equal(element.type, 'uri');
+          assert.equal(element.type, 'extra');
         });
 
         it('dispatches slot selection event if there are no model servers', async () => {
@@ -777,7 +777,7 @@ describe('ApiServerSelectorElement', () => {
           // @ts-ignore
           assert.equal(detail.value, 'http://customServer.com');
           // @ts-ignore
-          assert.equal(detail.type, 'uri');
+          assert.equal(detail.type, 'extra');
         });
       });
 

