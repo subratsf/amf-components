@@ -182,6 +182,11 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
   [endpointValue]: EndPoint;
   [apiSummaryValue]: ApiSummary;
   [navEventsRegistered]: boolean;
+  /**
+   * The mime type of the currently selected schema.
+   * @attribute
+   */
+  schemaMimeType: string;
 
   constructor();
 

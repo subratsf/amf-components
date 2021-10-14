@@ -31,9 +31,6 @@ export declare class ShapeJsonSchemaGenerator extends ShapeBase {
   serialize(value: any): string|undefined;
   [scalarShapeObject](schema: ApiScalarShape): any|undefined;
   [nilShapeObject](schema: ApiScalarShape): any|undefined;
-  /**
-   * @todo: render examples, when available, first.
-   */
   [nodeShapeObject](schema: ApiNodeShape): object;
   [unionShapeObject](schema: ApiUnionShape): any;
 

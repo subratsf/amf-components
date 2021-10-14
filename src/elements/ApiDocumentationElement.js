@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
+import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
+import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
 import elementStyles from './styles/ApiDocumentation.js';
 import { 
   ApiDocumentationBase,
@@ -27,6 +29,7 @@ import '../../api-server-selector.js';
 /** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 /** @typedef {import('../events/ServerEvents').ServerCountChangeEvent} ServerCountChangeEvent */
 /** @typedef {import('../events/ServerEvents').ServerChangeEvent} ServerChangeEvent */
+/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
 
 export const isAsyncValue = Symbol('isAsyncValue');
 export const operationIdValue = Symbol('operationIdValue');
@@ -63,6 +66,8 @@ export const securityTemplate = Symbol('securityTemplate');
 export const documentationTemplate = Symbol('documentationTemplate');
 export const schemaTemplate = Symbol('schemaTemplate');
 export const resourceTemplate = Symbol('resourceTemplate');
+export const schemaMediaSelectorTemplate = Symbol('schemaMediaSelectorTemplate');
+export const mediaTypeSelectHandler = Symbol('mediaTypeSelectHandler');
 
 /**
  * A main documentation view for an AMF model representing a sync or an async API.
@@ -159,6 +164,10 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
        * The type of the server currently selected in the server selector
        */
       serverType: { type: String },
+      /**
+       * The mime type of the currently selected schema.
+       */
+      schemaMimeType: { type: String },
     };
   }
 
@@ -270,6 +279,25 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     return this[isAsyncValue];
   }
 
+  /**
+   * @returns {string|undefined} The mime type of the schema that is being rendered.
+   */
+  get schemaMime() {
+    const { schemaMimeType } = this;
+    if (schemaMimeType) {
+      return schemaMimeType;
+    }
+    const summary = this[apiSummaryValue];
+    if (!summary) {
+      return undefined;
+    }
+    const { accepts=[] } = summary;
+    if (!accepts.length) {
+      return undefined;
+    }
+    return accepts[0];
+  }
+
   constructor() {
     super();
     /** @type {SelectionType} */
@@ -305,6 +333,8 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     this[endpointValue] = undefined;
     /** @type {ApiSummary} */
     this[apiSummaryValue] = undefined;
+    /** @type {string} */
+    this.schemaMimeType = undefined;
 
     this[navigationHandler] = this[navigationHandler].bind(this);
     this[navEventsRegistered] = false;
@@ -358,11 +388,17 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     this.processGraph();
   }
 
+  /** @param {any} amf */
+  __amfChanged(amf) {
+    this.schemaMimeType = undefined;
+    this[apiSummaryValue] = undefined;
+    super.__amfChanged(amf);
+  }
+
   /**
    * @returns {Promise<void>}
    */
   async processGraph() {
-    this[apiSummaryValue] = undefined;
     let { amf } = this;
     if (!amf) {
       return;
@@ -695,6 +731,19 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     this.serverType = e.detail.type;
   }
 
+  /**
+   * @param {Event} e
+   */
+  [mediaTypeSelectHandler](e) {
+    const group = /** @type AnypointRadioGroupElement */ (e.target);
+    const { selectedItem } = group;
+    if (!selectedItem) {
+      return;
+    }
+    const mime = selectedItem.dataset.value;
+    this.schemaMimeType = mime;
+  }
+
   render() {
     return html`<style>${this.styles}</style>
     ${this[serverSelectorTemplate]()}
@@ -764,7 +813,9 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     return html`<api-security-document
       .amf="${amf}"
       .domainModel="${model}"
-      .anypoint="${anypoint}"></api-security-document>`;
+      .anypoint="${anypoint}"
+      settingsOpened
+    ></api-security-document>`;
   }
 
   /**
@@ -783,15 +834,16 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string} The template for the API schema page.
    */
   [schemaTemplate]() {
-    const { amf, anypoint } = this;
+    const { amf, anypoint, schemaMime } = this;
     const model = this[renderedModelValue];
-    // @todo: render media type selector.
-    // const { accepts } = this[apiSummaryValue]
     return html`
+    ${this[schemaMediaSelectorTemplate]()}
     <api-schema-document
       .amf="${amf}"
+      .mimeType="${schemaMime}"
       .domainModel="${model}"
       .anypoint="${anypoint}"
+      forceExamples
     ></api-schema-document>`;
   }
 
@@ -817,5 +869,38 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
       httpNoServerSelector
       ?asyncApi="${isAsync}"
     ></api-resource-document>`;
+  }
+
+  /**
+   * This is a part of schema rendering.
+   * When the current API defines the media types then this shows the selector 
+   * to render examples with a specific mime.
+   * @returns {TemplateResult|string}
+   */
+  [schemaMediaSelectorTemplate]() {
+    // only APIs have top level media types (?)
+    const summary = this[apiSummaryValue];
+    if (!summary) {
+      return '';
+    }
+    const { accepts=[] } = summary;
+    if (accepts.length < 2) {
+      // if there's a single mime then we render the one we have. No selector needed.
+      return '';
+    }
+    const mimeType = this.schemaMimeType || accepts[0];
+    return html`
+    <div class="media-type-selector">
+      <label>Schema content type</label>
+      <anypoint-radio-group 
+        @select="${this[mediaTypeSelectHandler]}" 
+        attrForSelected="data-value" 
+        .selected="${mimeType}"
+      >
+        ${accepts.map((item) => 
+          html`<anypoint-radio-button class="schema-toggle" name="schemaMime" data-value="${item}">${item}</anypoint-radio-button>`)}
+      </anypoint-radio-group>
+    </div>
+    `;
   }
 }

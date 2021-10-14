@@ -128,6 +128,8 @@ describe('ApiDocumentationElement', () => {
       let documentationFragmentModel;
       /** @type AmfDocument */
       let typeFragmentModel;
+      /** @type AmfDocument */
+      let appianApiModel;
       before(async () => {
         demoModel = await loader.getGraph(compact, 'demo-api');
         multiServerModel = await loader.getGraph(compact, 'multi-server');
@@ -135,6 +137,7 @@ describe('ApiDocumentationElement', () => {
         securityFragmentModel = await loader.getGraph(compact, 'oauth2-fragment');
         documentationFragmentModel = await loader.getGraph(compact, 'documentation-fragment');
         typeFragmentModel = await loader.getGraph(compact, 'type-fragment');
+        appianApiModel = await loader.getGraph(compact, 'appian-api');
       });
 
       describe('components rendering', () => {
@@ -471,8 +474,9 @@ describe('ApiDocumentationElement', () => {
           assert.typeOf(node.amf, 'object', 'amf is set');
           assert.typeOf(node.domainModel, 'object', 'schema model is set');
           assert.isTrue(node.anypoint, 'anypoint is set');
-          // TODO: libraries do not have media type
-          // assert.isUndefined(node.mediaTypes, 'mediaTypes is not set');
+          
+          const mimeSelector = element.shadowRoot.querySelector('.media-type-selector');
+          assert.notOk(mimeSelector, 'has no media type selector')
         });
 
         it('renders a security from a library', async () => {
@@ -611,6 +615,64 @@ describe('ApiDocumentationElement', () => {
           
           const node = element.shadowRoot.querySelector('api-resource-document');
           assert.notOk(node, 'the resource is not rendered');
+        });
+      });
+
+      //
+      // The docs render the media selector for the schema only when the API 
+      // has accepted mime types defined on it. The selector is rendered when the API
+      // has at least 2 accepted mime types defined. Otherwise it takes the only option or none
+      // and passes it to the schema document.
+      //
+      describe('shape media type selector', () => {
+        it('renders the schema media type selector', async () => {
+          const shape = loader.getShape(demoModel, 'ErrorResource');
+          const element = await basicFixture(demoModel, shape.id, 'schema');
+          const node = element.shadowRoot.querySelector('.media-type-selector');
+          assert.ok(node, 'has the media type selector')
+        });
+
+        it('does not render the selector when no enough mime types for the API', async () => {
+          const shape = loader.getShape(appianApiModel, 'ProcessModel');
+          const element = await basicFixture(appianApiModel, shape.id, 'schema');
+          const node = element.shadowRoot.querySelector('.media-type-selector');
+          assert.notOk(node, 'has no media type selector')
+        });
+
+        it('renders all API accept options', async () => {
+          const shape = loader.getShape(demoModel, 'ErrorResource');
+          const element = await basicFixture(demoModel, shape.id, 'schema');
+          const selector = element.shadowRoot.querySelector('.media-type-selector');
+          const buttons = selector.querySelectorAll('anypoint-radio-button');
+          assert.lengthOf(buttons, 2, 'has two media type options');
+
+          assert.equal(buttons[0].textContent.trim(), 'application/json');
+          assert.equal(buttons[1].textContent.trim(), 'application/xml');
+        });
+
+        it('changes the selection of the schema media type', async () => {
+          const shape = loader.getShape(demoModel, 'ErrorResource');
+          const element = await basicFixture(demoModel, shape.id, 'schema');
+          const selector = element.shadowRoot.querySelector('.media-type-selector');
+          const buttons = selector.querySelectorAll('anypoint-radio-button');
+          buttons[1].click();
+          assert.equal(element.schemaMimeType, 'application/xml', 'sets the schemaMimeType');
+          await nextFrame();
+
+          const node = element.shadowRoot.querySelector('api-schema-document');
+          assert.equal(node.mimeType, 'application/xml', 'passes the mime type selection to the element');
+        });
+
+        it('cleans up the schema mime type when AMF change', async () => {
+          const shape = loader.getShape(demoModel, 'ErrorResource');
+          const element = await basicFixture(demoModel, shape.id, 'schema');
+          const selector = element.shadowRoot.querySelector('.media-type-selector');
+          const buttons = selector.querySelectorAll('anypoint-radio-button');
+          buttons[1].click();
+          assert.equal(element.schemaMimeType, 'application/xml', 'sets the schemaMimeType');
+          
+          element.amf = libraryFragmentModel;
+          assert.isUndefined(element.schemaMimeType);
         });
       });
     });

@@ -107,7 +107,6 @@ export class ShapeJsonSchemaGenerator extends ShapeBase {
   }
 
   /**
-   * @todo: render examples, when available, first.
    * @param {ApiNodeShape} schema
    * @returns {object}
    */
