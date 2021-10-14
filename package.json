@@ -70,16 +70,18 @@
     "@web/dev-server": "^0.1.25",
     "@web/test-runner": "^0.13.18",
     "@web/test-runner-playwright": "^0.8.8",
+    "amf-client-js": "^4.7.8",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "husky": "^7.0.2",
     "lint-staged": "^11.2.2",
     "sinon": "^11.1.2",
     "typescript": "^4.4.4",
-    "typescript-lit-html-plugin": "^0.9.0"
+    "typescript-lit-html-plugin": "^0.9.0",
+    "uuid": "^8.3.2"
   },
   "scripts": {
-    "start": "web-dev-server --app-index demo/index.html --node-resolve --open --watch --root-dir .",
+    "start": "web-dev-server",
     "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
     "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
     "lint:types": "tsc",
@@ -101,6 +103,8 @@
         "files": [
           "demo/**/*.js",
           "test/**/*.js",
+          "dev/**/*.js",
+          "dev/**/*.mjs",
           "**/demo/**/*.html"
         ],
         "rules": {
