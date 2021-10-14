@@ -12,6 +12,23 @@ The components now ignore (in most cases) the rendered AMF graph model and inste
 
 ## Documentation components
 
+### Api navigation
+
+The API navigate event definition changed. With this version the detail object has the following properties.
+
+- domainId (`string`) The domain id (graph id) of the selected object.
+- domainType (`summary` | `resource` | `operation` | `schema` | `security` | `documentation`) The type of the selected domain object.
+- parentId (`string`) Optional, the parent object domain id (for an operation it is an endpoint)
+- passive: (`boolean`) Optional, whether the selection came from the system processing rather than user interaction.
+
+The navigation event is now `apinavigate` and can be dispatched by using `NavigationEvents` interface:
+
+```javascript
+import { Events } from '@api-components/amf-components';
+
+Events.Navigation.apiNavigate(document.body, 'amf://id', 'resource');
+```
+
 ### ApiDocumentationElement (former api-documentation)
 
 #### Refactored properties

@@ -38,7 +38,7 @@ export declare interface INavigationEvents {
    * @param parentId Optional, the parent object domain id (for an operation it is an endpoint)
    * @param passive Whether the selection came from the system processing rather than user interaction.
    */
-  apiNavigate(target: EventTarget, domainId: string, domainType: SelectionType, parentId?: string, passive?: boolean): Promise<void>;
+  apiNavigate(target: EventTarget, domainId: string, domainType: SelectionType, parentId?: string, passive?: boolean): void;
 }
 
 export declare const NavigationEvents: Readonly<INavigationEvents>;

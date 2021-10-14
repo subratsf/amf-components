@@ -21,6 +21,7 @@ export { default as ApiNavigationElement } from './src/elements/ApiNavigationEle
 export { default as ApiSecurityDocumentElement } from './src/elements/ApiSecurityDocumentElement.js';
 export { default as ApiParametrizedSecuritySchemeElement } from './src/elements/ApiParametrizedSecuritySchemeElement.js';
 export { default as ApiSecurityRequirementDocumentElement } from './src/elements/ApiSecurityRequirementDocumentElement.js';
+export { default as ApiDocumentationElement } from './src/elements/ApiDocumentationElement.js';
 export * from './src/events/EventTypes.js';
 export * from './src/events/Events.js';
 export * as InputCache from './src/lib/InputCache.js';

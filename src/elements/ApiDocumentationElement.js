@@ -25,6 +25,8 @@ import '../../api-server-selector.js';
 /** @typedef {import('../types').ServerType} ServerType */
 /** @typedef {import('../types').SelectionType} SelectionType */
 /** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+/** @typedef {import('../events/ServerEvents').ServerCountChangeEvent} ServerCountChangeEvent */
+/** @typedef {import('../events/ServerEvents').ServerChangeEvent} ServerChangeEvent */
 
 export const isAsyncValue = Symbol('isAsyncValue');
 export const operationIdValue = Symbol('operationIdValue');
@@ -467,7 +469,6 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
         break;
       default:
         result = model;
-        return;
     }
     this[renderedModelValue] = result;
     this[renderedViewValue] = domainType;
@@ -680,14 +681,14 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ServerCountChangeEvent} e
    */
   [serversCountHandler](e) {
     this.serversCount = e.detail.value;
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ServerChangeEvent} e
    */
   [serverChangeHandler](e) {
     this.serverValue = e.detail.value;
@@ -708,11 +709,12 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
       return '';
     }
     const { amf, anypoint, serverType, serverValue, allowCustomBaseUri, renderSelector, domainId, domainType } = this;
+    const id = domainType === 'operation' ? this.operationId : domainId;
     return html`
       <api-server-selector
         class="server-selector"
         .amf="${amf}"
-        .selectedShape="${domainId}"
+        .selectedShape="${id}"
         .selectedShapeType="${domainType}"
         .value="${serverValue}"
         .type="${serverType}"

@@ -32,7 +32,7 @@ export const NavigationEvents = {
    * @param {string=} parentId Optional, the parent object domain id (for an operation it is an endpoint)
    * @param {boolean=} passive Whether the selection came from the system processing rather than user interaction.
    */
-  apiNavigate: async (target, domainId, domainType, parentId, passive) => {
+  apiNavigate: (target, domainId, domainType, parentId, passive) => {
     const e = new ApiNavigationEvent(domainId, domainType, parentId, passive);
     target.dispatchEvent(e);
   },

@@ -209,6 +209,7 @@ class ComponentDemo extends AmfDemoBase {
       ['SE-10469', 'SE-10469'],
       ['SE-11415', 'SE-11415'],
       ['async-api', 'async-api'],
+      ['APIC-711', 'APIC-711: switching to a library']
     ].forEach(([file, label]) => {
       result[result.length] = html`
       <anypoint-item data-src="models/${file}-compact.json">${label}</anypoint-item>`;

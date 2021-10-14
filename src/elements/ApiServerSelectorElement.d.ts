@@ -84,7 +84,7 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
 
   /**
    * Currently selected type of the input.
-   * `server` | `uri` | `custom`
+   * `server` | `extra` | `custom`
    * @attribute
    */
   type: ServerType;

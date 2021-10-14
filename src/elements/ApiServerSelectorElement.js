@@ -97,7 +97,7 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
 
       /**
        * Currently selected type of the input.
-       * `server` | `uri` | `custom`
+       * `server` | `extra` | `custom`
        */
       type: { type: String },
 
@@ -498,7 +498,7 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
     } else {
       const [extra] = this[getExtraServers]();
       if (extra && this.amf) {
-        this.type = 'uri';
+        this.type = 'extra';
         this.value = extra.getAttribute('data-value') || extra.getAttribute('value');
       }
     }
@@ -538,7 +538,7 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
     const custom = this[customItems] || [];
     const isSlotted = custom.indexOf(itemValue) !== -1;
     if (isSlotted) {
-      result.type = 'uri';
+      result.type = 'extra';
     } else {
       result.type = 'server';
     }

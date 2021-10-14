@@ -57,8 +57,8 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * Type of the selected domain item.
    * @attribute
    */
-  domainType: string;
-  [domainTypeValue]: string;
+  domainType: SelectionType;
+  [domainTypeValue]: SelectionType;
   /** 
    * The domain id of the currently rendered API operation.
    * When selecting an operation the `domainId` is the id if the parent endpoint.
