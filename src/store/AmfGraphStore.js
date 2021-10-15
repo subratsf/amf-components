@@ -10,9 +10,13 @@ import { AmfStore } from './AmfStore.js';
  * with the store (like HTTP or WS).
  */
 export class AmfGraphStore {
-  constructor() {
+  /**
+   * @param {EventTarget=} target The event target to dispatch the events on.
+   */
+  constructor(target=window) {
     /** @type {Map<string, AmfStore>} */
     this.apis = new Map();
+    this.target = target;
   }
 
   /**
@@ -22,7 +26,7 @@ export class AmfGraphStore {
    */
   async add(graph) {
     const id = v4();
-    const instance = new AmfStore(graph);
+    const instance = new AmfStore(graph, this.target);
     this.apis.set(id, instance);
     return id;
   }

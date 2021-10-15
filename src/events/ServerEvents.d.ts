@@ -1,4 +1,5 @@
 import { ServerType } from '../types';
+import { ServersQueryOptions, ApiServer } from '../helpers/api';
 
 export interface ServerChangeEventDetail {
   /**
@@ -51,6 +52,13 @@ interface IServerEvents {
    * @param count The number of servers rendered in the selector.
    */
   serverCountChange(target: EventTarget, count: number): void;
+  /**
+   * Queries for the list of servers for method, if defined, or endpoint, if defined, or root level 
+   * @param target The node on which to dispatch the event.
+   * @param query Server query options. When omitted then queries for root servers only.
+   * @returns The list of servers for given query.
+   */
+  query(target: EventTarget, query?: ServersQueryOptions): Promise<ApiServer[]>;
 }
 
 export const ServerEvents: IServerEvents;

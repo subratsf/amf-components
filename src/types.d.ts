@@ -34,17 +34,6 @@ export declare interface ApiConsoleResponse {
   loadingTime: number;
 }
 
-export declare interface AbortRequestEventDetail {
-  /**
-   * The URL of the request
-   */
-  url: string,
-  /**
-   * The id of the request.
-   */
-  id: string;
-}
-
 export declare interface ApiConsoleHTTPResponse {
   status: number;
   statusText?: string;
@@ -161,17 +150,6 @@ export interface OperationParameter {
   schemaId?: string;
   binding: string;
   source: string;
-}
-
-export interface ApiSummaryEndpoint {
-  id: string;
-  path: string;
-  name?: string;
-  ops?: ApiSummaryOperation[];
-}
-export interface ApiSummaryOperation {
-  id: string;
-  method: string;
 }
 
 export declare interface SelectionInfo {

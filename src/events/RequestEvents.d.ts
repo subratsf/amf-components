@@ -1,4 +1,15 @@
-import { ApiConsoleRequest, ApiConsoleResponse, AbortRequestEventDetail } from '../types';
+import { ApiConsoleRequest, ApiConsoleResponse } from '../types';
+
+export declare interface AbortRequestEventDetail {
+  /**
+   * The URL of the request
+   */
+  url: string,
+  /**
+   * The id of the request.
+   */
+  id: string;
+}
 
 /**
  * The event dispatched to transport request from the api request editor.

@@ -1,4 +1,5 @@
 import { LitElement, TemplateResult } from 'lit-element';
+import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
 import { ApiParameter, ApiCustomDomainProperty, ApiExample } from '../helpers/api';
 import { DomainElement } from '../helpers/amf';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
@@ -26,7 +27,7 @@ export declare const evaluateExample: unique symbol;
 /**
  * A base class for the documentation components with common templates and functions.
  */
-export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
+export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitElement)) {
   /** 
    * The domain id of the object to render.
    * @attribute

@@ -17,6 +17,7 @@ interface Request {
 interface Server {
   serverChange: string;
   serverCountChange: string;
+  query: string;
 }
 
 declare interface ApiEvents {
@@ -32,6 +33,22 @@ declare interface EndpointEvents {
   list: string;
 }
 
+declare interface ReportingEvents {
+  error: string;
+}
+
+declare interface TelemetryEvents {
+  view: string;
+  event: string;
+  exception: string;
+  social: string;
+  timing: string;
+}
+
+declare interface StoreEvents {
+  graphChange: string;
+}
+
 interface IEventTypes {
   Security: Readonly<Security>;
   Request: Readonly<Request>;
@@ -39,6 +56,9 @@ interface IEventTypes {
   Api: Readonly<ApiEvents>;
   Navigation: Readonly<Navigation>;
   Endpoint: Readonly<EndpointEvents>;
+  Reporting: Readonly<ReportingEvents>;
+  Telemetry: Readonly<TelemetryEvents>;
+  Store: Readonly<StoreEvents>;
 }
 
 export const EventTypes: Readonly<IEventTypes>;

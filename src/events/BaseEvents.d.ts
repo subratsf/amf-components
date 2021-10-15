@@ -1,3 +1,17 @@
+/**
+ * A base class to use with store events that do not expect a result.
+ */
+export declare class ApiStoreContextVoidEvent<T> extends CustomEvent<T> {
+  /**
+   * @param type The event type
+   * @param detail The optional detail object. It adds object's properties to the `detail` with the `result` property.
+   */
+  constructor(type: string, detail?: any);
+}
+
+/**
+ * A base class to use with store events.
+ */
 export declare class ApiStoreContextEvent<T> extends CustomEvent<StoreEventDetailWithResult<T>> {
   /**
    * @param type The event type

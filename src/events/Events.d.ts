@@ -1,3 +1,4 @@
+import { IStoreEvents } from './StoreEvents';
 import { IEndpointEvents } from './EndpointEvents';
 // import { IOperationEvents } from './OperationEvents';
 import { IApiEvents } from './ApiEvents';
@@ -8,12 +9,15 @@ import { INavigationEvents } from './NavigationEvents';
 // import { ITypeEvents } from './TypeEvents';
 // import { IResponseEvents } from './ResponseEvents';
 import { IRequestEvents } from './RequestEvents';
+import { IReportingEvents } from './ReportingEvents';
+import { ITelemetryEvents } from './TelemetryEvents';
 // import { IPayloadEvents } from './PayloadEvents';
 // import { IParameterEvents } from './ParameterEvents';
 // import { IExampleEvents } from './ExampleEvents';
 // import { ICustomPropertyEvents } from './CustomPropertyEvents';
 
 declare interface IEvents {
+  Store: IStoreEvents;
   Api: IApiEvents;
   Endpoint: IEndpointEvents;
   // Operation: IOperationEvents;
@@ -28,6 +32,8 @@ declare interface IEvents {
   // Example: IExampleEvents;
   // CustomProperty: ICustomPropertyEvents;
   Navigation: INavigationEvents;
+  Reporting: IReportingEvents;
+  Telemetry: ITelemetryEvents;
 }
 
 export const Events: Readonly<IEvents>;

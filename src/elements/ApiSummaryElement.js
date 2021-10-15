@@ -9,11 +9,18 @@ import commonStyles from './styles/Common.js';
 import { 
   ApiDocumentationBase, 
   descriptionTemplate, 
-  serializerValue,
+  processDebounce,
+  // serializerValue,
 } from './ApiDocumentationBase.js';
 import { sanitizeHTML } from '../lib/Utils.js';
 import * as UrlLib from '../lib/UrlUtils.js';
 import { NavigationEvents } from '../events/NavigationEvents.js';
+import { ApiEvents } from '../events/ApiEvents.js';
+import { ReportingEvents } from '../events/ReportingEvents.js';
+import { TelemetryEvents } from '../events/TelemetryEvents.js';
+import { ServerEvents } from '../events/ServerEvents.js';
+import { EndpointEvents } from '../events/EndpointEvents.js';
+import { ns } from '../helpers/Namespace.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiDocumentation} ApiDocumentation */
@@ -23,15 +30,17 @@ import { NavigationEvents } from '../events/NavigationEvents.js';
 /** @typedef {import('../helpers/amf').AsyncApi} AsyncApi */
 /** @typedef {import('../helpers/amf').WebApi} WebApi */
 /** @typedef {import('../helpers/amf').EndPoint} EndPoint */
-/** @typedef {import('../types').ApiSummaryEndpoint} ApiSummaryEndpoint */
-/** @typedef {import('../types').ApiSummaryOperation} ApiSummaryOperation */
 /** @typedef {import('../types').SelectionType} SelectionType */
+/** @typedef {import('../types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
+/** @typedef {import('../types').ApiOperationListItem} ApiOperationListItem */
 
 export const summaryValue = Symbol('summaryValue');
 export const serversValue = Symbol('serversValue');
-export const processEndpoints = Symbol('computeEndpoints');
 export const endpointsValue = Symbol('endpointsValue');
-export const endpointOperations = Symbol('endpointOperations');
+export const querySummary = Symbol('querySummary');
+export const processSummary = Symbol('processSummary');
+export const queryServers = Symbol('queryServers');
+export const queryEndpoints = Symbol('queryEndpoints');
 export const isAsyncValue = Symbol('isAsyncValue');
 export const baseUriValue = Symbol('baseUriValue');
 export const navigateHandler = Symbol('navigateHandler');
@@ -111,10 +120,15 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     this[summaryValue] = undefined;
     /** @type {ApiServer[]} */
     this[serversValue] = undefined;
-    /** @type {ApiSummaryEndpoint[]} */
+    /** @type {ApiEndPointWithOperationsListItem[]} */
     this[endpointsValue] = undefined;
     /** @type {boolean} */
     this[isAsyncValue] = undefined;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this[processDebounce]();
   }
 
   /**
@@ -122,65 +136,65 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
    * @returns {Promise<void>}
    */
   async processGraph() {
-    this[endpointsValue] = undefined;
-    this[serversValue] = undefined;
-    this[summaryValue] = undefined;
-    this[isAsyncValue] = undefined;
-    const { amf } = this;
-    if (!amf) {
-      return;
-    }
-    this[isAsyncValue] = this._isAsyncAPI(amf);
-    const servers = this._getServers();
-    this[serversValue] = Array.isArray(servers) ? servers.map(s => this[serializerValue].server(s)) : undefined;
-    const webApi = this._computeApi(amf);
-    if (!webApi) {
-      return;
-    }
-    const summary = this[serializerValue].apiSummary(webApi);
-    this[summaryValue] = summary;
-    this[processEndpoints](webApi);
+    await this[querySummary]();
+    await this[queryServers]();
+    await this[queryEndpoints]();
+    await this[processSummary]();
     this.requestUpdate();
   }
 
   /**
-   * @param {AsyncApi | WebApi} webApi
+   * Queries the API store for the API summary object.
    */
-  [processEndpoints](webApi) {
-    if (this.hideToc) {
-      return;
+  async [querySummary]() {
+    this[summaryValue] = undefined;
+    try {
+      const info = await ApiEvents.summary(this);
+      this[summaryValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API summary data: ${e.message}`, this.localName);
     }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.endpoint);
-    const endpoints = /** @type EndPoint[] */ (this._ensureArray(webApi[key]));
-    if (!endpoints || !endpoints.length) {
-      return;
-    }
-    const list = endpoints.map((item) => {
-      const result = /** @type ApiSummaryEndpoint */ ({
-        name: this._getValue(item, this.ns.aml.vocabularies.core.name),
-        path: this._getValue(item, this.ns.aml.vocabularies.apiContract.path),
-        id: item['@id'],
-        ops: this[endpointOperations](item),
-      });
-      return result;
-    });
-    this[endpointsValue] = list;
   }
 
   /**
-   * @param {EndPoint} endpoint
-   * @returns {ApiSummaryOperation[]|undefined} 
+   * Queries the API store for the API summary object.
    */
-  [endpointOperations](endpoint) {
-    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation);
-    const so = this._ensureArray(endpoint[key]);
-    if (!so || !so.length) {
-      return undefined;
+  async [queryServers]() {
+    this[serversValue] = undefined;
+    try {
+      const info = await ServerEvents.query(this);
+      this[serversValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API servers: ${e.message}`, this.localName);
     }
-    return so.map((item) => ({
-        id: item['@id'],
-        method: /** @type string */ (this._getValue(item, this.ns.aml.vocabularies.apiContract.method)),
-      }));
+  }
+
+  /**
+   * Logic executed after the summary is requested from the store.
+   */
+  async [processSummary]() {
+    this[isAsyncValue] = undefined;
+    const { summary } = this;
+    if (!summary) {
+      return;
+    }
+    this[isAsyncValue] = summary.types.includes(ns.aml.vocabularies.apiContract.AsyncAPI);
+  }
+
+  /**
+   * Queries the API endpoints and methods.
+   */
+  async [queryEndpoints]() {
+    this[endpointsValue] = undefined;
+    try {
+      const info = await EndpointEvents.list(this);
+      this[endpointsValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API endpoints: ${e.message}`, this.localName);
+    }
   }
 
   /**
@@ -373,7 +387,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     if (this.hideToc) {
       return '';
     }
-    const endpoints = /** @type {ApiSummaryEndpoint[]} */ (this[endpointsValue]);
+    const endpoints = /** @type {ApiEndPointWithOperationsListItem[]} */ (this[endpointsValue]);
     if (!endpoints || !endpoints.length) {
       return '';
     }
@@ -389,11 +403,12 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   }
 
   /**
-   * @param {ApiSummaryEndpoint} item
+   * @param {ApiEndPointWithOperationsListItem} item
    * @returns {TemplateResult} 
    */
   [endpointTemplate](item) {
-    const ops = item.ops && item.ops.length ? item.ops.map((op) => this[methodTemplate](op, item)) : '';
+    const { operations=[] } = item;
+    const ops = operations.length ? operations.map((op) => this[methodTemplate](op, item)) : '';
     return html`
     <div class="endpoint-item" @click="${this[navigateHandler]}" @keydown="${() => {}}">
       ${item.name ? this[endpointNameTemplate](item) : this[endpointPathTemplate](item)}
@@ -404,7 +419,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   }
 
   /**
-   * @param {ApiSummaryEndpoint} item
+   * @param {ApiEndPointWithOperationsListItem} item
    * @returns {TemplateResult} 
    */
   [endpointPathTemplate](item) {
@@ -419,7 +434,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   }
 
   /**
-   * @param {ApiSummaryEndpoint} item
+   * @param {ApiEndPointWithOperationsListItem} item
    * @returns {TemplateResult|string} 
    */
   [endpointNameTemplate](item) {
@@ -438,8 +453,8 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   }
 
   /**
-   * @param {ApiSummaryOperation} item
-   * @param {ApiSummaryEndpoint} endpoint
+   * @param {ApiOperationListItem} item
+   * @param {ApiEndPointWithOperationsListItem} endpoint
    * @returns {TemplateResult} 
    */
   [methodTemplate](item, endpoint) {

@@ -4,6 +4,7 @@ import { endpointsValue } from '../../src/elements/ApiSummaryElement.js';
 import { AmfLoader } from '../AmfLoader.js';
 import '../../api-summary.js';
 import { EventTypes } from '../../src/events/EventTypes.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 
 /** @typedef {import('../../').ApiSummaryElement} ApiSummaryElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
@@ -12,17 +13,17 @@ import { EventTypes } from '../../src/events/EventTypes.js';
 
 describe('ApiSummaryElement', () => {
   const loader = new AmfLoader();
+  const store = new DomEventsAmfStore(undefined, window);
+  store.listen();
 
   /**
-   * @param {AmfDocument} amf
    * @returns {Promise<ApiSummaryElement>}
    */
-  async function modelFixture(amf) {
+  async function modelFixture() {
     const element = await fixture(html`<api-summary 
-      .queryDebouncerTimeout="${0}" 
-      .amf="${amf}"
+      .queryDebouncerTimeout="${0}"
     ></api-summary>`);
-    await aTimeout(0);
+    await aTimeout(1);
     return /** @type ApiSummaryElement */ (element);
   }
 
@@ -33,12 +34,13 @@ describe('ApiSummaryElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
 
         it('renders api title', () => {
@@ -107,12 +109,13 @@ describe('ApiSummaryElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'loan-microservice');
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
         
 
@@ -170,12 +173,13 @@ describe('ApiSummaryElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'prevent-xss');
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
 
         it('provider section is rendered', () => {
@@ -233,12 +237,13 @@ describe('ApiSummaryElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
 
         it('adds separator', () => {
@@ -368,25 +373,29 @@ describe('ApiSummaryElement', () => {
         });
 
         it('renders URL area with a single server', async () => {
-          const element = await modelFixture(ramlSingleServerAmf);
+          store.amf = ramlSingleServerAmf;
+          const element = await modelFixture();
           const node = element.shadowRoot.querySelector('.endpoint-url');
           assert.ok(node);
         });
 
         it('renders single server URL', async () => {
-          const element = await modelFixture(ramlSingleServerAmf);
+          store.amf = ramlSingleServerAmf;
+          const element = await modelFixture();
           const node = element.shadowRoot.querySelector('.url-value');
           assert.equal(node.textContent.trim(), 'http://{instance}.domain.com');
         });
 
         it('renders multiple servers', async () => {
-          const element = await modelFixture(oasMultipleServersAmf);
+          store.amf = oasMultipleServersAmf;
+          const element = await modelFixture();
           const node = element.shadowRoot.querySelector('.servers');
           assert.ok(node);
         });
 
         it('renders multiple URLs', async () => {
-          const element = await modelFixture(oasMultipleServersAmf);
+          store.amf = oasMultipleServersAmf;
+          const element = await modelFixture();
           const nodes = element.shadowRoot.querySelectorAll('.server-lists li');
           assert.lengthOf(nodes, 4, 'has 4 servers');
           assert.equal(nodes[0].textContent.trim(), 'https://{customerId}.saas-app.com:{port}/v2');
@@ -396,7 +405,8 @@ describe('ApiSummaryElement', () => {
         });
 
         it('does not render URL area when no servers', async () => {
-          const element = await modelFixture(noServersAmf);
+          store.amf = noServersAmf;
+          const element = await modelFixture();
           const urlNode = element.shadowRoot.querySelector('.url-area');
           assert.notOk(urlNode);
           const serversNode = element.shadowRoot.querySelector('.servers');
@@ -404,7 +414,8 @@ describe('ApiSummaryElement', () => {
         });
 
         it('renders multiple URLs with descriptions', async () => {
-          const element = await modelFixture(oasMultipleServersWithDescriptionAmf);
+          store.amf = oasMultipleServersWithDescriptionAmf;
+          const element = await modelFixture();
           const nodes = element.shadowRoot.querySelectorAll('.server-lists li');
           assert.lengthOf(nodes, 4, 'has 4 servers');
           assert.equal(nodes[0].textContent.trim(), 'https://api.aws-west-prd.capgroup.com/cdp-proxy/profiles');
@@ -419,16 +430,15 @@ describe('ApiSummaryElement', () => {
       });
 
       describe('AsyncAPI', () => {
-        /** @type AmfDocument */
-        let model;
         before(async () => {
-          model = await loader.getGraph(compact, 'async-api');
+          const model = await loader.getGraph(compact, 'async-api');
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
 
         it('renders server uri for API', () => {
@@ -442,16 +452,15 @@ describe('ApiSummaryElement', () => {
       });
 
       describe('hideToc', () => {
-        /** @type AmfDocument */
-        let model;
         before(async () => {
-          model = await loader.getGraph(compact);
+          const model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
           element.setAttribute('hideToc', 'true');
           await nextFrame();
         });
@@ -470,36 +479,36 @@ describe('ApiSummaryElement', () => {
         before(async () => {
           libraryModel = await loader.getGraph(compact, 'APIC-711');
           apiModel = await loader.getGraph(compact);
+          store.amf = apiModel;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(apiModel);
+          element = await modelFixture();
         });
 
         it('clears everything when changing to RAML library', async () => {
-          element.amf = libraryModel;
+          store.amf = libraryModel;
           await aTimeout(0);
           assert.isUndefined(element.summary);
-          assert.isUndefined(element.servers);
-          assert.isUndefined(element[endpointsValue]);
+          assert.deepEqual(element.servers, []);
+          assert.deepEqual(element[endpointsValue], []);
         });
       });
     });
   });
 
   describe('a11y', () => {
-    /** @type AmfDocument */
-    let model;
     before(async () => {
-      model = await loader.getGraph(true, 'loan-microservice');
+      const model = await loader.getGraph(true, 'loan-microservice');
+      store.amf = model;
     });
 
     /** @type ApiSummaryElement */
     let element;
     beforeEach(async () => {
-      element = await modelFixture(model);
+      element = await modelFixture();
     });
 
     it('passes accessibility test', async () => {

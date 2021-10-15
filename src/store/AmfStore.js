@@ -1,10 +1,13 @@
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
 import { AmfSerializer } from '../helpers/AmfSerializer.js';
+import { StoreEvents } from '../events/StoreEvents.js';
 
 /** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
 /** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../helpers/api').ServersQueryOptions} ServersQueryOptions */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 
 /**
@@ -12,10 +15,12 @@ import { AmfSerializer } from '../helpers/AmfSerializer.js';
  */
 export class AmfStore extends AmfHelperMixin(Object) {
   /**
-   * @param {AmfDocument} graph The full API model.
+   * @param {AmfDocument=} graph The full API model.
+   * @param {EventTarget=} eventsTarget The event target to dispatch the events on.
    */
-  constructor(graph) {
+  constructor(graph, eventsTarget=window) {
     super();
+    this.target = eventsTarget;
     let amf = graph;
     if (Array.isArray(graph)) {
       [amf] = graph;
@@ -40,6 +45,9 @@ export class AmfStore extends AmfHelperMixin(Object) {
    */
   __amfChanged(amf) {
     this.serializer.amf = amf;
+    if (this.target) {
+      StoreEvents.graphChange(this.target);
+    }
   }
 
   /**
@@ -50,7 +58,8 @@ export class AmfStore extends AmfHelperMixin(Object) {
     if (!amf) {
       return null;
     }
-    const result = this.serializer.apiSummary(amf);
+    const api = this._computeApi(amf);
+    const result = this.serializer.apiSummary(api);
     return result;
   }
 
@@ -113,12 +122,29 @@ export class AmfStore extends AmfHelperMixin(Object) {
     }
     const api = this._computeApi(amf);
     if (!api) {
-      return null;
+      return [];
     }
     const endpoints = this._computeEndpoints(api);
     if (!Array.isArray(endpoints) || !endpoints.length) {
       return [];
     }
     return endpoints.map((ep) => this.serializer.endPointWithOperationsListItem(ep));
+  }
+
+  /**
+   * Queries for the list of servers for method, if defined, or endpoint, if defined, or root level 
+   * @param {ServersQueryOptions=} query Server query options
+   * @returns {Promise<ApiServer[]>} The list of servers for given query.
+   */
+  async queryServers(query) {
+    const { amf } = this;
+    if (!amf) {
+      return null;
+    }
+    const servers = this._getServers(query);
+    if (!Array.isArray(servers)) {
+      return [];
+    }
+    return servers.map(s => this.serializer.server(s));
   }
 }

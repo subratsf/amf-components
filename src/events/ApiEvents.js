@@ -1,9 +1,7 @@
-/* eslint-disable max-classes-per-file */
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent } from './BaseEvents.js';
 
 /** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
-
 
 export const ApiEvents = {
   /**

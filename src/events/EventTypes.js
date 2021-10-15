@@ -17,6 +17,7 @@ export const EventTypes = Object.freeze({
   Server: Object.freeze({
     serverChange: 'apiserverchanged',
     serverCountChange: 'serverscountchanged',
+    query: 'apistoreserverquery',
   }),
   Api: Object.freeze({
     summary: 'amfstoreapisummary',
@@ -24,9 +25,22 @@ export const EventTypes = Object.freeze({
   Navigation: Object.freeze({
     apiNavigate: 'apinavigate',
   }),
-  Endpoint: {
+  Endpoint: Object.freeze({
     get: 'amfstoreendpointget',
     byPath: 'amfstoreendpointbypath',
     list: 'amfstoreendpointlist',
-  },
+  }),
+  Reporting: Object.freeze({
+    error: 'apierror',
+  }),
+  Telemetry: Object.freeze({
+    view: 'telemetryscreenview',
+    event: 'telemetryevent',
+    exception: 'telemetryexception',
+    social: 'telemetrysocial',
+    timing: 'telemetrytiming',
+  }),
+  Store: Object.freeze({
+    graphChange: 'apistoregraphchange',
+  }),
 });

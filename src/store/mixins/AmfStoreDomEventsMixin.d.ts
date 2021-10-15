@@ -19,4 +19,13 @@ export declare interface AmfStoreDomEventsMixinConstructor {
  */
 export declare interface AmfStoreDomEventsMixin extends EventsTargetMixin {
   [eventHandler](e: CustomEvent): void;
+  /**
+   * Listens for the store DOM events.
+   */
+  listen(node?: EventTarget): void;
+
+  /**
+   * Removes store's DOM events.
+   */
+  unlisten(node?: EventTarget): void;
 }

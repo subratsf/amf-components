@@ -3,6 +3,7 @@
 import { LitElement, html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
+import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
 import '@advanced-rest-client/arc-icons/arc-icon.js';
@@ -10,6 +11,7 @@ import '@advanced-rest-client/highlight/arc-marked.js';
 import { ApiExampleGenerator } from '../schema/ApiExampleGenerator.js';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
 import { AmfSerializer } from '../helpers/AmfSerializer.js';
+import { EventTypes } from '../events/EventTypes.js';
 import '../../api-annotation-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
@@ -37,11 +39,12 @@ export const exampleTemplate = Symbol('exampleTemplate');
 export const examplesValue = Symbol('examplesValue');
 export const evaluateExamples = Symbol('evaluateExamples');
 export const evaluateExample = Symbol('evaluateExample');
+export const graphChangeHandler = Symbol('graphChangeHandler');
 
 /**
  * A base class for the documentation components with common templates and functions.
  */
-export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
+export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitElement)) {
   /** 
    * @returns {string|undefined} The domain id of the object to render.
    */
@@ -113,6 +116,8 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
      */
     this[examplesValue] = undefined;
     this[serializerValue] = new AmfSerializer();
+
+    this[graphChangeHandler] = this[graphChangeHandler].bind(this);
   }
 
   /**
@@ -136,6 +141,29 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
       clearTimeout(this[debounceValue]);
       this[debounceValue] = undefined;
     }
+  }
+
+  /**
+     * @param {EventTarget} node
+     */
+  _attachListeners(node) {
+    node.addEventListener(EventTypes.Store.graphChange, this[graphChangeHandler]);
+    super._attachListeners(node);
+  }
+
+  /**
+   * @param {EventTarget} node
+   */
+  _detachListeners(node) {
+    node.removeEventListener(EventTypes.Store.graphChange, this[graphChangeHandler]);
+    super._detachListeners(node);
+  }
+
+  /**
+   * Handler for the event dispatched by the store when the graph model change.
+   */
+  [graphChangeHandler]() {
+    this[processDebounce]()
   }
 
   /**

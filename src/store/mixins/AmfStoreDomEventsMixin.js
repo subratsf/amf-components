@@ -13,6 +13,8 @@ const eventsMap = {
   [EventTypes.Api.summary]: { target: 'apiSummary' },
   [EventTypes.Endpoint.get]: { target: 'getEndpoint', args: ['id'], },
   [EventTypes.Endpoint.byPath]: { target: 'getEndpointByPath', args: ['id'], },
+  [EventTypes.Endpoint.list]: { target: 'listEndpointsWithOperations' },
+  [EventTypes.Server.query]: { target: 'queryServers' },
 };
 
 /**

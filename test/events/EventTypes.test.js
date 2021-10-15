@@ -164,4 +164,83 @@ describe('EventTypes', () => {
       ensureUnique('EventTypes.Request', EventTypes.Request);
     });
   });
+
+  describe('Reporting', () => {
+    it('has Reporting namespace', () => {
+      assert.typeOf(EventTypes.Reporting, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        EventTypes.Reporting = { read: '' };
+      });
+    });
+
+    [
+      ['error', 'apierror'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(EventTypes.Reporting[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('EventTypes.Reporting', EventTypes.Reporting);
+    });
+  });
+
+  describe('Telemetry', () => {
+    it('has Telemetry namespace', () => {
+      assert.typeOf(EventTypes.Telemetry, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        EventTypes.Telemetry = { read: '' };
+      });
+    });
+
+    [
+      ['view', 'telemetryscreenview'],
+      ['event', 'telemetryevent'],
+      ['exception', 'telemetryexception'],
+      ['social', 'telemetrysocial'],
+      ['timing', 'telemetrytiming'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(EventTypes.Telemetry[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('EventTypes.Telemetry', EventTypes.Telemetry);
+    });
+  });
+
+  describe('Store', () => {
+    it('has Store namespace', () => {
+      assert.typeOf(EventTypes.Store, 'object');
+    });
+
+    it('is frozen', () => {
+      assert.throws(() => {
+        // @ts-ignore
+        EventTypes.Store = { read: '' };
+      });
+    });
+
+    [
+      ['graphChange', 'apistoregraphchange'],
+    ].forEach(([prop, value]) => {
+      it(`has ${prop} property`, () => {
+        assert.equal(EventTypes.Store[prop], value);
+      });
+    });
+
+    it('has unique events for the namespace', () => {
+      ensureUnique('EventTypes.Store', EventTypes.Store);
+    });
+  });
 });

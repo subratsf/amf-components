@@ -39,6 +39,9 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
   constructor() {
     super();
     this.initObservableProperties(["initialized", "loaded", 'selectedFile']);
+    this.store = new DomEventsAmfStore(undefined, window);
+    this.store.listen();
+
     this.loaded = false;
     this.initialized = false;
     this.renderViewControls = true;
@@ -159,15 +162,12 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
   async _loadFile(file) {
     this.loaded = false;
     const response = await fetch(`./${file}`);
-    const data = await response.json();
-    this.amf = data;
-    if (this.store) {
-      // @ts-ignore
-      this.store.unlisten();
+    let data = await response.json();
+    if (Array.isArray(data)) {
+      [data] = data;
     }
-    this.store = new DomEventsAmfStore(this.amf);
-    // @ts-ignore
-    this.store.listen();
+    this.amf = data;
+    this.store.amf = data;
     this.loaded = true;
   }
 

@@ -876,7 +876,7 @@ describe('ApiSchemaDocumentElement', () => {
           const propertyName = element.shadowRoot.querySelector('.param-label');
           assert.notExists(propertyName);
 
-          const propertyType = element.shadowRoot.querySelector('.schema-property-label');
+          const propertyType = element.shadowRoot.querySelector('.param-type');
           assert.equal(propertyType.textContent.trim(), 'List of String');
         });
 
