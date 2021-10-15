@@ -1,313 +1,807 @@
 import { html } from 'lit-html';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
+import { classMap } from 'lit-html/directives/class-map.js';
+import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
+import '@anypoint-web-components/anypoint-menu-button/anypoint-menu-button.js';
+import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@advanced-rest-client/authorization/oidc-authorization.js';
+import '@advanced-rest-client/arc-icons/arc-icon.js';
 import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@advanced-rest-client/authorization/oauth1-authorization.js';
-import { AmfDemoBase } from './lib/AmfDemoBase.js';
+import { MonacoTheme, MonacoStyles, MonacoLoader } from '@advanced-rest-client/monaco-support';
+import { ApplicationPage } from "./lib/ApplicationPage.js";
+import { EventTypes } from '../src/events/EventTypes.js';
+// import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
+import "../api-navigation.js";
+import '../api-documentation.js';
 import '../xhr-simple-request.js';
-import '../api-request-editor.js';
+import * as ApiExamples from './lib/ApiExamples.js';
 
+const StorePrefix = 'ApiEditor.Value.';
+const ApiFormatKey = 'ApiEditor.Format';
+const ApiMediaKey = 'ApiEditor.Media';
+
+/* global monaco */
+/** @typedef {import('lit-html').TemplateResult} TemplateResult */
+/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
+/** @typedef {import('monaco-editor').editor.IStandaloneEditorConstructionOptions} IStandaloneEditorConstructionOptions */
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+/** @typedef {import('../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../src/types').SelectionType} SelectionType */
+/** @typedef {import('../dev/types').ApiEditorPreviousRequest} ApiEditorPreviousRequest */
 
-class ComponentDemo extends AmfDemoBase {
+try {
+  // @ts-ignore
+  document.adoptedStyleSheets = document.adoptedStyleSheets.concat(MonacoStyles.styleSheet);
+} catch (_) {
+  /* istanbul ignore next */
+  const s = document.createElement('style');
+  s.innerHTML = MonacoStyles.cssText;
+  document.getElementsByTagName('head')[0].appendChild(s);
+}
+
+export class ApiTextEditor extends ApplicationPage {
   constructor() {
     super();
-    this.initObservableProperties([
-      'outlined',
-      'selectedAmfId',
-      'allowCustom',
-      'allowHideOptional',
-      'responseBody',
-      'urlLabel',
-      'urlEditor',
-      'renderCustomServer',
-      'allowCustomBaseUri',
-      'noServerSelector',
-      'applyAuthorization',
-    ]);
-    this.componentName = 'api-request-editor';
-    this.allowCustom = true;
-    this.allowHideOptional = true;
-    this.urlLabel = false;
-    this.urlEditor = true;
-    this.renderCustomServer = false;
-    this.noServerSelector = false;
-    this.allowCustomBaseUri = false;
-    this.applyAuthorization = true;
-
-    this.demoStates = ['Filled', 'Outlined', 'Anypoint'];
-    this._demoStateHandler = this._demoStateHandler.bind(this);
-    this._toggleMainOption = this._toggleMainOption.bind(this);
-    this._responseReady = this._responseReady.bind(this);
-    this._apiRequestHandler = this._apiRequestHandler.bind(this);
+    this.initObservableProperties(
+      'navigationOpened', 'model', 'loading',
+      'domainId', 'domainType', 'operationId',
+      'initializing', 'apiFormat', 'apiMedia',
+      'editorOpened', 'editorOperation',
+    );
+    /**
+     * When set the application is initializing its environment.
+     */
+    this.initializing = true;
+    /**
+     * When set the application is loading an API model.
+     */
+    this.loading = false;
+    /** 
+     * Whether the application navigation is visible, when toggling.
+     */
+    this.navigationOpened = false;
+    /**
+     * The loaded AMF model form the demo APIs.
+     * 
+     * @type {AmfDocument}
+     */
+    this.model = undefined;
+    /**
+     * The domain id of the currently selected graph object.
+     * @type {string}
+     */
+    this.domainId = 'summary';
+    /**
+     * The navigation type of the currently selected graph object.
+     * @type {SelectionType}
+     */
+    this.domainType = 'summary';
+    /**
+     * When the current domain type is an operation this is the selected operation domain id.
+     */
+    this.operationId = undefined;
+    /**
+     * The OAuth 2 redirect URI.
+     */
     this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
-  }
-
-  _demoStateHandler(e) {
-    const state = e.detail.value;
-    this.outlined = state === 1;
-    this.compatibility = state === 2;
-    this._updateCompatibility();
-  }
-
-  _authSettingsChanged(e) {
-    const value = e.detail;
-    this.authSettings = value;
-    this.authSettingsValue = value ? JSON.stringify(value, null, 2) : '';
+    /** @type string */
+    this.apiFormat = 'RAML 1.0';
+    /** @type string */
+    this.apiMedia='application/yaml';
+    /** @type ApiEditorPreviousRequest[] */
+    this.requests = [];
+    /** 
+     * Whether the HTTP editor is opened.
+     */
+    this.editorOpened = false;
+    /** 
+     * The domain id of the operation opened in the HTTP editor.
+     */
+    this.editorOperation = undefined;
+    window.addEventListener(EventTypes.Navigation.apiNavigate, this.apiNavigationHandler.bind(this));
+    this.initApp();
   }
 
   /**
-   * @param {ApiNavigationEvent} e
+   * Loads the Monaco editor and initializes routing.
    */
-  _navChanged(e) {
-    this.selectedAmfId = undefined;
-    this.responseBody = undefined;
-    const { domainId, domainType } = e.detail;
+  async initApp() {
+    await this.loadMonaco();
+    await this.restoreSession();
+    this.initializing = false;
+    await this.updateComplete;
+    this.httpEditorPositionTarget = document.body.querySelector('aside');
+    this.initializeEditor();
+  }
+
+  /**
+   * Loads the Monaco editor using ARC's helpers.
+   * This can be implemented in any way.
+   */
+  async loadMonaco() {
+    const base = new URL('../node_modules/monaco-editor/', import.meta.url).toString();
+    // const base = `../node_modules/monaco-editor/`;
+    MonacoLoader.createEnvironment(base);
+    await MonacoLoader.loadMonaco(base);
+    await MonacoLoader.monacoReady();
+  }
+
+  /**
+   * Restores previously stored session.
+   * @returns {Promise<void>}
+   */
+  async restoreSession() {
+    let format = localStorage.getItem(ApiFormatKey);
+    if (!format) {
+      format = 'OAS 3.0';
+    }
+    let mime = localStorage.getItem(ApiMediaKey);
+    if (!mime) {
+      mime = 'application/yaml';
+    }
+    /** @type string */
+    this.apiFormat = format;
+    /** @type string */
+    this.apiMedia = mime;
+    this.value = this.getEditorValue(format, mime);
+    this.parse();
+  }
+
+  /**
+   * Stores the current session in the store.
+   */
+  async storeSession() {
+    const { value='', apiFormat='', apiMedia='' } = this;
+    localStorage.setItem(ApiFormatKey, apiFormat);
+    localStorage.setItem(ApiMediaKey, apiMedia);
+    const key = this.editorValueKey(apiFormat, apiMedia);
+    localStorage.setItem(key, value);
+  }
+
+  /**
+   * Cleans up the API and the selection state,
+   */
+  cleanUp() {
+    this.apiId = undefined;
+    this.domainId = undefined;
+    this.domainType = undefined;
+    this.operationId = undefined;
+    this.model = undefined;
+  }
+
+  /**
+   * @param {ApiNavigationEvent} e Dispatched navigation event
+   */
+  apiNavigationHandler(e) {
+    const { domainId, domainType, parentId, passive } = e.detail;
+    if (passive === true) {
+      return;
+    }
+    this.domainType = domainType;
     if (domainType === 'operation') {
-      this.selectedAmfId = domainId;
-      this.hasData = true;
+      this.domainId = parentId;
+      this.operationId = domainId;
     } else {
-      this.hasData = false;
+      this.domainId = domainId;
+      this.operationId = undefined;
+    }
+    if (this.navigationOpened) {
+      this.navigationOpened = false;
     }
   }
 
-  _apiListTemplate() {
-    return [
-      ['demo-api', 'Demo API'],
-      ['google-drive-api', 'Google Drive'],
-      ['multi-server', 'Multiple servers'],
-      ['httpbin', 'httpbin.org'],
-      ['APIC-168', 'APIC-168: Custom scheme support'],
-      ['apic-169', 'apic-169'],
-      ['APIC-289', 'APIC-289: OAS param names'],
-      ['APIC-298', 'APIC-298: OAS param names 2'],
-      ['APIC-480', 'APIC-480'],
-      ['APIC-613', 'APIC-613'],
-      ['APIC-689', 'APIC-689: Enum values'],
-      ['SE-12042', 'SE-12042: Default values issue'],
-      ['SE-12224', 'SE-12224: Scope is not an array issues'],
-      ['SE-12957', 'SE-12957: OAS query parameters documentation'],
-      ['api-keys', 'API key'],
-      ['oas-demo', 'OAS Demo API'],
-      ['oauth-flows', 'OAS OAuth Flow'],
-      ['oas-bearer', 'OAS Bearer'],
-      ['secured-api', 'Security demo'],
-      ['21143', '21143'],
-      ['annotated-parameters', 'annotated-parameters'],
-    ].map(([file, label]) => html`
-      <anypoint-item data-src="models/${file}-compact.json">${label}</anypoint-item>
-      `);
+  menuToggleHandler() {
+    this.navigationOpened = !this.navigationOpened;
   }
 
-  _responseReady(e) {
-    const { isError, response } = e.detail;
-    if (isError) {
-      this.responseBody = 'Error in response';
-    } else {
-      this.responseBody = response.payload;
-    }
-  }
+  /**
+   * Generates Monaco configuration
+   * @returns {IStandaloneEditorConstructionOptions}
+   */
+  generateEditorConfig() {
+    const { value='', apiMedia: language } = this;
+    // @ts-ignore
+    this.modelUri = monaco.Uri.parse(`http://api-editor/model.json`);
+    // @ts-ignore
+    const model = monaco.editor.createModel(value, language || 'json', this.modelUri);
 
-  _apiRequestHandler(e) {
-    console.log(e.detail);
-  }
-
-  requestChangeHandler() {
-    console.log('requestChangeHandler');
-  }
-
-  dispatchAnnotations() {
-    const detail = { 
-      values: [
-        { annotationName: 'credentialType', annotationValue: 'id', fieldValue: 'test value 1' },
-        { annotationName: 'credentialType', annotationValue: 'secret', fieldValue: 'test value 2' },
-      ] 
+    const schema = {
+      uri: "http://api-editor/default-schema.json",
+      fileMatch: [this.modelUri.toString()],
+      schema: {},
     };
-    document.dispatchEvent(new CustomEvent('populate_annotated_fields', { detail, bubbles: true }));
+    
+    // @ts-ignore
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      validate: true,
+      schemas: [schema],
+    });
+    
+    let config = /** @type IStandaloneEditorConstructionOptions */ ({
+      minimap: {
+        enabled: false,
+      },
+      formatOnType: true,
+      folding: true,
+      tabSize: 2,
+      detectIndentation: true,
+      // value,
+      automaticLayout: true,
+      model,
+    });
+    // @ts-ignore
+    config = MonacoTheme.assignTheme(monaco, config);
+    if (language) {
+      config.language = language;
+    }
+    return config;
   }
 
-  _addCustomServers() {
-    if (!this.renderCustomServer) {
+  initializeEditor() {
+    const config = this.generateEditorConfig();
+    // @ts-ignore
+    const instance = monaco.editor.create(document.body.querySelector('#container'), config);
+    // @ts-ignore
+    instance.onDidChangeModelContent(this.valueChanged.bind(this));
+    this.monacoInstance = instance;
+  }
+
+  /**
+   * The callback for the Monaco editor value change.
+   */
+  valueChanged() {
+    this.value = this.monacoInstance.getValue();
+    if (this.changeTimeout) {
+      window.clearTimeout(this.changeTimeout);
+    }
+    this.changeTimeout = window.setTimeout(() => {
+      this.changeTimeout = undefined;
+      this.storeSession();
+      this.parse();
+    }, 400);
+  }
+
+  /**
+   * @param {Event} e
+   */
+  formatSelectorHandler(e) {
+    const node = /** @type HTMLElement */ (e.target);
+    const { vendor } = node.dataset;
+    if (!vendor) {
+      return;
+    }
+    this.selectVendor(vendor);
+  }
+
+  /**
+   * @param {Event} e
+   */
+  mediaSelectorHandler(e) {
+    const node = /** @type HTMLElement */ (e.target);
+    const { media } = node.dataset;
+    if (!media) {
+      return;
+    }
+    this.selectMedia(media);
+  }
+
+  /**
+   * @param {string} vendor
+   */
+  selectVendor(vendor) {
+    this.apiFormat = vendor;
+    this.apiMedia = 'application/yaml';
+    const value = this.getEditorValue(vendor, this.apiMedia);
+    this.value = value;
+    if (this.monacoInstance) {
+      this.monacoInstance.setValue(value);
+      const model = this.monacoInstance.getModel();
+      // @ts-ignore
+      monaco.editor.setModelLanguage(model, this.apiMedia);
+    }
+    this.domainId = 'summary';
+    this.domainType = 'summary';
+    this.model = undefined;
+  }
+
+  /**
+   * @param {string} media
+   */
+  selectMedia(media) {
+    this.apiMedia = media;
+    const value = this.getEditorValue(this.apiFormat, media);
+    this.value = value;
+    if (this.monacoInstance) {
+      this.monacoInstance.setValue(value);
+      const model = this.monacoInstance.getModel();
+      // @ts-ignore
+      monaco.editor.setModelLanguage(model, media);
+    }
+    this.domainId = 'summary';
+    this.domainType = 'summary';
+    this.model = undefined;
+  }
+
+  /**
+   * @param {string} vendor The API format.
+   * @param {string=} media The API media type.
+   * @returns {string} The store key for the value.
+   */
+  editorValueKey(vendor, media) {
+    let suffix = vendor;
+    if (media) {
+      suffix += `.${media}`;
+    }
+    return `${StorePrefix}${suffix}`;
+  }
+
+  /**
+   * @param {string} vendor The API format.
+   * @param {string=} media The API media type.
+   * @returns {string} The value for the editor.
+   */
+  getEditorValue(vendor, media) {
+    const key = this.editorValueKey(vendor, media);
+    const value = localStorage.getItem(key);
+    if (!value) {
+      return this.getExampleValue(vendor, media)
+    }
+    return value;
+  }
+
+  /**
+   * @param {string} vendor The API format.
+   * @param {string=} media The API media type.
+   * @returns {string} The value for the editor.
+   */
+  getExampleValue(vendor, media='application/yaml') {
+    if (vendor === 'RAML 1.0') {
+      return ApiExamples.Raml10;
+    }
+    if (vendor === 'OAS 2.0') {
+      if (media === 'application/yaml') {
+        return ApiExamples.Oas20Yaml;
+      }
+      if (media === 'application/json') {
+        return ApiExamples.Oas20Json;
+      }
+    }
+    if (vendor === 'OAS 3.0') {
+      if (media === 'application/yaml') {
+        return ApiExamples.Oas30Yaml;
+      }
+      if (media === 'application/json') {
+        return ApiExamples.Oas30Json;
+      }
+    }
+    if (vendor === 'ASYNC 2.0') {
+      return ApiExamples.Async20;
+    }
+    return '';
+  }
+
+  /**
+   * @param {KeyboardEvent} e
+   */
+  formatSelectorKeyHandler(e) {
+    if (!['Enter', 'Space'].includes(e.code)) {
+      return;
+    }
+    const node = /** @type HTMLElement */ (e.target);
+    const { media } = node.dataset;
+    if (!media) {
+      return;
+    }
+    this.selectMedia(media);
+  }
+
+  /**
+   * @param {KeyboardEvent} e
+   */
+  mediaSelectorKeyHandler(e) {
+    if (!['Enter', 'Space'].includes(e.code)) {
+      return;
+    }
+    const node = /** @type HTMLElement */ (e.target);
+    const { vendor } = node.dataset;
+    if (!vendor) {
+      return;
+    }
+    this.selectVendor(vendor);
+  }
+
+  /**
+   * @param {string} location
+   * @returns {string}
+   */
+  getServerKey(location) {
+    const index = location.lastIndexOf('/');
+    return location.substr(index + 1);
+  }
+
+
+  /**
+   * Parses the current state of the editor.
+   * @returns {Promise<void>} 
+   */
+  async parse() {
+    this.loading = true;
+    /** @type string */
+    let previousKey;
+    const lastRequest = this.requests[this.requests.length - 1];
+    if (lastRequest) {
+      previousKey = lastRequest.key;
+      console.log('Cancelling', previousKey);
+      lastRequest.ctrl.abort();
+    }
+    const url = new URL('/amf-server/api/parse-text', window.location.href).toString();
+    const { value, apiFormat, apiMedia } = this;
+    const headers = {
+      'content-type': apiMedia,
+      'x-api-vendor': apiFormat,
+    }
+    if (previousKey) {
+      headers['x-previous-request'] = previousKey;
+    }
+    const response = await fetch(url, {
+      method: 'POST',
+      body: value,
+      headers,
+    });
+    if (response.status !== 201) {
+      this.loading = false;
+      return;
+    }
+    const location = response.headers.get('location');
+    if (!location) {
+      this.loading = false;
+      return;
+    }
+    const key = this.getServerKey(location);
+    const ctrl = new AbortController();
+    this.requests.push({
+      key,
+      ctrl,
+    });
+    this.checkStatus(location);
+  }
+
+  /**
+   * Checks the parsing status from the server.
+   * @param {string} location
+   * @returns {Promise<void>} 
+   */
+  async checkStatus(location) {
+    const key = this.getServerKey(location);
+    const index = this.requests.findIndex(item => item.key === key);
+    if (index === -1) {
+      return;
+    }
+    const info = this.requests[index];
+    if (info.ctrl.signal.aborted) {
+      this.requests.splice(index, 1);
+      return;
+    }
+    const url = new URL(location, window.location.href).toString();
+    const response = await fetch(url);
+    if (response.status === 204) {
+      const newLocation = response.headers.get('location');
+      if (!newLocation) {
+        this.loading = false;
+        return;
+      }
+      setTimeout(() => {
+        this.checkStatus(newLocation);
+      }, 500);
+      return;
+    }
+    if (response.status === 200) {
+      const newLocation = response.headers.get('location');
+      if (!newLocation) {
+        this.loading = false;
+        console.error('The server did not return result location.');
+        return;
+      }
+      this.readResult(newLocation);
+      return;
+    }
+
+    this.loading = false;
+    console.error('Invalid state.');
+  }
+
+  /**
+   * Reads the parsed model result.
+   * @param {string} location
+   * @returns {Promise<void>} 
+   */
+  async readResult(location) {
+    const key = this.getServerKey(location);
+    const index = this.requests.findIndex(item => item.key === key);
+    if (index === -1) {
+      return;
+    }
+    const info = this.requests[index];
+    this.requests.splice(index, 1);
+    if (info.ctrl.signal.aborted) {
+      return;
+    }
+    const url = new URL(location, window.location.href).toString();
+    const response = await fetch(url);
+    if (response.status !== 200) {
+      this.loading = false;
+      return;
+    }
+    let model = await response.json();
+    if (Array.isArray(model)) {
+      [model] = model;
+    }
+    this.model = model;
+    this.loading = false;
+    console.log(model);
+  }
+
+  /**
+   * @param {CustomEvent} e
+   */
+  tryitHandler(e) {
+    const { id } = e.detail;
+    this.editorOperation = id;
+    this.editorOpened = true;
+  }
+
+  editorCloseHandler() {
+    this.editorOperation = undefined;
+    this.editorOpened = false;
+  }
+
+  /**
+   * @returns {TemplateResult} Main application template
+   */
+  appTemplate() {
+    return html`
+    ${this.headerTemplate()}
+    ${this.pageTemplate()}
+    ${this.requestEditorDialogTemplate()}
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult} The application header template
+   */
+  headerTemplate() {
+    const { isMobile } = this;
+    return html`
+    <header>
+      ${isMobile ? this.navigationTriggerTemplate() : this.apiNameHeaderTemplate()}
+    </header>`;
+  }
+
+  /**
+   * @returns {TemplateResult} The navigation trigger button template
+   */
+  navigationTriggerTemplate() {
+    return html`
+    <anypoint-icon-button 
+      title="Open the menu" 
+      aria-label="Activate to open the API navigation"
+      @click="${this.menuToggleHandler}"
+    >
+      <arc-icon icon="menu"></arc-icon>
+    </anypoint-icon-button>
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult} The template for the API name.
+   */
+  apiNameHeaderTemplate() {
+    return html`
+    <div class="api-name-wrapper">
+      <h1>API editor</h1>
+    </div>
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult} The template for the page content
+   */
+  pageTemplate() {
+    if (this.initializing) {
+      return this.initializingTemplate();
+    }
+    return html`
+    <main>
+      ${this.editorInputTemplate()}
+      <aside>
+        ${this.documentationTemplate()}
+      </aside>
+    </main>
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult} A template for the loader
+   */
+  initializingTemplate() {
+    return html`
+    <div class="app-loader">
+      <p class="message">Preparing something spectacular</p>
+    </div>
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult} The template for the API input editor
+   */
+  editorInputTemplate() {
+    return html`
+    <section class="editing-area">
+      ${this.apiSpecFormatSelector()}
+      ${this.editorContainerTemplate()}
+    </section>
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult} The template for the API format selector
+   */
+  apiSpecFormatSelector() {
+    const { apiFormat } = this;
+    return html`
+    <div class="format-bar">
+      <div class="button-group" @click="${this.formatSelectorHandler}" @keydown="${this.formatSelectorKeyHandler}">
+        <anypoint-button ?active="${apiFormat === 'RAML 1.0'}" data-vendor="RAML 1.0">RAML 1.0</anypoint-button>
+        <anypoint-button ?active="${apiFormat === 'OAS 2.0'}" data-vendor="OAS 2.0">OAS 2.0</anypoint-button>
+        <anypoint-button ?active="${apiFormat === 'OAS 3.0'}" data-vendor="OAS 3.0">OAS 3.0</anypoint-button>
+        <anypoint-button ?active="${apiFormat === 'ASYNC 2.0'}" data-vendor="ASYNC 2.0">Async API 2.0</anypoint-button>
+      </div>
+      ${this.apiMediaTypeSelector()}
+    </div>
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult|string} The template for the API media selector
+   */
+  apiMediaTypeSelector() {
+    const { apiFormat, apiMedia } = this;
+    const hasMediaType = ['OAS 2.0', 'OAS 3.0'].includes(apiFormat);
+    if (!hasMediaType) {
       return '';
     }
-    const { compatibility } = this;
     return html`
-    <div class="other-section" slot="custom-base-uri">Other options</div>
-    <anypoint-item
-      slot="custom-base-uri"
-      data-value="http://mocking.com"
-      ?compatibility="${compatibility}"
-    >Mocking service</anypoint-item>
-    <anypoint-item
-      slot="custom-base-uri"
-      data-value="http://customServer.com2"
-      ?compatibility="${compatibility}"
-    >Custom instance</anypoint-item>`;
-  }
-
-  _annotationsEventTemplate() {
-    return html `
-      <section class="documentation-section">
-        <h3>Annotations event</h3>
-        <p>
-          Dispatch event to update values from annotations.
-          <anypoint-button @click="${this.dispatchAnnotations}">Dispatch</anypoint-button>
-        </p>
-      </section>
+    <div class="button-group" @click="${this.mediaSelectorHandler}" @keydown="${this.mediaSelectorKeyHandler}">
+      <anypoint-button ?active="${apiMedia === 'application/yaml'}" data-media="application/yaml">application/yaml</anypoint-button>
+      <anypoint-button ?active="${apiMedia === 'application/json'}" data-media="application/json">application/json</anypoint-button>
+    </div>
     `;
   }
 
-  contentTemplate() {
-    return html`
-    <xhr-simple-request @api-response="${this._responseReady}"></xhr-simple-request>
-    <oauth1-authorization></oauth1-authorization>
-    <oauth2-authorization></oauth2-authorization>
-    <oidc-authorization></oidc-authorization>
-    <h2 class="centered main">API request editor</h2>
-    ${this.demoTemplate()}
-    ${this._annotationsEventTemplate()}
-    `;
+  /**
+   * @returns {TemplateResult} The template for the Monaco editor.
+   */
+  editorContainerTemplate() {
+    return html`<div id="container"></div>`;
   }
 
-  demoTemplate() {
-    const { loaded } = this;
-    return html `
-    <section class="documentation-section">
-      <h3>Interactive demo</h3>
-      <p>
-        This demo lets you preview the API Request Editor element with various
-        configuration options.
-      </p>
-      <div class="api-demo-content">
-        ${!loaded ? html`<p>Load an API model first.</p>` : this.loadedTemplate()}
-      </div>
-    </section>`;
-  }
-
-  loadedTemplate() {
+  /**
+   * @returns {TemplateResult|string} The template for API navigation.
+   */
+  navigationDrawerTemplate() {
+    const { model, navigationOpened } = this;
+    if (!model) {
+      return '';
+    }
+    const classes = {
+      navigation: true,
+      opened: navigationOpened,
+    };
     return html`
-    ${this.componentTemplate()}
-    `;
-  }
-
-  componentTemplate() {
-    const {
-      demoStates,
-      darkThemeActive,
-      outlined,
-      compatibility,
-      amf,
-      redirectUri,
-      allowCustom,
-      allowHideOptional,
-      selectedAmfId,
-      responseBody,
-      urlLabel,
-      urlEditor,
-      noServerSelector,
-      allowCustomBaseUri,
-      applyAuthorization,
-    } = this;
-    return html`
-    <arc-interactive-demo
-      .states="${demoStates}"
-      @state-changed="${this._demoStateHandler}"
-      ?dark="${darkThemeActive}"
-    >
-      <div slot="content">
-        <api-request-editor
-          .amf="${amf}"
-          .domainId="${selectedAmfId}"
-          ?allowCustom="${allowCustom}"
-          ?allowHideOptional="${allowHideOptional}"
-          ?outlined="${outlined}"
-          ?compatibility="${compatibility}"
-          ?urlLabel="${urlLabel}"
-          ?urlEditor="${urlEditor}"
-          ?applyAuthorization="${applyAuthorization}"
-          globalCache
-          .redirectUri="${redirectUri}"
-          ?noServerSelector="${noServerSelector}"
-          ?allowCustomBaseUri="${allowCustomBaseUri}"
-          @api-request="${this._apiRequestHandler}"
-          @change="${this.requestChangeHandler}"
+    <nav class="${classMap(classes)}">
+      <div class="api-doc-toolbar">
+        <anypoint-icon-button 
+          title="Close the menu" 
+          aria-label="Activate to close the API navigation"
+          @click="${this.menuToggleHandler}"
         >
-          ${this._addCustomServers()}
-        </api-request-editor>
-        ${responseBody ? html`<h3>Latest response</h3>
-        <output class="response-output" tabindex="0">${responseBody}</output>` : ''}
+          <arc-icon icon="close"></arc-icon>
+        </anypoint-icon-button>
       </div>
+      <api-navigation
+        summary
+        .amf="${model}"
+        endpointsOpened
+        noOverview
+      ></api-navigation>
+    </nav>`;
+  }
 
-      <label slot="options" id="mainOptionsLabel">Options</label>
-      
-      <anypoint-checkbox
-        aria-describedby="mainOptionsLabel"
-        slot="options"
-        name="allowCustom"
-        .checked="${allowCustom}"
-        @change="${this._toggleMainOption}"
-        >Allow custom</anypoint-checkbox
-      >
-      <anypoint-checkbox
-        aria-describedby="mainOptionsLabel"
-        slot="options"
-        name="allowHideOptional"
-        .checked="${allowHideOptional}"
-        @change="${this._toggleMainOption}"
-        >Allow hide optional</anypoint-checkbox
-      >
-      <anypoint-checkbox
-        aria-describedby="mainOptionsLabel"
-        slot="options"
-        name="urlLabel"
-        @change="${this._toggleMainOption}"
-        >URL label</anypoint-checkbox
-      >
-      <anypoint-checkbox
-        aria-describedby="mainOptionsLabel"
-        slot="options"
-        name="urlEditor"
-        @change="${this._toggleMainOption}"
-        .checked="${urlEditor}"
-        >URL editor</anypoint-checkbox
-      >
-      <anypoint-checkbox
-        aria-describedby="mainOptionsLabel"
-        slot="options"
-        name="renderCustomServer"
-        @change="${this._toggleMainOption}"
-        >Custom servers</anypoint-checkbox
-      >
-      <anypoint-checkbox
-        aria-describedby="mainOptionsLabel"
-        slot="options"
-        name="allowCustomBaseUri"
-        @change="${this._toggleMainOption}"
-        >Custom Base Uri</anypoint-checkbox
-      >
-      <anypoint-checkbox
-        aria-describedby="mainOptionsLabel"
-        slot="options"
-        name="noServerSelector"
-        @change="${this._toggleMainOption}"
-      >
-        Remove Server Selector
-      </anypoint-checkbox>
-      <anypoint-checkbox
-        aria-describedby="mainOptionsLabel"
-        slot="options"
-        name="applyAuthorization"
-        .checked="${applyAuthorization}"
-        @change="${this._toggleMainOption}"
-        title="Applies authorization configuration to the request when dispatching the event"
-      >
-        Apply authorization
-      </anypoint-checkbox>
-    </arc-interactive-demo>
+  /**
+   * @returns {TemplateResult} The template for the documentation section.
+   */
+  documentationTemplate() {
+    return html`
+    ${this.navigationDrawerTemplate()}
+    <section class="api-console">
+      ${this.apiLoaderTemplate()}
+      ${this.apiTemplate()}
+    </section>
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult|string} The template for the API loading indicator.
+   */
+  apiLoaderTemplate() {
+    if (!this.loading) {
+      return '';
+    }
+    return html`
+    <progress class="loading-progress"></progress>
+    `;
+  }
+
+  /**
+   * @returns {TemplateResult|string} The template for the API console's main documentation.
+   */
+  apiTemplate() {
+    const { model } = this;
+    if (!model) {
+      return '';
+    }
+    return html`
+    <div class="api-doc-toolbar">
+      ${this.navigationTriggerTemplate()}
+    </div>
+    <api-documentation
+      slot="content"
+      .amf="${this.model}"
+      .domainId="${this.domainId}"
+      .operationId="${this.operationId}"
+      .domainType="${this.domainType}"
+      .redirectUri="${this.redirectUri}"
+      tryItButton
+      @tryit="${this.tryitHandler}"
+    >
+    </api-documentation>
+    <oauth2-authorization></oauth2-authorization>
+    <xhr-simple-request></xhr-simple-request>
+    `;
+  }
+
+  requestEditorDialogTemplate() {
+    if (!this.httpEditorPositionTarget) {
+      return '';
+    }
+    return html`
+    <anypoint-dialog 
+      @closed="${this.editorCloseHandler}" 
+      .opened="${this.editorOpened}" 
+      class="request-dialog"
+      horizontalAlign="center"
+      verticalAlign="middle"
+      .positionTarget="${this.httpEditorPositionTarget}"
+    >
+      <h2>API request</h2>
+      <anypoint-dialog-scrollable>
+        <api-request
+          .amf="${this.model}"
+          .domainId="${this.editorOperation}"
+          urlLabel
+          applyAuthorization
+          globalCache
+          allowHideOptional
+          .redirectUri="${this.redirectUri}"
+        >
+        </api-request>
+      </anypoint-dialog-scrollable>
+      <div class="buttons">
+        <anypoint-button data-dialog-dismiss>Close</anypoint-button>
+      </div>
+    </anypoint-dialog>
     `;
   }
 }
-const instance = new ComponentDemo();
-instance.render();
+
+const page = new ApiTextEditor();
+page.render();

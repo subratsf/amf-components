@@ -67,10 +67,19 @@ class AmfServer {
    * @returns {Promise<void>} 
    */
   async handleParseText(context) {
+    const { headers } = context.request;
+    const previous = headers['x-previous-request'];
+    if (previous) {
+      this.service.removeProcess(previous);
+    }
     const key = await this.service.parseText(context.request);
     context.status = 201;
-    context.header.location = `${ApiBase}/status/${key}`;
-    context.body = { status: 201, location: `${ApiBase}/status/${key}` };
+    context.set('location', `${ApiBase}/status/${key}`);
+    context.body = { 
+      status: 201, 
+      location: `${ApiBase}/status/${key}`,
+      key,
+    };
   }
 
   /**
@@ -85,8 +94,8 @@ class AmfServer {
     const status = await this.service.checkStatus(key);
     if (status === 'running' || status === 'initialized') {
       context.status = 204;
-      context.header.location = `${ApiBase}/status/${key}`;
-      context.body = { status, location: `${ApiBase}/status/${key}` };
+      context.set('location', `${ApiBase}/status/${key}`);
+      context.body = { status, location: `${ApiBase}/status/${key}`, key, };
     } else if (status === 'failed') {
       const body = await this.service.getError(key);
       this.service.removeProcess(key);
@@ -95,8 +104,8 @@ class AmfServer {
       context.status = e.code;
     } else {
       context.status = 200;
-      context.header.location = `${ApiBase}/result/${key}`;
-      context.body = { status, location: `${ApiBase}/result/${key}` };
+      context.set('location', `${ApiBase}/result/${key}`);
+      context.body = { status, location: `${ApiBase}/result/${key}`, key, };
     }
   }
 

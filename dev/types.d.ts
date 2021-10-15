@@ -21,3 +21,8 @@ export interface ParserProcessResult {
   status: 'finished' | 'failed';
   result: unknown;
 }
+
+export interface ApiEditorPreviousRequest {
+  ctrl: AbortController;
+  key: string;
+}
