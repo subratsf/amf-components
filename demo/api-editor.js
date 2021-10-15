@@ -355,26 +355,26 @@ export class ApiTextEditor extends ApplicationPage {
    */
   getExampleValue(vendor, media='application/yaml') {
     if (vendor === 'RAML 1.0') {
-      return ApiExamples.Raml10;
+      return ApiExamples.Raml10.trim();
     }
     if (vendor === 'OAS 2.0') {
       if (media === 'application/yaml') {
-        return ApiExamples.Oas20Yaml;
+        return ApiExamples.Oas20Yaml.trim();
       }
       if (media === 'application/json') {
-        return ApiExamples.Oas20Json;
+        return ApiExamples.Oas20Json.trim();
       }
     }
     if (vendor === 'OAS 3.0') {
       if (media === 'application/yaml') {
-        return ApiExamples.Oas30Yaml;
+        return ApiExamples.Oas30Yaml.trim();
       }
       if (media === 'application/json') {
-        return ApiExamples.Oas30Json;
+        return ApiExamples.Oas30Json.trim();
       }
     }
     if (vendor === 'ASYNC 2.0') {
-      return ApiExamples.Async20;
+      return ApiExamples.Async20.trim();
     }
     return '';
   }

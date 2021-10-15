@@ -39,6 +39,7 @@ export const ramlCustomAuthTemplate = Symbol('ramlCustomAuthTemplate');
 export const methodTitleTemplate = Symbol('methodTitleTemplate');
 export const changeHandler = Symbol('changeHandler');
 export const createSettings = Symbol('createSettings');
+export const openIdConnectTemplate = Symbol('openIdConnectTemplate');
 
 export default class ApiAuthorizationEditorElement extends LitElement {
   get styles() {
@@ -350,6 +351,8 @@ export default class ApiAuthorizationEditorElement extends LitElement {
         return this[bearerAuthTemplate](scheme, true);
       case 'Api Key':
         return this[apiKeyTemplate](scheme);
+      case 'openIdConnect':
+        return this[openIdConnectTemplate](scheme);
       default:
         if (String(type).indexOf('x-') === 0) {
           return this[ramlCustomAuthTemplate](scheme);
@@ -533,6 +536,40 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
       type="oauth 2"
+      .redirectUri="${oauth2RedirectUri}"
+      .overrideAuthorizationUri="${oauth2AuthorizationUri}"
+      .overrideAccessTokenUri="${oauth2AccessTokenUri}"
+      .amf="${amf}"
+      .security="${security}"
+      .credentialsSource="${credentialsSource}"
+      @change="${this[changeHandler]}"
+    ></api-authorization-method>`;
+  }
+
+  /**
+   * Renders a template for OAuth 2 authorization.
+   *
+   * @param {ApiParametrizedSecurityScheme} security Security scheme
+   * @return {TemplateResult}
+   */
+  [openIdConnectTemplate](security) {
+    const {
+      compatibility,
+      outlined,
+      oauth2RedirectUri,
+      credentialsSource,
+      oauth2AuthorizationUri,
+      oauth2AccessTokenUri,
+      amf,
+      globalCache,
+    } = this;
+    return html`
+    ${this[methodTitleTemplate](security)}
+    <api-authorization-method
+      ?compatibility="${compatibility}"
+      ?outlined="${outlined}"
+      ?globalCache="${globalCache}"
+      type="open id"
       .redirectUri="${oauth2RedirectUri}"
       .overrideAuthorizationUri="${oauth2AuthorizationUri}"
       .overrideAccessTokenUri="${oauth2AccessTokenUri}"

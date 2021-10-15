@@ -722,6 +722,9 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
       </div>
       `;
     }
+    if (items.types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
+      return this[scalarShapeTemplate](schema);
+    }
     return html`
     <div class="params-section">
       ${labelTemplate||''}

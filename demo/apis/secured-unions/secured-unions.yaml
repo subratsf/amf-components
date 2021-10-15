@@ -85,3 +85,11 @@ paths:
       responses:
         default:
           description: Unexpected error
+  /oidc:
+    get:
+      security:
+        - OpenID: []
+          BearerAuth: []
+      responses:
+        default:
+          description: Unexpected error

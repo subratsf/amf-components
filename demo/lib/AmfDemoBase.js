@@ -7,12 +7,20 @@ import '@anypoint-web-components/anypoint-item/anypoint-item.js';
 import { DomEventsAmfStore } from "../../src/store/DomEventsAmfStore.js";
 import { AmfHelperMixin } from "../../src/helpers/AmfHelperMixin.js";
 import { EventTypes } from '../../src/events/EventTypes.js';
+import { navigate, findRoute } from './route.js';
 import '../../api-navigation.js';
 import './ApiStyles.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 /** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
 /** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+
+const routes = [
+  {
+    name: 'api-file',
+    pattern: 'file/(?<file>[^/]*)'
+  },
+];
 
 /**
  * Base class for API components demo page.
@@ -30,7 +38,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
 
   constructor() {
     super();
-    this.initObservableProperties(["initialized", "loaded"]);
+    this.initObservableProperties(["initialized", "loaded", 'selectedFile']);
     this.loaded = false;
     this.initialized = false;
     this.renderViewControls = true;
@@ -74,6 +82,11 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
      * @default false
      */
     this.noApiNavigation = false;
+    /** 
+     * Currently loaded file.
+     * @type {string}
+     */
+    this.selectedFile = undefined;
     window.addEventListener(EventTypes.Navigation.apiNavigate, this._navChanged.bind(this));
 
     document.body.classList.add('api');
@@ -82,6 +95,10 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
 
   async autoLoad() {
     await this.loadMonaco();
+    this.onRoute();
+    window.onpopstate = () => {
+      this.onRoute();
+    };
     this.initialized = true;
   }
 
@@ -93,9 +110,33 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
   }
 
   /**
+   * Called when route change
+   */
+  onRoute() {
+    const url = new URL(window.location.href);
+    const hash = url.hash.replace('#', '');
+    const result = findRoute(routes, hash);
+    if (!result || result.route.name !== 'api-file') {
+      return;
+    }
+    const { file } = result.params;
+    if (!file) {
+      return;
+    }
+    this.selectedFile = file;
+    this._loadFile(file);
+  }
+
+  /**
    * Sets default API selection when the view is rendered.
    */
   firstRender() {
+    const url = new URL(window.location.href);
+    const hash = url.hash.replace('#', '');
+    if (hash && hash.includes('file/')) {
+      // had the file already.
+      return;
+    }
     const node = /** @type any */ (document.getElementById('apiList'));
     if (!node) {
       return;
@@ -111,7 +152,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
     const node = /** @type AnypointListbox */ (e.target);
     const item = /** @type HTMLElement */ (node.selectedItem);
     const file = item.dataset.src;
-    this._loadFile(file);
+    navigate('file', file);
   }
 
   /** @param {string} file */
@@ -148,8 +189,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
     return [
       ['demo-api', 'Demo API'],
     ].map(([file, label]) => html`
-      <anypoint-item data-src="${file}-compact.json">${label} - compact model</anypoint-item>
-      <anypoint-item data-src="${file}.json">${label}</anypoint-item>
+      <anypoint-item data-src="models/${file}-compact.json">${label} - compact model</anypoint-item>
     `);
   }
 
@@ -176,7 +216,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
    * @return {TemplateResult} HTML template for demo header
    */
   headerTemplate() {
-    const { componentName } = this;
+    const { componentName, selectedFile } = this;
     return html`
     <header>
       ${componentName ? html`<h1 class="api-title">${componentName}</h1>` : ''}
@@ -185,7 +225,13 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
         aria-expanded="false"
       >
         <label slot="label">Select demo API</label>
-        <anypoint-listbox slot="dropdown-content" id="apiList" @selected-changed="${this._apiChanged}">
+        <anypoint-listbox 
+          slot="dropdown-content" 
+          id="apiList"
+          .selected="${selectedFile}"
+          @selected-changed="${this._apiChanged}"
+          attrForSelected="data-src"
+        >
           ${this._apiListTemplate()}
         </anypoint-listbox>
       </anypoint-dropdown-menu>

@@ -95,6 +95,7 @@ class ComponentDemo extends AmfDemoBase {
       ['secured-api', 'Security demo'],
       ['21143', '21143'],
       ['annotated-parameters', 'annotated-parameters'],
+      ['secured-unions', 'Secured unions']
     ].map(
       ([file, label]) => html`
         <anypoint-item data-src="models/${file}-compact.json">${label}</anypoint-item>
