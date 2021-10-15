@@ -203,6 +203,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
     return html`
     <api-navigation
       summary
+      noOverview
       .amf="${this.amf}"
       ?endpointsOpened="${this.endpointsOpened}"
       ?docsOpened="${this.docsOpened}"
@@ -219,7 +220,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
     const { componentName, selectedFile } = this;
     return html`
     <header>
-      ${componentName ? html`<h1 class="api-title">${componentName}</h1>` : ''}
+      <a href="./index.html" class="header-link"><arc-icon icon="arrowBack"></arc-icon>Demo index</a>
       <anypoint-dropdown-menu
         aria-label="Activate to select demo API"
         aria-expanded="false"
@@ -235,8 +236,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
           ${this._apiListTemplate()}
         </anypoint-listbox>
       </anypoint-dropdown-menu>
-      <div class="spacer"></div>
-      ${this._viewControlsTemplate()}
+      ${componentName ? html`<h1 class="api-title">${componentName}</h1>` : ''}
     </header>`;
   }
 

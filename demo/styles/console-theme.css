@@ -43,6 +43,8 @@ body {
   --api-navigation-list-item-selected-color: #000;
 
   --code-background-color: #f5f7f9;
+  --api-navigation-list-item-selected-icon-color: var(--primary-color);
+  --anypoint-icon-button-emphasis-low-color: var(--primary-color);
 }
 
 @media (prefers-color-scheme: dark) {

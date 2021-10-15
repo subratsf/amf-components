@@ -57,7 +57,7 @@ api-url-editor {
   margin: var(--arc-font-subhead-margin, 0.83em 8px);
   letter-spacing: var(--arc-font-subhead-letter-spacing, initial);
   font-size: var(--arc-font-subhead-font-size, 20px);
-  font-weight: var(--arc-font-subhead-font-weight, 200);
+  font-weight: var(--arc-font-subhead-font-weight, 400);
   line-height: var(--arc-font-subhead-line-height);
 }
 
