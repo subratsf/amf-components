@@ -6,11 +6,11 @@ import ApiUiBase from './ApiUiBase.js';
 import * as InputCache from '../InputCache.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
 /** @typedef {import('../../helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../../helpers/api').ApiNodeShape} ApiNodeShape */
 /** @typedef {import('../../helpers/api').ApiParameter} ApiParameter */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.PassThroughAuthorization} PassThroughAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.PassThroughAuthorization} PassThroughAuthorization */
 /** @typedef {import('../../types').OperationParameter} OperationParameter */
 
 export default class PassThroughAuth extends ApiUiBase {
@@ -24,7 +24,7 @@ export default class PassThroughAuth extends ApiUiBase {
     /** @type {string} */
     this.schemeDescription = undefined;
     /** @type {boolean} */
-    this.compatibility = undefined;
+    this.anypoint = undefined;
     /** @type {boolean} */
     this.descriptionOpened = undefined;
 
@@ -265,7 +265,7 @@ export default class PassThroughAuth extends ApiUiBase {
     const {
       schemeName,
       schemeDescription,
-      compatibility,
+      anypoint,
       descriptionOpened,
     } = this;
     if (!schemeName) {
@@ -278,7 +278,7 @@ export default class PassThroughAuth extends ApiUiBase {
         class="hint-icon"
         title="Toggle description"
         aria-label="Activate to toggle the description"
-        ?compatibility="${compatibility}"
+        ?anypoint="${anypoint}"
         @click="${this.toggleDescription}"
       >
         <arc-icon icon="help"></arc-icon>

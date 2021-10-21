@@ -3,8 +3,8 @@
 import { html } from 'lit-element';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import '@advanced-rest-client/highlight/arc-marked.js';
-import '@anypoint-web-components/anypoint-tabs/anypoint-tab.js';
-import '@anypoint-web-components/anypoint-tabs/anypoint-tabs.js';
+import '@anypoint-web-components/awc/anypoint-tab.js';
+import '@anypoint-web-components/awc/anypoint-tabs.js';
 import { ns } from '../helpers/Namespace.js';
 import { 
   ApiDocumentationBase, 
@@ -32,7 +32,7 @@ import '../../api-response-document.js'
 /** @typedef {import('../helpers/amf').SecurityScheme} SecurityScheme */
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../helpers/amf').SecurityRequirement} SecurityRequirement */
-/** @typedef {import('@anypoint-web-components/anypoint-tabs').AnypointTabs} AnypointTabs */
+/** @typedef {import('@anypoint-web-components/awc').AnypointTabsElement} AnypointTabs */
 
 export const querySecurity = Symbol('querySecurity');
 export const processSecurity = Symbol('processSecurity');
@@ -352,7 +352,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
    * @returns {TemplateResult} The template for the responses selector.
    */
   [responseTabsTemplate](responses) {
-    const { selectedStatus } = this;
+    const { selectedStatus, anypoint } = this;
     const filtered = responses.filter((item) => !!item.statusCode);
     return html`
     <div class="status-codes-selector">
@@ -361,9 +361,9 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
         .selected="${selectedStatus}"
         attrForSelected="data-status"
         @selected="${this[statusCodeHandler]}"
-        ?compatibility="${this.anypoint}"
+        ?anypoint="${anypoint}"
       >
-        ${filtered.map((item) => html`<anypoint-tab data-status="${item.statusCode}" ?compatibility="${this.anypoint}">${item.statusCode}</anypoint-tab>`)}
+        ${filtered.map((item) => html`<anypoint-tab data-status="${item.statusCode}" ?anypoint="${anypoint}">${item.statusCode}</anypoint-tab>`)}
       </anypoint-tabs>
       <div class="codes-selector-divider"></div>
     </div>

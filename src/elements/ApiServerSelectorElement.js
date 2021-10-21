@@ -2,12 +2,12 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import { html, LitElement } from 'lit-element';
-import '@anypoint-web-components/anypoint-input/anypoint-input.js';
-import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import { close } from '@advanced-rest-client/arc-icons/ArcIcons.js';
+import '@anypoint-web-components/awc/anypoint-input.js';
+import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import { close } from '@advanced-rest-client/icons/ArcIcons.js';
 import elementStyles from './styles/ServerSelector.js';
 import { ServerEvents } from '../events/ServerEvents.js';
 import { EventTypes } from '../events/EventTypes.js';
@@ -15,6 +15,8 @@ import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
 import { AmfSerializer } from '../helpers/AmfSerializer.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
+/** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListboxElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointDropdownElement} AnypointDropdownElement */
 /** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../types').SelectionInfo} SelectionInfo */
@@ -112,9 +114,9 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
       outlined: { type: Boolean },
 
       /**
-       * Enables compatibility with the anypoint platform
+       * Enables Anypoint platform styles.
        */
-      compatibility: { type: Boolean },
+      anypoint: { type: Boolean },
 
       /**
        * When set it automatically selected the first server from the list
@@ -378,7 +380,7 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
     this[customNodesCount] = 0;
     this.opened = false;
     this.autoSelect = false;
-    this.compatibility = false;
+    this.anypoint = false;
     this.outlined = false;
 
     /**
@@ -647,18 +649,18 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
   /**
    * Handler for the drop down's `opened-changed` event. It sets local value
    * for the opened flag.
-   * @param {CustomEvent} e
+   * @param {Event} e
    */
   [dropDownOpenedHandler](e) {
-    this.opened = e.detail.value;
+    this.opened = /** @type AnypointDropdownElement */ (e.target).opened;
   }
 
   /**
    * Updates list of custom items rendered in the selector.
-   * @param {CustomEvent} e
+   * @param {Event} e
    */
   [listboxItemsHandler](e) {
-    const { value } = e.detail;
+    const value = /** @type AnypointListboxElement */ (e.target).items;
     if (!Array.isArray(value) || !value.length) {
       this[customItems] = [];
       return;
@@ -690,13 +692,13 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
    * @return {TemplateResult} Template result for the custom input.
    */
   [customUriInputTemplate]() {
-    const { compatibility, outlined, value } = this;
+    const { anypoint, outlined, value } = this;
     return html`
     <anypoint-input
       class="uri-input"
       @input="${this[customUriChangeHandler]}"
       .value="${value}"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
     >
       <label slot="label">API base URI</label>
@@ -705,7 +707,7 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
         title="Clear and close custom editor"
         slot="suffix"
         @click="${this[resetSelection]}"
-        ?compatibility="${compatibility}"
+        ?anypoint="${anypoint}"
       >
         <span class="icon">${close}</span>
       </anypoint-icon-button>
@@ -716,26 +718,26 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
    * @return {TemplateResult} Template result for the drop down element.
    */
   [selectorTemplate]() {
-    const { compatibility, outlined, value, opened } = this;
+    const { anypoint, outlined, value, opened } = this;
     return html`
     <anypoint-dropdown-menu
       class="api-server-dropdown"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       .opened="${opened}"
       fitPositionTarget
-      @opened-changed="${this[dropDownOpenedHandler]}"
+      @openedchange="${this[dropDownOpenedHandler]}"
     >
       <label slot="label">Select server</label>
       <anypoint-listbox
         .selected="${value}"
-        @selected-changed="${this[selectionChangeHandler]}"
+        @selectedchange="${this[selectionChangeHandler]}"
         slot="dropdown-content"
         tabindex="-1"
-        ?compatibility="${compatibility}"
+        ?anypoint="${anypoint}"
         attrforselected="data-value"
         selectable="[value],[data-value]"
-        @items-changed="${this[listboxItemsHandler]}"
+        @itemschange="${this[listboxItemsHandler]}"
       >
         ${this[selectorListTemplate]()}
       </anypoint-listbox>
@@ -761,14 +763,14 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
    * @return {TemplateResult|string} The template for the custom URI list item.
    */
   [customUriTemplate]() {
-    const { allowCustom, compatibility } = this;
+    const { allowCustom, anypoint } = this;
     if (!allowCustom) {
       return '';
     }
     return html`<anypoint-item
       class="custom-option"
       data-value="custom"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
     >Custom base URI</anypoint-item>`;
   }
 
@@ -789,11 +791,11 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
    * @returns {TemplateResult} The template for a server list item.
    */
   [serverListItemTemplate](server) {
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html`
     <anypoint-item
       data-value="${server.url}"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       data-item="server-dropdown-option"
     >
       ${server.url}

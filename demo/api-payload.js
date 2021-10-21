@@ -21,7 +21,6 @@ class ComponentPage extends AmfDemoBase {
     this.request = undefined;
     /** @type ResponsePayload[] */
     this.response = undefined;
-    this.compatibility = false;
     this.componentName = 'api-payload-document';
   }
 

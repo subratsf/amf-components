@@ -1,4 +1,4 @@
-import { v4 } from '@advanced-rest-client/uuid-generator/main.js';
+import { v4 } from '@advanced-rest-client/uuid';
 import { AmfStore } from './AmfStore.js';
 
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */

@@ -86,10 +86,10 @@ describe('ApiServerSelectorElement', () => {
   /**
    * @returns {Promise<ApiServerSelectorElement>} 
    */
-  async function compatibilityFixture() {
+  async function anypointFixture() {
     return (fixture(html`<api-server-selector
       allowCustom
-      compatibility
+      anypoint
       ></api-server-selector>`));
   }
 
@@ -599,7 +599,7 @@ describe('ApiServerSelectorElement', () => {
         });
       });
 
-      describe('anypoint compatibility', () => {
+      describe('anypoint property', () => {
         /** @type AmfDocument */
         let model;
         /** @type ApiServerSelectorElement */
@@ -610,19 +610,19 @@ describe('ApiServerSelectorElement', () => {
         });
 
         beforeEach(async () => {
-          element = await compatibilityFixture();
+          element = await anypointFixture();
         });
 
-        it('sets compatibility on the dropdown', () => {
-          assert.isTrue(element.compatibility);
+        it('sets the anypoint property on the dropdown', () => {
+          assert.isTrue(element.anypoint);
         });
 
-        it('sets compatibility on the custom item', () => {
+        it('sets the anypoint property on the custom item', () => {
           const item = element.shadowRoot.querySelector('anypoint-item');
-          assert.isTrue(item.hasAttribute('compatibility'));
+          assert.isTrue(item.hasAttribute('anypoint'));
         });
 
-        it('sets compatibility on the server items', async () => {
+        it('sets the anypoint property on the server items', async () => {
           element.amf = model;
           await nextFrame();
           // class="custom-option"
@@ -630,16 +630,16 @@ describe('ApiServerSelectorElement', () => {
           const items = Array.from(nodes).filter((node) => node.getAttribute('value') !== 'custom');
           assert.isAbove(items.length, 0);
           for (let i = 0; i < items.length; i++) {
-            assert.isTrue(items[i].hasAttribute('compatibility'));
+            assert.isTrue(items[i].hasAttribute('anypoint'));
           }
         });
 
-        it('sets compatibility on the custom input', async () => {
+        it('sets the anypoint property on the custom input', async () => {
           element.type = 'custom';
           element.value = 'https://example.com';
           await nextFrame();
           const item = element.shadowRoot.querySelector('anypoint-input');
-          assert.isTrue(item.hasAttribute('compatibility'));
+          assert.isTrue(item.hasAttribute('anypoint'));
         });
       });
 

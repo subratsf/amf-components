@@ -10,7 +10,7 @@ import '../../api-request-document.js';
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../../src/helpers/amf').Operation} Operation */
-/** @typedef {import('@anypoint-web-components/anypoint-tabs').AnypointTabs} AnypointTabs */
+/** @typedef {import('@anypoint-web-components/awc').AnypointTabsElement} AnypointTabs */
 
 describe('ApiOperationDocumentElement', () => {
   const loader = new AmfLoader();

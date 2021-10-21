@@ -278,10 +278,10 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
   rearrangeEndpoints: boolean;
 
   /**
-   * Enables compatibility with Anypoint components.
+   * Enables Anypoint platform styles.
    * @attribute
    */
-  compatibility: boolean;
+  anypoint: boolean;
 
   /**
    * Determines and changes state of endpoints.

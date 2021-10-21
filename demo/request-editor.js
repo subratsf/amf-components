@@ -1,10 +1,10 @@
 import { html } from 'lit-html';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@advanced-rest-client/authorization/oidc-authorization.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@advanced-rest-client/authorization/oauth1-authorization.js';
+import '@advanced-rest-client/app/define/oidc-authorization.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
+import '@advanced-rest-client/app/define/oauth1-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../xhr-simple-request.js';
 import '../api-request-editor.js';
@@ -48,8 +48,8 @@ class ComponentDemo extends AmfDemoBase {
   _demoStateHandler(e) {
     const state = e.detail.value;
     this.outlined = state === 1;
-    this.compatibility = state === 2;
-    this._updateCompatibility();
+    this.anypoint = state === 2;
+    this._updateAnypoint();
   }
 
   _authSettingsChanged(e) {
@@ -132,18 +132,18 @@ class ComponentDemo extends AmfDemoBase {
     if (!this.renderCustomServer) {
       return '';
     }
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html`
     <div class="other-section" slot="custom-base-uri">Other options</div>
     <anypoint-item
       slot="custom-base-uri"
       data-value="http://mocking.com"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
     >Mocking service</anypoint-item>
     <anypoint-item
       slot="custom-base-uri"
       data-value="http://customServer.com2"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
     >Custom instance</anypoint-item>`;
   }
 
@@ -197,7 +197,7 @@ class ComponentDemo extends AmfDemoBase {
       demoStates,
       darkThemeActive,
       outlined,
-      compatibility,
+      anypoint,
       amf,
       redirectUri,
       allowCustom,
@@ -223,7 +223,7 @@ class ComponentDemo extends AmfDemoBase {
           ?allowCustom="${allowCustom}"
           ?allowHideOptional="${allowHideOptional}"
           ?outlined="${outlined}"
-          ?compatibility="${compatibility}"
+          ?anypoint="${anypoint}"
           ?urlLabel="${urlLabel}"
           ?urlEditor="${urlEditor}"
           ?applyAuthorization="${applyAuthorization}"

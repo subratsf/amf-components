@@ -31,7 +31,7 @@ import { EventTypes } from '../../src/events/EventTypes.js';
 
 /* eslint-disable no-plusplus */
 
-/** @typedef {import('@anypoint-web-components/anypoint-collapse').AnypointCollapseElement} AnypointCollapseElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointCollapseElement} AnypointCollapseElement */
 /** @typedef {import('../../src/types').DocumentationItem} DocumentationItem */
 /** @typedef {import('../../src/types').TypeItem} TypeItem */
 /** @typedef {import('../../src/types').SecurityItem} SecurityItem */

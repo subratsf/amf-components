@@ -1,9 +1,9 @@
 import { html } from 'lit-html';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@advanced-rest-client/authorization/oauth1-authorization.js';
-import '@advanced-rest-client/authorization/oidc-authorization.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
+import '@advanced-rest-client/app/define/oauth1-authorization.js';
+import '@advanced-rest-client/app/define/oidc-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-navigation.js';
 import '../xhr-simple-request.js';
@@ -50,8 +50,8 @@ class ComponentDemo extends AmfDemoBase {
   _demoStateHandler(e) {
     const state = e.detail.value;
     this.outlined = state === 1;
-    this.compatibility = state === 2;
-    this._updateCompatibility();
+    this.anypoint = state === 2;
+    this._updateAnypoint();
   }
 
   _authSettingsChanged(e) {
@@ -166,7 +166,7 @@ class ComponentDemo extends AmfDemoBase {
       demoStates,
       darkThemeActive,
       outlined,
-      compatibility,
+      anypoint,
       amf,
       redirectUri,
       allowCustom,
@@ -193,7 +193,7 @@ class ComponentDemo extends AmfDemoBase {
           ?allowCustom="${allowCustom}"
           ?allowHideOptional="${allowHideOptional}"
           ?outlined="${outlined}"
-          ?compatibility="${compatibility}"
+          ?anypoint="${anypoint}"
           ?urlEditor="${urlEditor}"
           ?urlLabel="${urlLabel}"
           ?noServerSelector="${noServerSelector}"

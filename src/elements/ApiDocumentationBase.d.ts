@@ -1,5 +1,5 @@
 import { LitElement, TemplateResult } from 'lit-element';
-import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { ApiParameter, ApiCustomDomainProperty, ApiExample } from '../helpers/api';
 import { DomainElement } from '../helpers/amf';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
@@ -34,7 +34,7 @@ export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitEl
    */
   domainId: string;
   /** 
-   * Enabled compatibility with the Anypoint platform.
+   * Enables Anypoint platform styles.
    * @attribute
    */
   anypoint: boolean;

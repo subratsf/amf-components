@@ -102,10 +102,10 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
   outlined: boolean;
 
   /**
-   * Enables compatibility with the anypoint platform
+   * Enables Anypoint platform styles.
    * @attribute
    */
-  compatibility: boolean;
+  anypoint: boolean;
 
   /**
    * When set it automatically selected the first server from the list

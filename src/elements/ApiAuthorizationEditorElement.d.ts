@@ -1,8 +1,8 @@
 import { TemplateResult, LitElement } from 'lit-element';
 import { ApiParametrizedSecurityScheme, ApiSecurityRequirement, } from '../helpers/api';
 import { AmfDocument, } from '../helpers/amf';
-import { Oauth2Credentials } from '@advanced-rest-client/authorization';
-import { RequestAuthorization } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
+import { Oauth2Credentials } from '@advanced-rest-client/app';
+import { RequestAuthorization } from '@advanced-rest-client/events/src/request/ArcRequest';
 import { default as ApiAuthorizationMethodElement } from './ApiAuthorizationMethodElement';
 
 declare interface SecurityMethods {
@@ -81,10 +81,10 @@ export default class ApiAuthorizationEditorElement extends LitElement {
   */
   oauth2AccessTokenUri: string;
   /** 
-  * Enabled compatibility with the Anypoint platform.
-  * @attribute
-  */
-  compatibility: boolean;
+   * Enables Anypoint platform styles.
+   * @attribute
+   */
+  anypoint: boolean;
   /** 
    * Enabled Material Design outlined theme
    * @attribute

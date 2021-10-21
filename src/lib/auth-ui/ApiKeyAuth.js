@@ -6,7 +6,7 @@ import * as InputCache from '../InputCache.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../../helpers/api').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
 /** @typedef {import('../../types').OperationParameter} OperationParameter */
 
 export default class ApiKeyAuth extends ApiUiBase {

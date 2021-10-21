@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { dedupeMixin } from '@open-wc/dedupe-mixin';
-import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
+import { EventsTargetMixin } from  '@anypoint-web-components/awc';
 import { EventTypes } from '../../events/EventTypes.js';
 
 

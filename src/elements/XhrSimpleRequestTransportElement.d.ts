@@ -14,7 +14,7 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { LitElement } from 'lit-element';
-import { FormItem } from '@advanced-rest-client/arc-types/src/forms/FormTypes';
+import { FormItem } from '@advanced-rest-client/events/src/forms/FormTypes';
 import { ApiConsoleRequest } from '../types';
 
 /**

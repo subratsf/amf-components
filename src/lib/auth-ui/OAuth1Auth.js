@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
-import Oauth1, { defaultSignatureMethods } from '@advanced-rest-client/authorization/src/lib/ui/OAuth1.js';
+import Oauth1, { defaultSignatureMethods } from '@advanced-rest-client/app/src/elements/authorization/ui/OAuth1.js';
 import { ns } from '../../helpers/Namespace.js';
 
 const securityValue = Symbol("securityValue");

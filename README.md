@@ -26,8 +26,8 @@ npm install --save @api-components/amf-components
       import '@api-components/amf-components/api-request.js';
       import '@api-components/amf-components/api-navigation.js';
       import '@api-components/amf-components/xhr-simple-request.js';
-      import '@advanced-rest-client/authorization/oidc-authorization.js';
-      import '@advanced-rest-client/authorization/oauth2-authorization.js';
+      import '@advanced-rest-client/app/define/oidc-authorization.js';
+      import '@advanced-rest-client/app/define/oauth2-authorization.js';
     </script>
   </head>
   <body>

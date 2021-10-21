@@ -1,12 +1,13 @@
 import { html } from 'lit-html';
 import { classMap } from 'lit-html/directives/class-map.js';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import '@anypoint-web-components/anypoint-menu-button/anypoint-menu-button.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import '@anypoint-web-components/awc/anypoint-menu-button.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import '@advanced-rest-client/icons/arc-icon.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { MonacoTheme, MonacoStyles, MonacoLoader } from '@advanced-rest-client/monaco-support';
+import { DomEventsAmfStore } from "../src/store/DomEventsAmfStore.js";
 import { ApplicationPage } from "./lib/ApplicationPage.js";
 import { EventTypes } from '../src/events/EventTypes.js';
 // import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
@@ -21,7 +22,7 @@ const ApiMediaKey = 'ApiEditor.Media';
 
 /* global monaco */
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
-/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
+/** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
 /** @typedef {import('monaco-editor').editor.IStandaloneEditorConstructionOptions} IStandaloneEditorConstructionOptions */
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 /** @typedef {import('../src/helpers/amf').AmfDocument} AmfDocument */
@@ -47,6 +48,8 @@ export class ApiTextEditor extends ApplicationPage {
       'initializing', 'apiFormat', 'apiMedia',
       'editorOpened', 'editorOperation',
     );
+    this.store = new DomEventsAmfStore(undefined, window);
+    this.store.listen();
     /**
      * When set the application is initializing its environment.
      */
@@ -536,6 +539,7 @@ export class ApiTextEditor extends ApplicationPage {
       [model] = model;
     }
     this.model = model;
+    this.store.amf = model;
     this.loading = false;
     console.log(model);
   }

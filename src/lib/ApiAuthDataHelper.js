@@ -1,13 +1,13 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { UiDataHelper } from '@advanced-rest-client/authorization';
+import { UiDataHelper } from '@advanced-rest-client/app';
 import CustomAuth from './auth-ui/CustomAuth.js';
 import ApiKeyAuth from './auth-ui/ApiKeyAuth.js';
 import PassThroughAuth from './auth-ui/PassThroughAuth.js';
 import OAuth2Auth from './auth-ui/OAuth2Auth.js';
 import OAuth1Auth from './auth-ui/OAuth1Auth.js';
 
-/** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
 /** @typedef {import('../elements/ApiAuthorizationMethodElement').default} ApiAuthorizationElement */
 
 export class ApiAuthDataHelper extends UiDataHelper {
@@ -21,7 +21,7 @@ export class ApiAuthDataHelper extends UiDataHelper {
     i.security = element.security;
     i.descriptionOpened = element.descriptionOpened;
     i.globalCache = element.globalCache;
-    i.compatibility = element.compatibility;
+    i.anypoint = element.anypoint;
     return i;
   }
 
@@ -63,7 +63,7 @@ export class ApiAuthDataHelper extends UiDataHelper {
     i.security = element.security;
     i.descriptionOpened = element.descriptionOpened;
     i.globalCache = element.globalCache;
-    i.compatibility = element.compatibility;
+    i.anypoint = element.anypoint;
     return i;
   }
 

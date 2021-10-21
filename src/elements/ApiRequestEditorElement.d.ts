@@ -12,10 +12,10 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { TemplateResult, LitElement } from 'lit-element';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
 import { AmfSerializer } from '../helpers/AmfSerializer';
-import { Oauth2Credentials } from '@advanced-rest-client/authorization';
+import { Oauth2Credentials } from '@advanced-rest-client/app';
 import { ApiEndPoint, ApiOperation, ApiPayload, ApiParameter, ApiServer } from '../helpers/api';
 import { Operation, AmfDocument } from '../helpers/amf';
 import { AmfParameterMixin } from '../lib/AmfParameterMixin';
@@ -135,10 +135,10 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   */
   allowCustom: boolean;
   /**
-  * Enables compatibility with Anypoint styling
+  * Enables Anypoint platform styles.
   * @attribute
   */
-  compatibility: boolean;
+  anypoint: boolean;
   /**
   * Enables Material Design outlined style
   * @attribute

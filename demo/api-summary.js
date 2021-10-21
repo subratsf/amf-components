@@ -1,6 +1,6 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-summary.js';
 
@@ -11,7 +11,6 @@ class ComponentPage extends AmfDemoBase {
       'selectedId', 'selectedType', 'selectedOperation', 'tryIt',
       'editorOpened', 'editorOperation', 'overrideBaseUri',
     ]);
-    this.compatibility = false;
     this.componentName = 'api-summary';
     this.overrideBaseUri = false;
     this.noApiNavigation = true;

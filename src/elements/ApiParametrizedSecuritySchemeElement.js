@@ -9,9 +9,9 @@ import ApiSecurityDocumentElement, {
 } from "./ApiSecurityDocumentElement.js";
 import elementStyles from './styles/ParametrizedSecurityElement.js';
 
+/** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiSecuritySettingsUnion} ApiSecuritySettingsUnion */
 /** @typedef {import('../helpers/api').ApiSecurityOAuth2Settings} ApiSecurityOAuth2Settings */
-/** @typedef {import('lit-element').TemplateResult} TemplateResult */
 
 export const settingsIdValue = Symbol('settingsIdValue');
 export const querySettings = Symbol('querySettings');

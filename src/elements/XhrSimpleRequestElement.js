@@ -13,7 +13,7 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { LitElement } from 'lit-element';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { EventTypes } from '../events/EventTypes.js';
 import { RequestEvents } from '../events/RequestEvents.js';
 import '../../xhr-simple-request-transport.js';

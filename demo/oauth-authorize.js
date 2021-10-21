@@ -1,7 +1,7 @@
-import '@anypoint-web-components/anypoint-input/anypoint-input.js';
-import '@anypoint-web-components/anypoint-button/anypoint-button.js';
-import '@anypoint-web-components/anypoint-input/anypoint-masked-input.js';
-import { v4 } from '@advanced-rest-client/uuid-generator';
+import '@anypoint-web-components/awc/anypoint-input.js';
+import '@anypoint-web-components/awc/anypoint-button.js';
+import '@anypoint-web-components/awc/anypoint-masked-input.js';
+import { v4 } from '@advanced-rest-client/uuid';
 
 function setupFormAction() {
   const u = new URL(window.location.href)

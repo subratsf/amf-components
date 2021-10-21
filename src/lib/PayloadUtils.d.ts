@@ -1,4 +1,4 @@
-import { ApiTypes } from '@advanced-rest-client/arc-types';
+import { ApiTypes } from '@advanced-rest-client/events';
 import { ApiPayload } from '../helpers/api';
 
 export interface PayloadInfo {
@@ -14,7 +14,7 @@ export function getPayloadValue(payload: ApiPayload): PayloadInfo;
  * @param value The value to cache.
  * @param model Optional model to set.
  */
-export function cachePayloadValue(id: string, value: string, model?: ApiTypes.ApiType): void;
+export function cachePayloadValue(id: string, value: string, model?: ApiTypes.ApiType[]): void;
 /**
  * @param id Payload id to read the value.
  */

@@ -42,6 +42,9 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
    * The mime type to use to render the examples.
    */
   get mimeType(): string;
+  /**
+   * @attribute
+   */
   set mimeType(value: string);
   [schemaValue]: ApiShapeUnion;
   get schema(): ApiShapeUnion;

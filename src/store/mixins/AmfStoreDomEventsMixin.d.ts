@@ -1,4 +1,4 @@
-import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
+import { EventsTargetMixin } from  '@anypoint-web-components/awc';
 
 export declare const eventHandler: unique symbol;
 

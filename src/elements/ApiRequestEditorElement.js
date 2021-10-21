@@ -16,23 +16,22 @@ the License.
 */
 import { html, LitElement } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
-import { TelemetryEvents, RequestEventTypes } from '@advanced-rest-client/arc-events';
-import { v4 } from '@advanced-rest-client/uuid-generator';
-import { HeadersParser } from '@advanced-rest-client/arc-headers';
-import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import '@advanced-rest-client/body-editor/body-formdata-editor.js';
-import '@advanced-rest-client/body-editor/body-multipart-editor.js';
-import '@advanced-rest-client/body-editor/body-raw-editor.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
-import '@anypoint-web-components/anypoint-switch/anypoint-switch.js';
-import { ifProperty } from "@advanced-rest-client/body-editor";
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
+import { TelemetryEvents, RequestEventTypes } from '@advanced-rest-client/events';
+import { v4 } from '@advanced-rest-client/uuid';
+import { HeadersParser, ifProperty } from '@advanced-rest-client/app';
+import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import '@anypoint-web-components/awc/anypoint-item-body.js';
+import '@anypoint-web-components/awc/anypoint-radio-button.js';
+import '@anypoint-web-components/awc/anypoint-radio-group.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import '@anypoint-web-components/awc/anypoint-switch.js';
+import '@advanced-rest-client/app/define/body-formdata-editor.js';
+import '@advanced-rest-client/app/define/body-multipart-editor.js';
+import '@advanced-rest-client/app/define/body-raw-editor.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import elementStyles from './styles/Editor.styles.js';
 import { ensureContentType, generateHeaders } from "../lib/Utils.js";
 import { cachePayloadValue, getPayloadValue, readCachePayloadValue } from "../lib/PayloadUtils.js";
@@ -49,10 +48,10 @@ import '../../api-authorization-editor.js';
 import '../../api-server-selector.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
-/** @typedef {import('@advanced-rest-client/authorization').Oauth2Credentials} Oauth2Credentials */
-/** @typedef {import('@advanced-rest-client/body-editor').BodyRawEditorElement} BodyRawEditorElement */
-/** @typedef {import('@advanced-rest-client/body-editor').BodyFormdataEditorElement} BodyFormdataEditorElement */
+/** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */
+/** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
+/** @typedef {import('@advanced-rest-client/app').BodyRawEditorElement} BodyRawEditorElement */
+/** @typedef {import('@advanced-rest-client/app').BodyFormdataEditorElement} BodyFormdataEditorElement */
 /** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
 /** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
 /** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
@@ -61,9 +60,9 @@ import '../../api-server-selector.js';
 /** @typedef {import('../helpers/amf').Operation} Operation */
 /** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
 /** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
-/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
-/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
+/** @typedef {import('@anypoint-web-components/awc').AnypointRadioGroupElement} AnypointRadioGroupElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointInputElement} AnypointInput */
 /** @typedef {import('../elements/ApiAuthorizationEditorElement').default} ApiAuthorizationEditorElement */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 /** @typedef {import('../types').PopulationInfo} PopulationInfo */
@@ -180,9 +179,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
        */
       allowCustom: { type: Boolean },
       /**
-       * Enables compatibility with Anypoint styling
+       * Enables Anypoint platform styles.
        */
-      compatibility: { type: Boolean, reflect: true },
+      anypoint: { type: Boolean, reflect: true },
       /**
        * Enables Material Design outlined style
        */
@@ -446,7 +445,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     /** @type boolean */
     this.outlined = undefined;
     /** @type boolean */
-    this.compatibility = undefined;
+    this.anypoint = undefined;
     /** @type boolean */
     this.noServerSelector = undefined;
     /** @type boolean */
@@ -1428,7 +1427,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     if (!security) {
       return '';
     }
-    const { selectedSecurity = 0, amf, compatibility, outlined, redirectUri, credentialsSource, globalCache } = this;
+    const { selectedSecurity = 0, amf, anypoint, outlined, redirectUri, credentialsSource, globalCache } = this;
     const rendered = security[selectedSecurity];
     return html`
     <section class="authorization params-section">
@@ -1437,7 +1436,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
       <api-authorization-editor 
         .amf="${amf}"
         .security="${rendered.security}"
-        .compatibility="${compatibility}"
+        .anypoint="${anypoint}"
         .outlined="${outlined}"
         .oauth2RedirectUri="${redirectUri}"
         .credentialsSource="${credentialsSource}"
@@ -1452,18 +1451,18 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * @returns {TemplateResult} The template for the security drop down selector.
    */
   [authorizationSelectorTemplate](security, selected) {
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html`
     <anypoint-dropdown-menu
       name="selected"
-      .compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       class="auth-selector"
     >
       <label slot="label">Authorization method</label>
       <anypoint-listbox slot="dropdown-content"
         .selected="${selected}"
-        @selected-changed="${this[authSelectorHandler]}"
-        .compatibility="${compatibility}"
+        @selectedchange="${this[authSelectorHandler]}"
+        .anypoint="${anypoint}"
         attrForItemTitle="data-label"
       >
         ${security.map((item) => this[authorizationSelectorItemTemplate](item))}
@@ -1483,7 +1482,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     const single = !type;
     return html`
     <anypoint-item
-      .compatibility="${this.compatibility}"
+      ?anypoint="${this.anypoint}"
       data-label="${label}"
     >
       <anypoint-item-body ?twoline="${!single}">
@@ -1509,12 +1508,12 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * @return {TemplateResult}
    */
   [abortButtonTemplate]() {
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html`
     <anypoint-button
       class="send-button abort"
       emphasis="high"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       @click="${this[abortHandler]}"
     >Abort</anypoint-button>`;
   }
@@ -1526,13 +1525,13 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    */
   [sendButtonTemplate]() {
     const {
-      compatibility,
+      anypoint,
     } = this;
     return html`
     <anypoint-button
       class="send-button"
       emphasis="high"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       @click="${this[sendHandler]}"
     >Send</anypoint-button>`;
   }
@@ -1547,7 +1546,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
       serverValue,
       allowCustomBaseUri,
       outlined,
-      compatibility,
+      anypoint,
       serverSelectorHidden,
       domainId,
     } = this;
@@ -1561,7 +1560,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
       .selectedShape="${domainId}"
       selectedShapeType="method"
       autoSelect
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       @serverscountchanged="${this[serverCountHandler]}"
       @apiserverchanged="${this[serverHandler]}"
@@ -1806,7 +1805,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
         required
         invalidMessage="The URL is invalid"
         .value="${url}"
-        ?compatibility="${this.compatibility}"
+        ?anypoint="${this.anypoint}"
         ?outlined="${this.outlined}"
         @change="${this[urlEditorChangeHandler]}"
         @blur="${this[validateUrl]}"

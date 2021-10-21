@@ -4,18 +4,18 @@
 // eslint-disable-next-line no-unused-vars
 import { html } from 'lit-element';
 import { dedupeMixin } from '@open-wc/dedupe-mixin';
-import { ApiSchemaValues } from '../schema/ApiSchemaValues.js';
-import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@anypoint-web-components/anypoint-input/anypoint-input.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-button/anypoint-button.js';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import '@anypoint-web-components/anypoint-switch/anypoint-switch.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
+import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import '@anypoint-web-components/awc/anypoint-input.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-button.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import '@anypoint-web-components/awc/anypoint-switch.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js'
 import { classMap } from 'lit-html/directives/class-map.js';
+import { ApiSchemaValues } from '../schema/ApiSchemaValues.js';
 import { ns } from '../helpers/Namespace.js';
 import * as InputCache from './InputCache.js';
 import { readLabelValue } from './Utils.js';
@@ -29,10 +29,10 @@ import { readLabelValue } from './Utils.js';
 /** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
 /** @typedef {import('../helpers/api').ApiTupleShape} ApiTupleShape */
 /** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
-/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
-/** @typedef {import('@anypoint-web-components/anypoint-input').SupportedInputTypes} SupportedInputTypes */
-/** @typedef {import('@anypoint-web-components/anypoint-checkbox').AnypointCheckbox} AnypointCheckbox */
-/** @typedef {import('@anypoint-web-components/anypoint-switch').AnypointSwitch} AnypointSwitch */
+/** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
+/** @typedef {import('@anypoint-web-components/awc').SupportedInputTypes} SupportedInputTypes */
+/** @typedef {import('@anypoint-web-components/awc').AnypointCheckboxElement} AnypointCheckbox */
+/** @typedef {import('@anypoint-web-components/awc').AnypointSwitchElement} AnypointSwitch */
 /** @typedef {import('../types').OperationParameter} OperationParameter */
 /** @typedef {import('../types').ShapeTemplateOptions} ShapeTemplateOptions */
 /** @typedef {import('../types').ParameterRenderOptions} ParameterRenderOptions */
@@ -399,7 +399,7 @@ const mxFunction = base => {
           title="${ifDefined(title)}"
           @change="${this.paramChangeHandler}"
           ?disabled="${nillDisabled}"
-          ?compatibility="${this.compatibility || this.anypoint}"
+          ?anypoint="${this.anypoint}"
           ?outlined="${this.outlined}"
         >
           <label slot="label">${label}</label>
@@ -416,11 +416,11 @@ const mxFunction = base => {
      * @returns {TemplateResult} The template for the param remove button. 
      */
     deleteParamTemplate(paramId, arrayIndex) {
-      const { compatibility, anypoint } = this;
+      const { anypoint } = this;
       const title = 'Removes this parameter.';
       return html`
       <anypoint-icon-button 
-        ?compatibility="${compatibility || anypoint}" 
+        ?anypoint="${anypoint}" 
         title="${title}" 
         data-domain-id="${paramId}"
         data-index="${ifDefined(arrayIndex)}"
@@ -439,7 +439,7 @@ const mxFunction = base => {
      * @returns {TemplateResult|string} The template for the enum input.
      */
     enumTemplate(parameter, schema, opts={}) {
-      const { compatibility, anypoint } = this;
+      const { anypoint } = this;
       let required;
       if (typeof opts.required === 'boolean') {
         required = opts.required;
@@ -466,7 +466,7 @@ const mxFunction = base => {
           name="${parameter.name || schema.name}"
           data-binding="${ifDefined(binding)}"
           ?outlined="${this.outlined}"
-          ?compatibility="${compatibility || anypoint}"
+          ?anypoint="${anypoint}"
           ?required="${required}"
           title="${ifDefined(title)}"
           fitPositionTarget
@@ -478,11 +478,11 @@ const mxFunction = base => {
           <label slot="label">${label}</label>
           <anypoint-listbox
             slot="dropdown-content"
-            ?compatibility="${compatibility || anypoint}"
+            ?anypoint="${anypoint}"
             .selected="${selected}"
             @selected="${this.enumSelectionHandler}"
           >
-            ${enumValues.map((value) => html`<anypoint-item ?compatibility="${compatibility || anypoint}" data-type="${value.dataType}" data-value="${value.value}">${value.value}</anypoint-item>`)}
+            ${enumValues.map((value) => html`<anypoint-item ?anypoint="${anypoint}" data-type="${value.dataType}" data-value="${value.value}">${value.value}</anypoint-item>`)}
           </anypoint-listbox>
         </anypoint-dropdown-menu>
         ${opts.nillable ? this.nillInputTemplate(parameter) : ''}
@@ -740,7 +740,7 @@ const mxFunction = base => {
           title="${nameTitle}"
           name="paramName"
           @change="${this[customParamChangeHandler]}"
-          ?compatibility="${this.compatibility || this.anypoint}"
+          ?anypoint="${this.anypoint}"
           ?outlined="${this.outlined}"
           noLabelFloat
         >
@@ -754,7 +754,7 @@ const mxFunction = base => {
           title="${valueTitle}"
           name="paramValue"
           @change="${this[customParamChangeHandler]}"
-          ?compatibility="${this.compatibility || this.anypoint}"
+          ?anypoint="${this.anypoint}"
           ?outlined="${this.outlined}"
           noLabelFloat
         >

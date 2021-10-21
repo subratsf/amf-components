@@ -12,10 +12,10 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { TemplateResult, LitElement } from 'lit-element';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { AmfDocument } from '../helpers/amf';
-import { ArcResponse, ArcRequest, ApiTypes } from '@advanced-rest-client/arc-types';
-import { Oauth2Credentials } from '@advanced-rest-client/authorization';
+import { ArcResponse, ArcRequest, ApiTypes } from '@advanced-rest-client/events';
+import { Oauth2Credentials } from '@advanced-rest-client/app';
 import { ServerType, ApiConsoleResponse, ApiConsoleRequest } from '../types';
 import { ApiRequestEvent, ApiResponseEvent } from '../events/RequestEvents';
 
@@ -56,58 +56,58 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
    */
   handleNavigationEvents: boolean;
   /**
-  * When set it renders the URL input above the URL parameters.
-  * @attribute
-  */
+   * When set it renders the URL input above the URL parameters.
+   * @attribute
+   */
   urlEditor: boolean;
   /**
-  * When set it renders a label with the computed URL.
-  * @attribute
-  */
+   * When set it renders a label with the computed URL.
+   * @attribute
+   */
   urlLabel: boolean;
   /**
-  * A base URI for the API. To be set if RAML spec is missing `baseUri`
-  * declaration and this produces invalid URL input. This information
-  * is passed to the URL editor that prefixes the URL with `baseUri` value
-  * if passed URL is a relative URL.
-  * @attribute
-  */
+   * A base URI for the API. To be set if RAML spec is missing `baseUri`
+   * declaration and this produces invalid URL input. This information
+   * is passed to the URL editor that prefixes the URL with `baseUri` value
+   * if passed URL is a relative URL.
+   * @attribute
+   */
   baseUri: string;
   /**
-  * OAuth2 redirect URI.
-  * This value **must** be set in order for OAuth 1/2 to work properly.
-  * @attribute
-  */
+   * OAuth2 redirect URI.
+   * This value **must** be set in order for OAuth 1/2 to work properly.
+   * @attribute
+   */
   redirectUri: string;
   /**
-  * Enables compatibility with Anypoint styling
-  * @attribute
-  */
-  compatibility: boolean;
+   * Enables Anypoint platform styles.
+   * @attribute
+   */
+  anypoint: boolean;
   /**
-  * Enables Material Design outlined style
-  * @attribute
-  */
+   * Enables Material Design outlined style
+   * @attribute
+   */
   outlined: boolean;
   /**
-  * Created by the transport ARC `request` object
-  */
+   * Created by the transport ARC `request` object
+   */
   request: ArcRequest.TransportRequest;
   /**
-  * Created by the transport ARC `response` object.
-  */
+   * Created by the transport ARC `response` object.
+   */
   response: ArcResponse.Response | ArcResponse.ErrorResponse;
   /**
-  * Forces the console to send headers defined in this string overriding any used defined
-  * header.
-  * This should be an array of headers with `name` and `value` keys, e.g.:
-  * ```
-  * [{
-  *   name: "x-token",
-  *   value: "value"
-  * }]
-  * ```
-  */
+   * Forces the console to send headers defined in this string overriding any used defined
+   * header.
+   * This should be an array of headers with `name` and `value` keys, e.g.:
+   * ```
+   * [{
+   *   name: "x-token",
+   *   value: "value"
+   * }]
+   * ```
+   */
   appendHeaders: ApiTypes.ApiType[];
   /**
   * If set every request made from the console will be proxied by the service provided in this

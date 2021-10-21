@@ -1,4 +1,4 @@
-import { SupportedInputTypes } from '@anypoint-web-components/anypoint-input';
+import { SupportedInputTypes } from '@anypoint-web-components/awc';
 import { 
   ApiAnyShape, 
   ApiArrayShape, 

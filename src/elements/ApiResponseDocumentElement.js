@@ -2,11 +2,11 @@
 import { html } from 'lit-element';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import '@advanced-rest-client/highlight/arc-marked.js';
-import '@anypoint-web-components/anypoint-button/anypoint-button.js';
-import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
+import '@anypoint-web-components/awc/anypoint-button.js';
+import '@anypoint-web-components/awc/anypoint-collapse.js';
+import '@anypoint-web-components/awc/anypoint-radio-button.js';
+import '@anypoint-web-components/awc/anypoint-radio-group.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiResponse.js';
 import '../../api-payload-document.js';
@@ -26,7 +26,7 @@ import {
 /** @typedef {import('../helpers/amf').Response} Response */
 /** @typedef {import('../helpers/api').ApiTemplatedLink} ApiTemplatedLink */
 /** @typedef {import('../helpers/api').ApiIriTemplateMapping} ApiIriTemplateMapping */
-/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointRadioGroupElement} AnypointRadioGroupElement */
 
 export const queryResponse = Symbol('queryResponse');
 export const responseValue = Symbol('responseValue');

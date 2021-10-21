@@ -619,7 +619,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
       .baseUri="${this.baseUri}"
       .redirectUri="${this.redirectUri}"
       .credentialsSource="${this.httpCredentialsSource}"
-      ?compatibility="${this.anypoint}"
+      ?anypoint="${this.anypoint}"
       ?urlEditor="${this.httpUrlEditor}"
       ?urlLabel="${!this.httpUrlEditor}"
       ?noServerSelector="${this.httpNoServerSelector}"

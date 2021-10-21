@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
+import '@anypoint-web-components/awc/anypoint-radio-button.js';
+import '@anypoint-web-components/awc/anypoint-radio-group.js';
 import elementStyles from './styles/ApiDocumentation.js';
 import { 
   ApiDocumentationBase,
@@ -29,7 +29,7 @@ import '../../api-server-selector.js';
 /** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 /** @typedef {import('../events/ServerEvents').ServerCountChangeEvent} ServerCountChangeEvent */
 /** @typedef {import('../events/ServerEvents').ServerChangeEvent} ServerChangeEvent */
-/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointRadioGroupElement} AnypointRadioGroupElement */
 
 export const isAsyncValue = Symbol('isAsyncValue');
 export const operationIdValue = Symbol('operationIdValue');
@@ -769,7 +769,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
         .type="${serverType}"
         ?hidden="${!renderSelector}"
         ?allowCustom="${allowCustomBaseUri}"
-        ?compatibility="${anypoint}"
+        ?anypoint="${anypoint}"
         autoSelect
         @serverscountchanged="${this[serversCountHandler]}"
         @apiserverchanged="${this[serverChangeHandler]}"

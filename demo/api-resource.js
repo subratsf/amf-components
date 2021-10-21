@@ -1,9 +1,9 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog-scrollable.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-dialog.js';
+import '@anypoint-web-components/awc/anypoint-dialog-scrollable.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-resource-document.js';
 import '../api-request.js';
@@ -20,7 +20,6 @@ class ComponentPage extends AmfDemoBase {
       'editorOpened', 'editorOperation', 'overrideBaseUri',
       'serverType', 'serverValue',
     ]);
-    this.compatibility = false;
     this.editorOpened = false;
     this.editorOperation = undefined;
     this.selectedId = undefined;
@@ -167,7 +166,7 @@ class ComponentPage extends AmfDemoBase {
         .serverValue="${this.serverValue}"
         ?tryItButton="${tryItButton}"
         ?tryItPanel="${tryItPanel}"
-        ?anypoint="${this.compatibility}"
+        ?anypoint="${this.anypoint}"
         .baseUri="${finalBaseUri}"
         slot="content"
         @tryit="${this.tryitHandler}"
@@ -248,7 +247,7 @@ class ComponentPage extends AmfDemoBase {
         <api-request
           .amf="${this.amf}"
           .domainId="${this.selectedOperation}"
-          ?compatibility="${this.compatibility}"
+          ?anypoint="${this.anypoint}"
           urlLabel
           applyAuthorization
           globalCache
@@ -272,7 +271,7 @@ class ComponentPage extends AmfDemoBase {
       amf,
       serverType,
       serverValue,
-      compatibility,
+      anypoint,
     } = this;
     return html`
     <api-server-selector
@@ -281,7 +280,7 @@ class ComponentPage extends AmfDemoBase {
       .type="${serverType}"
       autoSelect
       allowCustom
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       @apiserverchanged="${this._serverHandler}"
     ></api-server-selector>`;
   }

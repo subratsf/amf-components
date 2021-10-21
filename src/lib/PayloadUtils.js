@@ -2,7 +2,7 @@ import { ApiExampleGenerator } from '../schema/ApiExampleGenerator.js';
 import { ApiMonacoSchemaGenerator } from '../schema/ApiMonacoSchemaGenerator.js';
 import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
 
-/** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
+/** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */
 /** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
 /** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */

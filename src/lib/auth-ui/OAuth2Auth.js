@@ -2,7 +2,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-html';
-import Oauth2, { oauth2GrantTypes } from '@advanced-rest-client/authorization/src/lib/ui/OAuth2.js'
+import Oauth2, { oauth2GrantTypes } from '@advanced-rest-client/app/src/elements/authorization/ui/OAuth2.js'
 import { ns } from '../../helpers/Namespace.js';
 import * as InputCache from '../InputCache.js';
 import { AmfInputParser } from '../AmfInputParser.js';
@@ -14,7 +14,7 @@ const apiValue = Symbol("apiValue");
 const gtValue = Symbol("gtValue");
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
 /** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('../../helpers/api').ApiNodeShape} ApiNodeShape */
@@ -28,10 +28,10 @@ const gtValue = Symbol("gtValue");
 /** @typedef {import('../../helpers/api').ApiScalarNode} ApiScalarNode */
 /** @typedef {import('../../helpers/api').ApiSecurityScope} ApiSecurityScope */
 /** @typedef {import('../../helpers/api').ApiDataNodeUnion} ApiDataNodeUnion */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2CustomParameter} OAuth2CustomParameter */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.Oauth2GrantType} Oauth2GrantType */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2DeliveryMethod} OAuth2DeliveryMethod */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2Authorization} OAuth2Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2CustomParameter} OAuth2CustomParameter */
+/** @typedef {import('@advanced-rest-client/events').Authorization.Oauth2GrantType} Oauth2GrantType */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2DeliveryMethod} OAuth2DeliveryMethod */
 /** @typedef {import('../../types').OperationParameter} OperationParameter */
 
 export default class OAuth2Auth extends AmfParameterMixin(Oauth2) {

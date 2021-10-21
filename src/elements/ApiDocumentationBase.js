@@ -3,10 +3,10 @@
 import { LitElement, html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { EventsTargetMixin } from  '@advanced-rest-client/events-target-mixin';
-import '@anypoint-web-components/anypoint-button/anypoint-button.js';
-import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
+import { EventsTargetMixin } from  '@anypoint-web-components/awc';
+import '@anypoint-web-components/awc/anypoint-button.js';
+import '@anypoint-web-components/awc/anypoint-collapse.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import '@advanced-rest-client/highlight/arc-marked.js';
 import { ApiExampleGenerator } from '../schema/ApiExampleGenerator.js';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
@@ -96,7 +96,7 @@ export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitEl
        */
       domainId: { type: String, reflect: true },
       /** 
-       * Enabled compatibility with the Anypoint platform.
+       * Enables Anypoint platform styles.
        */
       anypoint: { type: Boolean, reflect: true },
     };
@@ -266,7 +266,7 @@ export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitEl
   [sectionToggleTemplate](ctrlProperty) {
     const label = this[ctrlProperty] ? 'Hide' : 'Show';
     return html`
-    <anypoint-button class="section-toggle" ?compatibility="${this.anypoint}">
+    <anypoint-button class="section-toggle" ?anypoint="${this.anypoint}">
       ${label} <arc-icon icon="keyboardArrowDown" class="toggle-icon"></arc-icon>
     </anypoint-button>
     `;

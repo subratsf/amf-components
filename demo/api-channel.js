@@ -1,7 +1,7 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-channel-document.js';
 
@@ -13,7 +13,6 @@ class ComponentPage extends AmfDemoBase {
     this.initObservableProperties([ 
       'selectedId', 'selectedType', 'selectedOperation',
     ]);
-    this.compatibility = false;
     this.selectedId = undefined;
     this.selectedType = undefined;
     this.selectedOperation = undefined;

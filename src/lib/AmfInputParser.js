@@ -14,7 +14,7 @@ import { ns } from '../helpers/Namespace.js';
 /** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
 /** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
 /** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
-/** @typedef {import('@anypoint-web-components/anypoint-input').SupportedInputTypes} SupportedInputTypes */
+/** @typedef {import('@anypoint-web-components/awc').SupportedInputTypes} SupportedInputTypes */
 
 
 /**  

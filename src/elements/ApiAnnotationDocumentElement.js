@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-param-reassign */
 import { LitElement, html } from 'lit-element';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import elementStyles from './styles/ApiAnnotation.js';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
 import { AmfSerializer } from '../helpers/AmfSerializer.js';

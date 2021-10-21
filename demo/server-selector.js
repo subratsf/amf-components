@@ -1,5 +1,5 @@
 import { html } from 'lit-html';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../api-server-selector.js';
@@ -37,8 +37,8 @@ class ComponentDemo extends AmfDemoBase {
     const state = e.detail.value;
     this.demoState = state;
     this.outlined = state === 1;
-    this.compatibility = state === 2;
-    this._updateCompatibility();
+    this.anypoint = state === 2;
+    this._updateAnypoint();
   }
 
   /**
@@ -113,7 +113,7 @@ class ComponentDemo extends AmfDemoBase {
       amf,
       demoStates,
       darkThemeActive,
-      compatibility,
+      anypoint,
       outlined,
       demoState,
       allowCustom,
@@ -133,7 +133,7 @@ class ComponentDemo extends AmfDemoBase {
       <div class="selector-container" slot="content">
         <api-server-selector
           .amf="${amf}"
-          ?compatibility="${compatibility}"
+          ?anypoint="${anypoint}"
           ?allowCustom="${allowCustom}"
           ?outlined="${outlined}"
           ?autoSelect="${autoSelect}"
@@ -180,25 +180,25 @@ class ComponentDemo extends AmfDemoBase {
     if (!this.renderCustom) {
       return "";
     }
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html` <div class="other-section" slot="custom-base-uri">
         Other options
       </div>
       <anypoint-item
         slot="custom-base-uri"
         data-value="http://customServer.com"
-        ?compatibility="${compatibility}"
+        ?anypoint="${anypoint}"
       >
         Mocking service
       </anypoint-item>
       <anypoint-item
         slot="custom-base-uri"
         data-value="http://customServer2.com"
-        ?compatibility="${compatibility}"
+        ?anypoint="${anypoint}"
       >
         Custom instance
       </anypoint-item>
-      <anypoint-item slot="custom-base-uri" ?compatibility="${compatibility}">
+      <anypoint-item slot="custom-base-uri" ?anypoint="${anypoint}">
         Unselectable
       </anypoint-item>`;
   }

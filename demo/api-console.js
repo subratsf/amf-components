@@ -1,22 +1,23 @@
 import { html } from 'lit-html';
 import { classMap } from 'lit-html/directives/class-map.js';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import '@anypoint-web-components/anypoint-menu-button/anypoint-menu-button.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import '@anypoint-web-components/awc/anypoint-menu-button.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import '@advanced-rest-client/icons/arc-icon.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { MonacoLoader } from "@advanced-rest-client/monaco-support";
 import { ApplicationPage } from "./lib/ApplicationPage.js";
 import { findRoute, navigate } from './lib/route.js';
 import { EventTypes } from '../src/events/EventTypes.js';
 import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
+import { DomEventsAmfStore } from "../src/store/DomEventsAmfStore.js";
 import "../api-navigation.js";
 import '../api-documentation.js';
 import '../xhr-simple-request.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
-/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
+/** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 /** @typedef {import('../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../src/types').SelectionType} SelectionType */
@@ -82,6 +83,8 @@ export class ApiConsole extends ApplicationPage {
       'domainId', 'domainType', 'operationId',
       'apiId', 'initializing'
     );
+    this.store = new DomEventsAmfStore(undefined, window);
+    this.store.listen();
     /**
      * When set the application is initializing its environment.
      */
@@ -273,6 +276,7 @@ export class ApiConsole extends ApplicationPage {
         [data] = data;
       }
       this.model = data;
+      this.store.amf = data;
       this.postApiLoad(data);
       this.apiLoaded = true;
       this.render();
@@ -487,7 +491,7 @@ export class ApiConsole extends ApplicationPage {
     <section class="api-selector">
       <div class="title-line"><h2>Select an API</h2></div>
       <div class="api-list">
-        <anypoint-listbox slot="dropdown-content" id="apiList" @selected-changed="${this.apiSelected}">
+        <anypoint-listbox slot="dropdown-content" id="apiList" @selectedchange="${this.apiSelected}">
         ${ApiList.map(([file, label]) => html`
         <anypoint-item data-src="${file}">${label}</anypoint-item>
         `)}

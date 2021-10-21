@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
+import '@anypoint-web-components/awc/anypoint-radio-button.js';
+import '@anypoint-web-components/awc/anypoint-radio-group.js';
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiRequest.js';
 import { 
@@ -25,7 +25,7 @@ import '../../api-parameter-document.js';
 /** @typedef {import('../helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
 /** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
-/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointRadioGroupElement} AnypointRadioGroupElement */
 /** @typedef {import('../types').OperationParameter} OperationParameter */
 
 export const queryRequest = Symbol('queryRequest');

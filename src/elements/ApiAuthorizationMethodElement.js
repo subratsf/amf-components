@@ -1,4 +1,4 @@
-import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/authorization";
+import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/app";
 import {
   normalizeType,
   METHOD_OAUTH2,
@@ -8,14 +8,14 @@ import {
   METHOD_NTLM,
   METHOD_DIGEST,
   METHOD_OIDC,
-} from "@advanced-rest-client/authorization/src/Utils.js";
+} from "@advanced-rest-client/app/src/elements/authorization/Utils.js";
 import {
   typeChangedSymbol,
   renderCallback,
   changeCallback,
   factory,
   propagateChanges,
-} from "@advanced-rest-client/authorization/src/AuthorizationMethodElement.js";
+} from "@advanced-rest-client/app/src/elements/authorization/AuthorizationMethodElement.js";
 import { ApiAuthDataHelper } from "../lib/ApiAuthDataHelper.js";
 import * as InputCache from "../lib/InputCache.js";
 import styles from './styles/AuthorizationMethod.js';
@@ -29,13 +29,13 @@ export const apiValue = Symbol("apiValue");
 export const settingsHandler = Symbol("settingsHandler");
 
 /** @typedef {import('lit-element').CSSResult} CSSResult */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth1Authorization} OAuth1Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.DigestAuthorization} DigestAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
-/** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
-/** @typedef {import('@advanced-rest-client/authorization').AuthUiBase} AuthUiBase */
+/** @typedef {import('@advanced-rest-client/events').Authorization.BasicAuthorization} BasicAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2Authorization} OAuth2Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth1Authorization} OAuth1Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.DigestAuthorization} DigestAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.BearerAuthorization} BearerAuthorization */
+/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/app').AuthUiBase} AuthUiBase */
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('../lib/auth-ui/CustomAuth').default} CustomAuth */
@@ -98,6 +98,10 @@ export default class ApiAuthorizationMethodElement extends AuthorizationMethod {
        * This is to be used with the mocking service.
        */
       overrideAccessTokenUri: { type: String },
+      /** 
+       * Enables Anypoint platform styles.
+       */
+      anypoint: { type: Boolean }
     };
   }
 
@@ -108,7 +112,7 @@ export default class ApiAuthorizationMethodElement extends AuthorizationMethod {
     /** @type {ApiParametrizedSecurityScheme} */
     this.security = undefined;
     /** @type {boolean} */
-    this.compatibility = undefined;
+    this.anypoint = undefined;
     /** @type {boolean} */
     this.descriptionOpened = undefined;
     /** @type {boolean} */
@@ -184,7 +188,7 @@ export default class ApiAuthorizationMethodElement extends AuthorizationMethod {
       target: this,
       readOnly: this.readOnly,
       disabled: this.disabled,
-      anypoint: this.compatibility,
+      anypoint: this.anypoint,
       outlined: this.outlined,
       authorizing: this.authorizing,
     });

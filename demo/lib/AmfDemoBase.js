@@ -1,9 +1,9 @@
 import { html } from 'lit-html';
 import { DemoPage } from "@advanced-rest-client/arc-demo-helper";
 import { MonacoLoader } from "@advanced-rest-client/monaco-support";
-import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
+import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
 import { DomEventsAmfStore } from "../../src/store/DomEventsAmfStore.js";
 import { AmfHelperMixin } from "../../src/helpers/AmfHelperMixin.js";
 import { EventTypes } from '../../src/events/EventTypes.js';
@@ -12,7 +12,7 @@ import '../../api-navigation.js';
 import './ApiStyles.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
-/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
+/** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
 /** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 const routes = [
@@ -230,7 +230,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
           slot="dropdown-content" 
           id="apiList"
           .selected="${selectedFile}"
-          @selected-changed="${this._apiChanged}"
+          @selectedchange="${this._apiChanged}"
           attrForSelected="data-src"
         >
           ${this._apiListTemplate()}

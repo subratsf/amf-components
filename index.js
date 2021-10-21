@@ -16,7 +16,7 @@ export { default as ApiRequestEditorElement } from './src/elements/ApiRequestEdi
 export { default as ApiAuthorizationEditorElement } from './src/elements/ApiAuthorizationEditorElement.js';
 export { default as ApiAuthorizationMethodElement } from './src/elements/ApiAuthorizationMethodElement.js';
 export { default as ApiServerSelectorElement } from './src/elements/ApiServerSelectorElement.js';
-export { default as HttpMethodLabelElement } from './src/elements/HttpMethodLabelElement.js';
+
 export { default as ApiNavigationElement } from './src/elements/ApiNavigationElement.js';
 export { default as ApiSecurityDocumentElement } from './src/elements/ApiSecurityDocumentElement.js';
 export { default as ApiParametrizedSecuritySchemeElement } from './src/elements/ApiParametrizedSecuritySchemeElement.js';
@@ -31,7 +31,6 @@ export { SecurityProcessor } from './src/lib/SecurityProcessor.js';
 export { AmfHelperMixin } from './src/helpers/AmfHelperMixin.js';
 export { AmfSerializer } from './src/helpers/AmfSerializer.js';
 export { ns } from './src/helpers/Namespace.js';
-export * as HttpStyles from './src/elements/styles/HttpLabel.js';
 export { ApiExampleGenerator } from './src/schema/ApiExampleGenerator.js';
 export { ApiMonacoSchemaGenerator } from './src/schema/ApiMonacoSchemaGenerator.js';
 export { ApiSchemaValues } from './src/schema/ApiSchemaValues.js';

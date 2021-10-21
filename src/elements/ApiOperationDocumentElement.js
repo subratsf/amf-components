@@ -2,14 +2,14 @@
 import { html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
+import '@advanced-rest-client/highlight/arc-marked.js';
+import '@anypoint-web-components/awc/anypoint-tab.js';
+import '@anypoint-web-components/awc/anypoint-tabs.js';
+import '@advanced-rest-client/icons/arc-icon.js';
+import '@advanced-rest-client/http-code-snippets/http-code-snippets.js';
+import { HttpStyles } from '@advanced-rest-client/app';
 import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
 import { ApiSchemaValues } from '../schema/ApiSchemaValues.js';
-import '@advanced-rest-client/highlight/arc-marked.js';
-import '@anypoint-web-components/anypoint-tabs/anypoint-tab.js';
-import '@anypoint-web-components/anypoint-tabs/anypoint-tabs.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
-import '@advanced-rest-client/http-code-snippets/http-code-snippets.js';
-import HttpStyles from './styles/HttpLabel.js';
 import { ns } from "../helpers/Namespace.js";
 import { QueryParameterProcessor } from '../lib/QueryParameterProcessor.js';
 import elementStyles from './styles/ApiOperation.js';
@@ -42,7 +42,7 @@ import '../../api-security-requirement-document.js';
 /** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
 /** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
 /** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@anypoint-web-components/anypoint-tabs').AnypointTabs} AnypointTabs */
+/** @typedef {import('@anypoint-web-components/awc').AnypointTabsElement} AnypointTabs */
 /** @typedef {import('./ApiRequestDocumentElement').default} ApiRequestDocumentElement */
 
 export const queryEndpoint = Symbol('queryEndpoint');
@@ -96,7 +96,7 @@ export const computeOperationModel = Symbol('computeOperationModel');
  */
 export default class ApiOperationDocumentElement extends ApiDocumentationBase {
   get styles() {
-    return [elementStyles, commonStyles, HttpStyles, MarkdownStyles, schemaStyles];
+    return [elementStyles, commonStyles, HttpStyles.default, MarkdownStyles, schemaStyles];
   }
 
   /** 
@@ -948,9 +948,9 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
         .selected="${selectedStatus}"
         attrForSelected="data-status"
         @selected="${this[statusCodeHandler]}"
-        ?compatibility="${anypoint}"
+        ?anypoint="${anypoint}"
       >
-        ${filtered.map((item) => html`<anypoint-tab data-status="${item.statusCode}" ?compatibility="${anypoint}">${item.statusCode}</anypoint-tab>`)}
+        ${filtered.map((item) => html`<anypoint-tab data-status="${item.statusCode}" ?anypoint="${anypoint}">${item.statusCode}</anypoint-tab>`)}
       </anypoint-tabs>
       <div class="codes-selector-divider"></div>
     </div>
@@ -1028,7 +1028,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
         .selected="${securityId}"
         attrForSelected="data-id"
         @selected="${this[securitySelectionHandler]}"
-        ?compatibility="${anypoint}"
+        ?anypoint="${anypoint}"
       >
         ${security.map((item) => this[securityTabTemplate](item))}
       </anypoint-tabs>
@@ -1052,7 +1052,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
         label = parts.join('/');
       }
     }
-    return  html`<anypoint-tab data-id="${id}" ?compatibility="${this.anypoint}">${label}</anypoint-tab>`;
+    return  html`<anypoint-tab data-id="${id}" ?anypoint="${this.anypoint}">${label}</anypoint-tab>`;
   }
 
   /**
@@ -1067,7 +1067,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
       class="action-button"
       @click="${this[tryItHandler]}"
       emphasis="high"
-      ?compatibility="${this.anypoint}"
+      ?anypoint="${this.anypoint}"
     >Try it</anypoint-button>
     `;
   }
@@ -1083,7 +1083,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     const content = html`
     <http-code-snippets
       scrollable
-      ?compatibility="${this.anypoint}"
+      ?anypoint="${this.anypoint}"
       .url="${this.snippetsUri}"
       .method="${(operation.method || '').toUpperCase()}"
       .payload="${this[snippetsPayloadValue]}"

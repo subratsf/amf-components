@@ -11,7 +11,7 @@ import '../../api-schema-document.js';
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../../src/helpers/api').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioButtonElement} AnypointRadioButtonElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointRadioButtonElement} AnypointRadioButtonElement */
 
 describe('ApiSchemaDocumentElement', () => {
   const loader = new AmfLoader();

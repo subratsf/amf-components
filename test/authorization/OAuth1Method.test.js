@@ -1,12 +1,12 @@
 import { fixture, assert, aTimeout, nextFrame, html } from "@open-wc/testing";
-import { defaultSignatureMethods } from '@advanced-rest-client/authorization/src/lib/ui/OAuth1.js';
+import { defaultSignatureMethods } from '@advanced-rest-client/app/src/elements/authorization/ui/OAuth1.js';
 import { AmfLoader } from "../AmfLoader.js";
 import '../../api-authorization-method.js';
 
 /** @typedef {import('../../').ApiAuthorizationMethodElement} ApiAuthorizationMethodElement */
 /** @typedef {import('../../src/helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
-/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@anypoint-web-components/awc').AnypointInputElement} AnypointInput */
 
 describe("OAuth 1", () => {
   /**

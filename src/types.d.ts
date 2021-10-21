@@ -1,4 +1,4 @@
-import { HTTPRequest, RequestAuthorization } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
+import { HTTPRequest, RequestAuthorization } from '@advanced-rest-client/events/src/request/ArcRequest';
 import { ApiParameter, ApiShapeUnion, ApiSecurityRequirement, ApiServer, ApiEndPoint, ApiExample } from './helpers/api';
 import { default as XhrSimpleRequestTransportElement } from './elements/XhrSimpleRequestTransportElement';
 
@@ -39,6 +39,17 @@ export declare interface ApiConsoleHTTPResponse {
   statusText?: string;
   payload?: any;
   headers?: string;
+}
+
+export declare interface AbortRequestEventDetail {
+  /**
+   * The URL of the request
+   */
+  url: string,
+  /**
+   * The id of the request.
+   */
+  id: string;
 }
 
 export declare interface XHRQueueItem {

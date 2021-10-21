@@ -1,10 +1,10 @@
-import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/authorization";
+import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/app";
 import { ApiParametrizedSecurityScheme } from '../helpers/api';
 import { AmfDocument } from '../helpers/amf';
 import {
   typeChangedSymbol,
   propagateChanges,
-} from "@advanced-rest-client/authorization/src/AuthorizationMethodElement.js";
+} from "@advanced-rest-client/app/src/elements/authorization/AuthorizationMethodElement.js";
 
 export const METHOD_CUSTOM: string;
 export const METHOD_PASS_THROUGH: string;
@@ -59,6 +59,11 @@ export default class ApiAuthorizationMethodElement extends AuthorizationMethod {
    * @attribute
    */
   overrideAccessTokenUri: string;
+  /** 
+   * Enables Anypoint platform styles.
+   * @attribute
+   */
+  anypoint: boolean;
 
   constructor();
 

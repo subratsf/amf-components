@@ -1,17 +1,17 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import AuthUiBase from "@advanced-rest-client/authorization/src/lib/ui/AuthUiBase.js";
-import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@anypoint-web-components/anypoint-input/anypoint-input.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-button/anypoint-button.js';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
+import AuthUiBase from "@advanced-rest-client/app/src/elements/authorization/ui/AuthUiBase.js";
+import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import '@anypoint-web-components/awc/anypoint-input.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-button.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import { AmfParameterMixin } from '../AmfParameterMixin.js';
 
-/** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
 /** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 

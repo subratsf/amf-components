@@ -1,9 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
+import { HttpStyles } from '@advanced-rest-client/app';
 import elementStyles from './styles/ApiDocumentationDocument.js';
 import commonStyles from './styles/Common.js';
-import HttpStyles from './styles/HttpLabel.js';
 import { ApiDocumentationBase, descriptionTemplate, serializerValue } from './ApiDocumentationBase.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
@@ -20,7 +20,7 @@ export const setModel = Symbol('setModel');
  */
 export default class ApiDocumentationDocumentElement extends ApiDocumentationBase {
   get styles() {
-    return [elementStyles, commonStyles, HttpStyles, MarkdownStyles];
+    return [elementStyles, commonStyles, HttpStyles.default, MarkdownStyles];
   }
 
   /**

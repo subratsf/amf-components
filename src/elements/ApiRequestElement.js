@@ -12,8 +12,8 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { html, LitElement } from 'lit-element';
-import { ArcHeaders } from '@advanced-rest-client/arc-headers';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
+import { ArcHeaders } from '@advanced-rest-client/app';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import elementStyles from './styles/Panel.styles.js';
 import { EventTypes } from '../events/EventTypes.js';
 import '../../api-request-editor.js';
@@ -23,12 +23,12 @@ import '../../api-response-view.js';
 /* eslint-disable class-methods-use-this */
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.Response} ArcResponse */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ErrorResponse} ErrorResponse */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ArcBaseRequest} ArcBaseRequest */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.TransportRequest} TransportRequest */
-/** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
-/** @typedef {import('@advanced-rest-client/authorization').Oauth2Credentials} Oauth2Credentials */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.Response} ArcResponse */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.ErrorResponse} ErrorResponse */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.ArcBaseRequest} ArcBaseRequest */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.TransportRequest} TransportRequest */
+/** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */
+/** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
 /** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../types').ServerType} ServerType */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
@@ -100,9 +100,9 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
        */
       redirectUri: { type: String },
       /**
-       * Enables compatibility with Anypoint styling
+       * Enables Anypoint platform styles.
        */
-      compatibility: { type: Boolean, reflect: true },
+      anypoint: { type: Boolean, reflect: true },
       /**
        * Enables Material Design outlined style
        */
@@ -265,7 +265,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     /** @type boolean */
     this.allowCustom = false;
     /** @type boolean */
-    this.compatibility = false;
+    this.anypoint = false;
     /** @type boolean */
     this.outlined = false;
     /** @type string */
@@ -500,7 +500,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
       eventsTarget,
       allowHideOptional,
       allowCustom,
-      compatibility,
+      anypoint,
       outlined,
       serverValue,
       serverType,
@@ -523,7 +523,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
       ?allowHideOptional="${allowHideOptional}"
       ?allowCustom="${allowCustom}"
       ?outlined="${outlined}"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       .serverValue="${serverValue}"
       .serverType="${serverType}"
       ?noServerSelector="${noServerSelector}"
@@ -548,7 +548,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     return html`<api-response-view
       .request="${this.request}"
       .response="${this.response}"
-      .compatibility="${this.compatibility}"
+      ?anypoint="${this.anypoint}"
     ></api-response-view>`;
   }
 }

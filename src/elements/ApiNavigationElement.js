@@ -1,10 +1,10 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import { LitElement, html } from 'lit-element';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import { keyboardArrowDown, openInNew, } from '@advanced-rest-client/arc-icons/ArcIcons.js';
-import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import '@anypoint-web-components/awc/anypoint-collapse.js';
+import { keyboardArrowDown, openInNew, } from '@advanced-rest-client/icons/ArcIcons.js';
+import { HttpStyles } from '@advanced-rest-client/app';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
-import httpMethodStyles from './styles/HttpLabel.js';
 import navStyles from './styles/Navigation.js';
 import { EventTypes } from '../events/EventTypes.js'
 import { NavigationEvents } from '../events/NavigationEvents.js';
@@ -17,7 +17,7 @@ import { NavigationEvents } from '../events/NavigationEvents.js';
 /* eslint-disable prefer-destructuring */
 /* eslint-disable consistent-return */
 
-/** @typedef {import('@anypoint-web-components/anypoint-collapse').AnypointCollapseElement} AnypointCollapseElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointCollapseElement} AnypointCollapseElement */
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../types').MethodItem} MethodItem */
 /** @typedef {import('../types').EndpointItem} EndpointItem */
@@ -292,9 +292,9 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
        */
       rearrangeEndpoints: { type: Boolean },
       /**
-       * Enables compatibility with Anypoint components.
+       * Enables Anypoint platform styles.
        */
-      compatibility: { type: Boolean },
+      anypoint: { type: Boolean },
       /**
        * Determines and changes state of endpoints.
        */
@@ -313,7 +313,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
   }
 
   get styles() {
-    return [navStyles, httpMethodStyles];
+    return [navStyles, HttpStyles.default];
   }
 
   /** @returns {string} */
@@ -522,7 +522,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
     this.summary = false;
     this.noink = false;
     this.allowPaths = false;
-    this.compatibility = false;
+    this.anypoint = false;
     this.rearrangeEndpoints = false;
     this.indentSize = 8;
     /**
@@ -1900,7 +1900,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
           class="toggle-button"
           aria-label="Toggle ${lowercaseSectionLabel}"
           .noink="${this.noink}"
-          ?compatibility="${this.compatibility}"
+          ?anypoint="${this.anypoint}"
           tabindex="-1"
           data-toggle="endpoints"
         >
@@ -1985,7 +1985,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
         class="endpoint-toggle-button"
         aria-label="Toggle endpoint"
         .noink="${this.noink}"
-        ?compatibility="${this.compatibility}"
+        ?anypoint="${this.anypoint}"
         tabindex="-1"
         @click="${this[toggleEndpointButton]}"
       >
@@ -2060,7 +2060,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
             noink="${this.noink}"
             @click="${this[itemClickHandler]}"
             aria-label="Toggle documents"
-            ?compatibility="${this.compatibility}"
+            ?anypoint="${this.anypoint}"
             tabindex="-1"
           >
             <span class="icon">${keyboardArrowDown}</span>
@@ -2136,7 +2136,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
             class="toggle-button"
             noink="${this.noink}"
             aria-label="Toggle types"
-            ?compatibility="${this.compatibility}"
+            ?anypoint="${this.anypoint}"
             tabindex="-1"
             data-toggle="types"
           >
@@ -2194,7 +2194,7 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
           class="toggle-button"
           noink="${this.noink}"
           aria-label="Toggle security"
-          ?compatibility="${this.compatibility}"
+          ?anypoint="${this.anypoint}"
           tabindex="-1"
           data-toggle="security"
         >

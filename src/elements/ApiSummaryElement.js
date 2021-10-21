@@ -3,7 +3,7 @@ import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import '@advanced-rest-client/highlight/arc-marked.js';
-import HttpStyles from './styles/HttpLabel.js';
+import { HttpStyles } from '@advanced-rest-client/app';
 import elementStyles from './styles/ApiSummary.js';
 import commonStyles from './styles/Common.js';
 import { 
@@ -65,7 +65,7 @@ export const methodTemplate = Symbol('methodTemplate');
  */
 export default class ApiSummaryElement extends ApiDocumentationBase {
   get styles() {
-    return [elementStyles, commonStyles, HttpStyles, MarkdownStyles];
+    return [elementStyles, commonStyles, HttpStyles.default, MarkdownStyles];
   }
 
   /**
