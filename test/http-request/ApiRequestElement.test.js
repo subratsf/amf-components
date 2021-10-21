@@ -1,7 +1,7 @@
 import { fixture, assert, html, nextFrame } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-request.js';
+import '../../define/api-request.js';
 import { loadMonaco } from '../MonacoSetup.js';
 import { EventTypes } from '../../src/events/EventTypes.js';
 import { NavigationEvents } from '../../src/events/NavigationEvents.js';

@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 import { fixture, assert, html, nextFrame, aTimeout } from '@open-wc/testing';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import * as InputCache from '../../src/lib/InputCache.js';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-request-editor.js';
+import '../../define/api-request-editor.js';
 import { loadMonaco } from '../MonacoSetup.js';
 import { RequestEvents, ApiResponseEvent } from '../../src/events/RequestEvents.js';
 import { EventTypes } from '../../src/events/EventTypes.js';

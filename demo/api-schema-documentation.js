@@ -4,8 +4,8 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-schema-document.js';
-import '../api-navigation.js';
+import '../define/api-schema-document.js';
+import '../define/api-navigation.js';
 
 /** @typedef {import('../src/helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */

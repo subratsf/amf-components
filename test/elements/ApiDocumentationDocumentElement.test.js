@@ -1,7 +1,7 @@
 import { fixture, assert, html, aTimeout, nextFrame } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-documentation-document.js';
+import '../../define/api-documentation-document.js';
 
 /** @typedef {import('../../').ApiDocumentationDocumentElement} ApiDocumentationDocumentElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */

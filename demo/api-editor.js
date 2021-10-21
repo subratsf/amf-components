@@ -11,9 +11,9 @@ import { DomEventsAmfStore } from "../src/store/DomEventsAmfStore.js";
 import { ApplicationPage } from "./lib/ApplicationPage.js";
 import { EventTypes } from '../src/events/EventTypes.js';
 // import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
-import "../api-navigation.js";
-import '../api-documentation.js';
-import '../xhr-simple-request.js';
+import "../define/api-navigation.js";
+import '../define/api-documentation.js';
+import '../define/xhr-simple-request.js';
 import * as ApiExamples from './lib/ApiExamples.js';
 
 const StorePrefix = 'ApiEditor.Value.';

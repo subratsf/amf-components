@@ -10,13 +10,13 @@ import {
   processDebounce,
 } from './ApiDocumentationBase.js';
 import { EventTypes } from '../events/EventTypes.js';
-import '../../api-summary.js'
-import '../../api-operation-document.js'
-import '../../api-resource-document.js';
-import '../../api-security-document.js';
-import '../../api-documentation-document.js';
-import '../../api-schema-document.js';
-import '../../api-server-selector.js';
+import '../../define/api-summary.js'
+import '../../define/api-operation-document.js'
+import '../../define/api-resource-document.js';
+import '../../define/api-security-document.js';
+import '../../define/api-documentation-document.js';
+import '../../define/api-schema-document.js';
+import '../../define/api-server-selector.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */

@@ -1,8 +1,8 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-navigation.js';
-import '../api-documentation-document.js';
+import '../define/api-navigation.js';
+import '../define/api-documentation-document.js';
 
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 

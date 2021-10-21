@@ -16,8 +16,8 @@ import {
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiSecurityDocument.js';
 import schemaStyles from './styles/SchemaCommon.js';
-import '../../api-parameter-document.js';
-import '../../api-response-document.js'
+import '../../define/api-parameter-document.js';
+import '../../define/api-response-document.js'
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiSecurityScheme} ApiSecurityScheme */

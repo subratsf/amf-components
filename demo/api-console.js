@@ -12,9 +12,9 @@ import { findRoute, navigate } from './lib/route.js';
 import { EventTypes } from '../src/events/EventTypes.js';
 import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 import { DomEventsAmfStore } from "../src/store/DomEventsAmfStore.js";
-import "../api-navigation.js";
-import '../api-documentation.js';
-import '../xhr-simple-request.js';
+import "../define/api-navigation.js";
+import '../define/api-documentation.js';
+import '../define/xhr-simple-request.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 /** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */

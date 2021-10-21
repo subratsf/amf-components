@@ -5,7 +5,7 @@ import {
   serializerValue,
 } from './ApiDocumentationBase.js';
 import elementStyles from './styles/ApiSecurityRequirement.js';
-import '../../api-parametrized-security-scheme.js';
+import '../../define/api-parametrized-security-scheme.js';
 
 /** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
 /** @typedef {import('../helpers/amf').SecurityRequirement} SecurityRequirement */

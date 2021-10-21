@@ -2,7 +2,7 @@ import { html } from "lit-element";
 import { classMap } from "lit-html/directives/class-map";
 import { ifDefined } from "lit-html/directives/if-defined";
 import { ns } from '../helpers/Namespace.js';
-import '../../api-annotation-document.js';
+import '../../define/api-annotation-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */

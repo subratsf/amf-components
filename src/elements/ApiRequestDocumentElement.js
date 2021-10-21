@@ -13,8 +13,8 @@ import {
   serializerValue,
 } from './ApiDocumentationBase.js';
 import { QueryParameterProcessor } from '../lib/QueryParameterProcessor.js';
-import '../../api-payload-document.js';
-import '../../api-parameter-document.js';
+import '../../define/api-payload-document.js';
+import '../../define/api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiRequest} ApiRequest */

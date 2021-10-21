@@ -2,7 +2,7 @@ import { fixture, assert, nextFrame, html, aTimeout } from '@open-wc/testing';
 import sinon from 'sinon';
 import { endpointsValue } from '../../src/elements/ApiSummaryElement.js';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-summary.js';
+import '../../define/api-summary.js';
 import { EventTypes } from '../../src/events/EventTypes.js';
 import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 

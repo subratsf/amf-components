@@ -1,6 +1,6 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-request-editor.js';
+import '../../define/api-request-editor.js';
 
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../..').ApiRequestEditorElement} ApiRequestEditorElement */

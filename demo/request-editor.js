@@ -6,8 +6,8 @@ import '@advanced-rest-client/app/define/oidc-authorization.js';
 import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import '@advanced-rest-client/app/define/oauth1-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../xhr-simple-request.js';
-import '../api-request-editor.js';
+import '../define/xhr-simple-request.js';
+import '../define/api-request-editor.js';
 
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 

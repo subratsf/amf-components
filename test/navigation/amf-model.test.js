@@ -1,6 +1,6 @@
 import { fixture, assert, nextFrame, aTimeout, html } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-navigation.js';
+import '../../define/api-navigation.js';
 import { 
   collectData, 
   docsValue,

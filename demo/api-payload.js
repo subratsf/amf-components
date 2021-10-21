@@ -1,6 +1,6 @@
 import { html } from 'lit-html';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-payload-document.js';
+import '../define/api-payload-document.js';
 
 /** @typedef {import('../').Amf.Payload} Payload */
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */

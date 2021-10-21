@@ -5,7 +5,7 @@ import {
   expandedValue,
   selectedUnionsValue,
 } from '../../src/elements/ApiSchemaDocumentElement.js';
-import '../../api-schema-document.js';
+import '../../define/api-schema-document.js';
 
 /** @typedef {import('../../').ApiSchemaDocumentElement} ApiSchemaDocumentElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */

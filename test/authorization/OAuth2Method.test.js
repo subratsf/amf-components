@@ -1,7 +1,7 @@
 import { fixture, assert, aTimeout, nextFrame, html } from '@open-wc/testing';
 import { oauth2GrantTypes } from '@advanced-rest-client/app/src/elements/authorization/ui/OAuth2.js'
 import { AmfLoader } from "../AmfLoader.js";
-import '../../api-authorization-method.js';
+import '../../define/api-authorization-method.js';
 
 /** @typedef {import('../../').ApiAuthorizationMethodElement} ApiAuthorizationMethodElement */
 /** @typedef {import('../../src/helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */

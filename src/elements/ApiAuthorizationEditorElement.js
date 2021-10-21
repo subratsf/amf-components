@@ -3,7 +3,7 @@
 import { html, LitElement } from 'lit-element';
 import '@advanced-rest-client/app/define/authorization-method.js';
 import elementStyles from './styles/AuthorizationEditor.js';
-import '../../api-authorization-method.js';
+import '../../define/api-authorization-method.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */

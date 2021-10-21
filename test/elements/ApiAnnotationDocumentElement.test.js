@@ -1,6 +1,6 @@
 import { fixture, assert, nextFrame, html } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-annotation-document.js';
+import '../../define/api-annotation-document.js';
 
 /** @typedef {import('../../').ApiAnnotationDocumentElement} ApiAnnotationDocumentElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */

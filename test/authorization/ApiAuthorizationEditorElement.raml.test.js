@@ -1,7 +1,7 @@
 import { html, fixture, assert, nextFrame } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from "../AmfLoader.js";
-import '../../api-authorization-editor.js';
+import '../../define/api-authorization-editor.js';
 import { methodsValue } from '../../src/elements/ApiAuthorizationEditorElement.js';
 
 /** @typedef {import('../../index').ApiAuthorizationEditorElement} ApiAuthorizationEditorElement */

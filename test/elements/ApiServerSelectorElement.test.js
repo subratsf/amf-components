@@ -3,7 +3,7 @@
 import { fixture, assert, nextFrame, html } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-server-selector.js';
+import '../../define/api-server-selector.js';
 import {
   updateServerSelection,
   serverListTemplate,

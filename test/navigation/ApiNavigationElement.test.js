@@ -1,7 +1,7 @@
 import { fixture, assert, nextFrame, html, aTimeout } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-navigation.js';
+import '../../define/api-navigation.js';
 import { 
   computePathName, 
   computeRenderPath, 

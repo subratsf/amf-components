@@ -1,6 +1,6 @@
 import { fixture, assert, html } from '@open-wc/testing';
 import { AmfLoader } from "../AmfLoader.js";
-import '../../api-authorization-method.js';
+import '../../define/api-authorization-method.js';
 
 /** @typedef {import('../../').ApiAuthorizationMethodElement} ApiAuthorizationMethodElement */
 /** @typedef {import('../../src/helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */

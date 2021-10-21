@@ -3,7 +3,7 @@ import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-channel-document.js';
+import '../define/api-channel-document.js';
 
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 

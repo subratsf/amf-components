@@ -44,8 +44,8 @@ import { RequestEvents } from '../events/RequestEvents.js';
 import { EventTypes } from '../events/EventTypes.js';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
 import { AmfSerializer } from '../helpers/AmfSerializer.js';
-import '../../api-authorization-editor.js';
-import '../../api-server-selector.js';
+import '../../define/api-authorization-editor.js';
+import '../../define/api-server-selector.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */

@@ -12,9 +12,9 @@ import {
 } from './ApiDocumentationBase.js';
 import { joinTraitNames } from '../lib/Utils.js';
 import * as UrlLib from '../lib/UrlUtils.js';
-import '../../api-request.js';
-import '../../api-operation-document.js'
-import '../../api-parameter-document.js';
+import '../../define/api-request.js';
+import '../../define/api-operation-document.js'
+import '../../define/api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */

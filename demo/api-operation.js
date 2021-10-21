@@ -5,10 +5,10 @@ import '@anypoint-web-components/awc/anypoint-dialog.js';
 import '@anypoint-web-components/awc/anypoint-dialog-scrollable.js';
 import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-operation-document.js';
-import '../api-request.js';
-import '../api-server-selector.js';
-import '../xhr-simple-request.js';
+import '../define/api-operation-document.js';
+import '../define/api-request.js';
+import '../define/api-server-selector.js';
+import '../define/xhr-simple-request.js';
 
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 

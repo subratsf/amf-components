@@ -16,8 +16,8 @@ import { ArcHeaders } from '@advanced-rest-client/app';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import elementStyles from './styles/Panel.styles.js';
 import { EventTypes } from '../events/EventTypes.js';
-import '../../api-request-editor.js';
-import '../../api-response-view.js';
+import '../../define/api-request-editor.js';
+import '../../define/api-response-view.js';
 
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */

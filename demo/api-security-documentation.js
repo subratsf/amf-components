@@ -3,7 +3,7 @@ import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-security-document.js';
+import '../define/api-security-document.js';
 
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 

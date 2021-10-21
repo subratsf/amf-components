@@ -1,7 +1,7 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-annotation-document.js';
+import '../define/api-annotation-document.js';
 
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 

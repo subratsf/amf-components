@@ -1,6 +1,6 @@
 import { fixture, assert, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-security-document.js';
+import '../../define/api-security-document.js';
 import { securityValue } from '../../src/elements/ApiSecurityDocumentElement.js';
 
 /** @typedef {import('../../').ApiSecurityDocumentElement} ApiSecurityDocumentElement */

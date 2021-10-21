@@ -9,7 +9,7 @@ import {
   examplesTemplate,
   examplesValue,
 } from './ApiDocumentationBase.js';
-import '../../api-schema-document.js';
+import '../../define/api-schema-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiPayload} ApiPayload */

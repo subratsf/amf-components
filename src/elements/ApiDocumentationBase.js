@@ -12,7 +12,7 @@ import { ApiExampleGenerator } from '../schema/ApiExampleGenerator.js';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
 import { AmfSerializer } from '../helpers/AmfSerializer.js';
 import { EventTypes } from '../events/EventTypes.js';
-import '../../api-annotation-document.js';
+import '../../define/api-annotation-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */

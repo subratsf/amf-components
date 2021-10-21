@@ -1,6 +1,6 @@
 import { fixture, assert, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-security-requirement-document.js';
+import '../../define/api-security-requirement-document.js';
 
 /** @typedef {import('../../').ApiSecurityRequirementDocumentElement} ApiSecurityRequirementDocumentElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */

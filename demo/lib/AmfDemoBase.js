@@ -8,7 +8,7 @@ import { DomEventsAmfStore } from "../../src/store/DomEventsAmfStore.js";
 import { AmfHelperMixin } from "../../src/helpers/AmfHelperMixin.js";
 import { EventTypes } from '../../src/events/EventTypes.js';
 import { navigate, findRoute } from './route.js';
-import '../../api-navigation.js';
+import '../../define/api-navigation.js';
 import './ApiStyles.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */

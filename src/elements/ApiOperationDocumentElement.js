@@ -26,9 +26,9 @@ import { joinTraitNames } from '../lib/Utils.js';
 import * as UrlLib from '../lib/UrlUtils.js';
 import { tablePropertyTemplate } from './SchemaCommonTemplates.js';
 import schemaStyles from './styles/SchemaCommon.js';
-import '../../api-request-document.js';
-import '../../api-response-document.js';
-import '../../api-security-requirement-document.js';
+import '../../define/api-request-document.js';
+import '../../define/api-response-document.js';
+import '../../define/api-security-requirement-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */

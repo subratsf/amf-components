@@ -2,7 +2,7 @@ import { fixture, assert, html, aTimeout, nextFrame } from '@open-wc/testing';
 import { requestValues } from '../../src/elements/ApiResourceDocumentElement.js';
 import { AmfLoader } from '../AmfLoader.js';
 import { loadMonaco } from '../MonacoSetup.js';
-import '../../api-resource-document.js';
+import '../../define/api-resource-document.js';
 
 /** @typedef {import('../../').ApiResourceDocumentElement} ApiResourceDocumentElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */

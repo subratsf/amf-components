@@ -8,8 +8,8 @@ import ApiResourceDocumentElement, {
   computeUrlValue,
   operationTemplate,
 } from './ApiResourceDocumentElement.js';
-import '../../api-operation-document.js'
-import '../../api-parameter-document.js';
+import '../../define/api-operation-document.js'
+import '../../define/api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiOperation} ApiOperation */

@@ -16,7 +16,7 @@ import { LitElement } from 'lit-element';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { EventTypes } from '../events/EventTypes.js';
 import { RequestEvents } from '../events/RequestEvents.js';
-import '../../xhr-simple-request-transport.js';
+import '../../define/xhr-simple-request-transport.js';
 
 /** @typedef {import('./XhrSimpleRequestTransportElement').default} XhrSimpleRequestTransportElement */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */

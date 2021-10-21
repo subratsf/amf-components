@@ -9,8 +9,8 @@ import '@anypoint-web-components/awc/anypoint-radio-group.js';
 import '@advanced-rest-client/icons/arc-icon.js';
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiResponse.js';
-import '../../api-payload-document.js';
-import '../../api-parameter-document.js';
+import '../../define/api-payload-document.js';
+import '../../define/api-parameter-document.js';
 import { 
   ApiDocumentationBase, 
   paramsSectionTemplate, 

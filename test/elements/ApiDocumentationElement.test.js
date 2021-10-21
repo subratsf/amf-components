@@ -4,7 +4,7 @@ import { AmfLoader } from '../AmfLoader.js';
 import { loadMonaco } from '../MonacoSetup.js';
 import { renderedModelValue } from '../../src/elements/ApiDocumentationElement.js';
 import { NavigationEvents } from '../../src/events/NavigationEvents.js';
-import '../../api-documentation.js';
+import '../../define/api-documentation.js';
 
 /** @typedef {import('../../').ApiDocumentationElement} ApiDocumentationElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */

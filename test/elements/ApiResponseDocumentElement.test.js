@@ -1,6 +1,6 @@
 import { fixture, assert, nextFrame, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-response-document.js';
+import '../../define/api-response-document.js';
 
 /** @typedef {import('../../').ApiResponseDocumentElement} ApiResponseDocumentElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
