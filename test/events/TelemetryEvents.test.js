@@ -1,6 +1,6 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import sinon from 'sinon';
-import { Events, EventTypes } from  '../../index.js';
+import { ApiEvents, ApiEventTypes } from  '../../index.js';
 
 /** @typedef {import('../../').TelemetryDetail } TelemetryDetail */
 /** @typedef {import('../../').TelemetryEventDetail } TelemetryEventDetail */
@@ -24,16 +24,16 @@ describe('Events', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.view, spy);
-        Events.Telemetry.view(et, screenName);
+        et.addEventListener(ApiEventTypes.Telemetry.view, spy);
+        ApiEvents.Telemetry.view(et, screenName);
         assert.isTrue(spy.calledOnce);
       });
 
       it('the event has screen name on the detail', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.view, spy);
-        Events.Telemetry.view(et, screenName);
+        et.addEventListener(ApiEventTypes.Telemetry.view, spy);
+        ApiEvents.Telemetry.view(et, screenName);
         const info = /** @type TelemetryScreenViewDetail */ (spy.args[0][0].detail);
         assert.equal(info.screenName, screenName);
       });
@@ -45,8 +45,8 @@ describe('Events', () => {
           customMetrics: [{ index: 1, value: 1 }],
           customDimensions: [{ index: 1, value: 'test' }],
         };
-        et.addEventListener(EventTypes.Telemetry.view, spy);
-        Events.Telemetry.view(et, screenName, custom);
+        et.addEventListener(ApiEventTypes.Telemetry.view, spy);
+        ApiEvents.Telemetry.view(et, screenName, custom);
         const info = /** @type TelemetryScreenViewDetail */ (spy.args[0][0].detail);
         assert.deepEqual(info.customMetrics, custom.customMetrics, 'has customMetrics');
         assert.deepEqual(info.customDimensions, custom.customDimensions, 'has customDimensions');
@@ -64,16 +64,16 @@ describe('Events', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.event, spy);
-        Events.Telemetry.event(et, init);
+        et.addEventListener(ApiEventTypes.Telemetry.event, spy);
+        ApiEvents.Telemetry.event(et, init);
         assert.isTrue(spy.calledOnce);
       });
 
       it('the event has the detail object', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.event, spy);
-        Events.Telemetry.event(et, init);
+        et.addEventListener(ApiEventTypes.Telemetry.event, spy);
+        ApiEvents.Telemetry.event(et, init);
         const info = /** @type TelemetryEventDetail */ (spy.args[0][0].detail);
         assert.deepEqual(info, init);
       });
@@ -86,16 +86,16 @@ describe('Events', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.exception, spy);
-        Events.Telemetry.exception(et, description);
+        et.addEventListener(ApiEventTypes.Telemetry.exception, spy);
+        ApiEvents.Telemetry.exception(et, description);
         assert.isTrue(spy.calledOnce);
       });
 
       it('the event has the description property', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.exception, spy);
-        Events.Telemetry.exception(et, description);
+        et.addEventListener(ApiEventTypes.Telemetry.exception, spy);
+        ApiEvents.Telemetry.exception(et, description);
         const info = /** @type TelemetryExceptionDetail */ (spy.args[0][0].detail);
         assert.equal(info.description, description);
       });
@@ -103,8 +103,8 @@ describe('Events', () => {
       it('the event has the fatal property', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.exception, spy);
-        Events.Telemetry.exception(et, description, fatal);
+        et.addEventListener(ApiEventTypes.Telemetry.exception, spy);
+        ApiEvents.Telemetry.exception(et, description, fatal);
         const info = /** @type TelemetryExceptionDetail */ (spy.args[0][0].detail);
         assert.equal(info.fatal, true);
       });
@@ -116,8 +116,8 @@ describe('Events', () => {
           customMetrics: [{ index: 1, value: 1 }],
           customDimensions: [{ index: 1, value: 'test' }],
         };
-        et.addEventListener(EventTypes.Telemetry.exception, spy);
-        Events.Telemetry.exception(et, description, false, custom);
+        et.addEventListener(ApiEventTypes.Telemetry.exception, spy);
+        ApiEvents.Telemetry.exception(et, description, false, custom);
         const info = /** @type TelemetryExceptionDetail */ (spy.args[0][0].detail);
         assert.deepEqual(info.customMetrics, custom.customMetrics, 'has customMetrics');
         assert.deepEqual(info.customDimensions, custom.customDimensions, 'has customDimensions');
@@ -134,16 +134,16 @@ describe('Events', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.social, spy);
-        Events.Telemetry.social(et, init.network, init.action, init.target);
+        et.addEventListener(ApiEventTypes.Telemetry.social, spy);
+        ApiEvents.Telemetry.social(et, init.network, init.action, init.target);
         assert.isTrue(spy.calledOnce);
       });
 
       it('the event has the detail object', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.social, spy);
-        Events.Telemetry.social(et, init.network, init.action, init.target);
+        et.addEventListener(ApiEventTypes.Telemetry.social, spy);
+        ApiEvents.Telemetry.social(et, init.network, init.action, init.target);
         const info = /** @type TelemetrySocialDetail */ (spy.args[0][0].detail);
         assert.deepEqual(info, init);
       });
@@ -155,8 +155,8 @@ describe('Events', () => {
           customMetrics: [{ index: 1, value: 1 }],
           customDimensions: [{ index: 1, value: 'test' }],
         };
-        et.addEventListener(EventTypes.Telemetry.social, spy);
-        Events.Telemetry.social(et, init.network, init.action, init.target, custom);
+        et.addEventListener(ApiEventTypes.Telemetry.social, spy);
+        ApiEvents.Telemetry.social(et, init.network, init.action, init.target, custom);
         const info = /** @type TelemetrySocialDetail */ (spy.args[0][0].detail);
         assert.deepEqual(info, { ...init, ...custom });
       });
@@ -173,16 +173,16 @@ describe('Events', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.timing, spy);
-        Events.Telemetry.timing(et, init.category, init.variable, init.value, init.label);
+        et.addEventListener(ApiEventTypes.Telemetry.timing, spy);
+        ApiEvents.Telemetry.timing(et, init.category, init.variable, init.value, init.label);
         assert.isTrue(spy.calledOnce);
       });
 
       it('the event has the detail object', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Telemetry.timing, spy);
-        Events.Telemetry.timing(et, init.category, init.variable, init.value, init.label);
+        et.addEventListener(ApiEventTypes.Telemetry.timing, spy);
+        ApiEvents.Telemetry.timing(et, init.category, init.variable, init.value, init.label);
         const info = /** @type TelemetryTimingDetail */ (spy.args[0][0].detail);
         assert.deepEqual(info, init);
       });
@@ -194,8 +194,8 @@ describe('Events', () => {
           customMetrics: [{ index: 1, value: 1 }],
           customDimensions: [{ index: 1, value: 'test' }],
         };
-        et.addEventListener(EventTypes.Telemetry.timing, spy);
-        Events.Telemetry.timing(et, init.category, init.variable, init.value, init.label, custom);
+        et.addEventListener(ApiEventTypes.Telemetry.timing, spy);
+        ApiEvents.Telemetry.timing(et, init.category, init.variable, init.value, init.label, custom);
         const info = /** @type TelemetryTimingDetail */ (spy.args[0][0].detail);
         assert.deepEqual(info, { ...init, ...custom });
       });

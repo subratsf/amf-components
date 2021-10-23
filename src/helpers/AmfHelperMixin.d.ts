@@ -1,9 +1,9 @@
 import { 
   AmfDocument, AsyncApi, DomainElement, EndPoint, Operation, Parameter, Payload, Request, Response, 
-  SecurityRequirement, SecurityScheme, Server, Shape, WebApi, Api
+  SecurityScheme, Server, Shape, WebApi, Api
 } from './amf';
 import { Namespace } from './Namespace';
-import { ComputeUriOptions, ServerQueryOptions, ServersQueryOptions } from './api';
+import { ServersQueryOptions } from './api';
 
 export {AmfHelperMixin};
 
@@ -22,6 +22,7 @@ export const expandKey: unique symbol;
 export const findAmfType: unique symbol;
 export const findReferenceObject: unique symbol;
 export const getArrayItems: unique symbol;
+export const computeReferenceSecurity: unique symbol;
 
 interface AmfHelperMixin {
 
@@ -382,4 +383,18 @@ interface AmfHelperMixin {
    * @returns The expanded value.
    */
   [expandKey](value: string): string;
+  /**
+   * Computes a security model from a reference (library for example).
+   * @param domainId Domain id of the security requirement to find.
+   * @returns Type definition or undefined if not found.
+   */
+  findSecurityScheme(domainId: string): SecurityScheme|undefined;
+
+  /**
+   * Computes a security model from a reference (library for example).
+   * @param reference AMF model for a reference to extract the data from
+   * @param selected Node ID to look for
+   * @returns Type definition or undefined if not found.
+   */
+  [computeReferenceSecurity](reference: DomainElement, selected: string): SecurityScheme|undefined;
 }

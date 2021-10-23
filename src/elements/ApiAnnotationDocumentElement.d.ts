@@ -1,7 +1,5 @@
 import { LitElement, TemplateResult } from 'lit-element';
 import { ApiDomainProperty, ApiCustomDomainProperty, ApiScalarNode, ApiObjectNode } from '../helpers/api';
-import { DomainElement } from '../helpers/amf';
-import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
 
 export const shapeValue: unique symbol;
 export const processShape: unique symbol;
@@ -21,11 +19,7 @@ export const objectScalarPropertyTemplate: unique symbol;
  * Annotations are part of RAML language and API console supports it.
  * The element looks for annotations in model and renders them.
  */
-export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElement) {
-  /**
-   * A domain property that may have custom domain properties
-   */
-  shape: DomainElement;
+export default class ApiAnnotationDocumentElement extends LitElement {
   /**
    * Serialized with `ApiSerializer` API domain model.
    * This is to be used instead of `shape`.

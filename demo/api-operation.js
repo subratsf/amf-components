@@ -139,7 +139,7 @@ class ComponentPage extends AmfDemoBase {
 
   componentTemplate() {
     const { 
-        demoStates, darkThemeActive, selectedId, amf, tryIt, overrideBaseUri, baseUri, serverId,
+        demoStates, darkThemeActive, selectedId, tryIt, overrideBaseUri, baseUri, serverId,
         renderSecurity, renderCodeSnippets,
     } = this;
     if (!selectedId) {
@@ -158,7 +158,6 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-operation-document
-        .amf="${amf}"
         .domainId="${selectedId}"
         .baseUri="${finalBaseUri}"
         .serverId="${serverId}"
@@ -257,7 +256,6 @@ class ComponentPage extends AmfDemoBase {
       <h2>API request</h2>
       <anypoint-dialog-scrollable>
         <api-request
-          .amf="${this.amf}"
           .domainId="${this.selectedId}"
           ?anypoint="${this.anypoint}"
           urlLabel
@@ -280,14 +278,12 @@ class ComponentPage extends AmfDemoBase {
    */
   serverSelectorTemplate() {
     const {
-      amf,
       serverType,
       serverValue,
       anypoint,
     } = this;
     return html`
     <api-server-selector
-      .amf="${amf}"
       .value="${serverValue}"
       .type="${serverType}"
       autoSelect

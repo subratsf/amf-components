@@ -1,6 +1,7 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
+import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 import '../define/api-annotation-document.js';
 
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
@@ -12,8 +13,15 @@ class ComponentPage extends AmfDemoBase {
       'shape',
     ]);
     this.shape = undefined;
+    this.serializer = new AmfSerializer();
     this.componentName = 'api-annotation-document';
     this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
+  }
+
+  /** @param {string} file */
+  async _loadFile(file) {
+    await super._loadFile(file);
+    this.serializer.amf = this.amf;
   }
 
   /**
@@ -30,7 +38,6 @@ class ComponentPage extends AmfDemoBase {
     } else {
       this.shape = undefined;
     }
-    console.log(this.shape);
   }
 
   /**
@@ -38,12 +45,12 @@ class ComponentPage extends AmfDemoBase {
    */
   setTypeData(id) {
     const declares = this._computeDeclares(this.amf);
-    const type = declares.find((item) => item['@id'] === id);
-    if (!type) {
+    const shape = declares.find((item) => item['@id'] === id);
+    if (!shape) {
       console.error('Type not found');
       return;
     }
-    this.shape = type;
+    this.shape = this.serializer.customDomainProperties(shape);
   }
 
   /**
@@ -51,7 +58,8 @@ class ComponentPage extends AmfDemoBase {
    */
   setEndpointData(id) {
     const webApi = this._computeWebApi(this.amf);
-    this.shape = this._computeEndpointModel(webApi, id);
+    const shape = this._computeEndpointModel(webApi, id);
+    this.shape = this.serializer.customDomainProperties(shape);
   }
 
   /**
@@ -59,7 +67,8 @@ class ComponentPage extends AmfDemoBase {
    */
   setMethodData(id) {
     const webApi = this._computeWebApi(this.amf);
-    this.shape = this._computeMethodModel(webApi, id);
+    const shape = this._computeMethodModel(webApi, id);
+    this.shape = this.serializer.customDomainProperties(shape);
   }
 
   contentTemplate() {
@@ -92,7 +101,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   componentTemplate() {
-    const { demoStates, darkThemeActive, shape, amf } = this;
+    const { demoStates, darkThemeActive, shape } = this;
     if (!shape) {
       return html`<p>Select API object in the navigation</p>`;
     }
@@ -103,8 +112,7 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-annotation-document
-        .amf="${amf}"
-        .shape="${shape}"
+        .customProperties="${shape}"
         slot="content"
       >
       </api-annotation-document>

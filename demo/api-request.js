@@ -167,7 +167,6 @@ class ComponentDemo extends AmfDemoBase {
       darkThemeActive,
       outlined,
       anypoint,
-      amf,
       redirectUri,
       allowCustom,
       allowHideOptional,
@@ -188,7 +187,6 @@ class ComponentDemo extends AmfDemoBase {
     >
       <div slot="content">
         <api-request
-          .amf="${amf}"
           .domainId="${selectedAmfId}"
           ?allowCustom="${allowCustom}"
           ?allowHideOptional="${allowHideOptional}"

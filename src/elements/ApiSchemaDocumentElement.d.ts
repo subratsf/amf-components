@@ -76,7 +76,6 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
   [expandedValue]: string[];
   [selectedUnionsValue]: Record<string, string>;
   [propertyDescriptionEditor]: string;
-  domainModel: Shape;
 
   constructor();
 

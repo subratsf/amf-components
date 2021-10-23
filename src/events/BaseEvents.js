@@ -47,9 +47,10 @@ export class ApiStoreReadEvent extends ApiStoreContextEvent {
   /**
    * @param {string} type The type of the event
    * @param {string} id The domain id of the object to read
+   * @param {string=} parent The domain id of the parent object (like endpoint for an operation).
    */
-  constructor(type, id) {
-    super(type, { id });
+  constructor(type, id, parent) {
+    super(type, { id, parent });
   }
 }
 

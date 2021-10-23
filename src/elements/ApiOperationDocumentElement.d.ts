@@ -1,9 +1,9 @@
 import { TemplateResult } from 'lit-element';
 import { ApiDocumentationBase } from './ApiDocumentationBase.js';
 import { ApiEndPoint, ApiServer, ApiOperation, ApiResponse, ApiCallback, ApiSecurityRequirement } from '../helpers/api';
-import { Operation } from '../helpers/amf';
 
 export const queryEndpoint: unique symbol;
+export const queryOperation: unique symbol;
 export const queryServers: unique symbol;
 export const queryResponses: unique symbol;
 export const operationValue: unique symbol;
@@ -11,6 +11,10 @@ export const endpointValue: unique symbol;
 export const serversValue: unique symbol;
 export const serverIdValue: unique symbol;
 export const urlValue: unique symbol;
+export const queryProtocols: unique symbol;
+export const protocolsValue: unique symbol;
+export const queryVersion: unique symbol;
+export const versionValue: unique symbol;
 export const responsesValue: unique symbol;
 export const computeUrlValue: unique symbol;
 export const computeParametersValue: unique symbol;
@@ -44,7 +48,6 @@ export const snippetsTemplate: unique symbol;
 export const securitySelectorTemplate: unique symbol;
 export const securitySelectionHandler: unique symbol;
 export const securityTabTemplate: unique symbol;
-export const computeOperationModel: unique symbol;
 
 /**
  * A web component that renders the documentation page for an API operation built from 
@@ -156,19 +159,34 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
   requestMimeType: string;
 
   [urlValue]: string;
-  domainModel: Operation;
   [snippetsPayloadValue]: string;
   [snippetsHeadersValue]: string;
+  /**
+   * The API's protocols.
+   */
+  get protocols(): string[]|undefined;
+  [protocolsValue]: string[]|undefined;
+
+  /**
+   * The API's version.
+   */
+  get version(): string|undefined;
+  [versionValue]: string|undefined;
+  /** 
+   * Optional. The parent endpoint id. When set it uses this value to query for the endpoint
+   * instead of querying for a parent through the operation id.
+   * Also, when `endpoint` is set and the `endpointId` match then it ignores querying for 
+   * the endpoint.
+   * @attribute
+   */
+  endpointId: string;
 
   constructor();
   processGraph(): Promise<void>;
-
   /**
-   * Computes an AMF model for the operation from the current AMF model.
-   * THe `amf` can be a partial model which has the operations list directly.
-   * @param domainId The domain id of the operation.
+   * Queries the store for the operation data.
    */
-  [computeOperationModel](domainId: string): ApiOperation|undefined;
+  [queryOperation](): Promise<void>;
 
   /**
    * Queries for the API operation's endpoint data.
@@ -179,6 +197,16 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
    * Queries for the current servers value.
    */
   [queryServers](): Promise<void>;
+
+  /**
+   * Queries the API store for the API protocols list.
+   */
+  [queryProtocols](): Promise<void>;
+
+  /**
+   * Queries the API store for the API version value.
+   */
+  [queryVersion](): Promise<void>;
 
   /**
    * Queries for the responses data of the current operation.

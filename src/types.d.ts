@@ -360,3 +360,43 @@ export interface ApiEndpointsTreeItem extends ApiEndPointWithOperationsListItem 
   hasShortPath?: boolean;
   hasChildren?: boolean;
 }
+
+export interface ApiSecuritySchemeListItem {
+  id: string;
+  type: string;
+  name?: string;
+  displayName?: string;
+}
+
+export declare interface ApiNodeShapeListItem {
+  id: string;
+  name?: string;
+  displayName?: string;
+}
+
+export interface DocumentMeta {
+  /**
+   * True when the loaded document represent an API (in an opposite to a fragment or a partial model).
+   */
+  isApi: boolean;
+  /**
+   * Whether the loaded document represent an Async API.
+   */
+  isAsync: boolean;
+  /**
+   * Whether the loaded document represent a RAML fragment / OAS reference.
+   */
+  isFragment: boolean;
+  /**
+   * A special type of fragment that is a RAML library.
+   */
+  isLibrary: boolean;
+  /**
+   * The list of types of the loaded document.
+   */
+  types: string[];
+  /**
+   * The domain id of the `encodes` property.
+   */
+  encodesId?: string;
+}

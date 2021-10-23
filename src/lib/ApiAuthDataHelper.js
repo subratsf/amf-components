@@ -17,7 +17,6 @@ export class ApiAuthDataHelper extends UiDataHelper {
    */
   static setupCustom(element, init) {
     const i = new CustomAuth(init);
-    i.amf = element.amf;
     i.security = element.security;
     i.descriptionOpened = element.descriptionOpened;
     i.globalCache = element.globalCache;
@@ -39,7 +38,6 @@ export class ApiAuthDataHelper extends UiDataHelper {
    */
   static setupApiKey(element, init) {
     const i = new ApiKeyAuth(init);
-    i.amf = element.amf;
     i.security = element.security;
     i.globalCache = element.globalCache;
     return i;
@@ -59,7 +57,6 @@ export class ApiAuthDataHelper extends UiDataHelper {
    */
   static setupPassThrough(element, init) {
     const i = new PassThroughAuth(init);
-    i.amf = element.amf;
     i.security = element.security;
     i.descriptionOpened = element.descriptionOpened;
     i.globalCache = element.globalCache;
@@ -81,7 +78,6 @@ export class ApiAuthDataHelper extends UiDataHelper {
    */
   static setupOauth2(element, init) {
     const i = new OAuth2Auth(init);
-    i.amf = element.amf;
     i.security = element.security;
     i.globalCache = element.globalCache;
     // @ts-ignore
@@ -97,7 +93,6 @@ export class ApiAuthDataHelper extends UiDataHelper {
   static setupOauth1(element, init) {
     // @ts-ignore
     const i = new OAuth1Auth(init);
-    i.amf = element.amf;
     i.security = element.security;
     // @ts-ignore
     UiDataHelper.setupOauth1(element, init);

@@ -124,7 +124,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   _componentTemplate() {
-    const { demoStates, darkThemeActive, selectedId, amf, forceExamples, shape, mediaType, noReadOnly } = this;
+    const { demoStates, darkThemeActive, selectedId, forceExamples, shape, mediaType, noReadOnly } = this;
     if (!selectedId && !shape) {
       return html`<p>Select API object in the navigation</p>`;
     }
@@ -136,8 +136,7 @@ class ComponentPage extends AmfDemoBase {
     >
       <api-schema-document 
         slot="content"
-        .amf="${amf}"
-        .domainModel="${shape}"
+        .domainId="${shape['@id']}"
         domainId="${ifDefined(selectedId)}"
         mimeType="${ifDefined(mediaType)}"
         ?forceExamples="${forceExamples}"

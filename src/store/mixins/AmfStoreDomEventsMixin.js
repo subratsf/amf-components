@@ -7,14 +7,29 @@ import { EventTypes } from '../../events/EventTypes.js';
 export const eventHandler = Symbol('eventHandler');
 
 /**
- * @type {Record<string, { target: string, args?: string[], eventProperties?: boolean }>}
+ * @type {Record<string, { target: string, args?: string[], eventProperties?: boolean, passDetail?: boolean }>}
  */
 const eventsMap = {
   [EventTypes.Api.summary]: { target: 'apiSummary' },
+  [EventTypes.Api.protocols]: { target: 'apiProtocols' },
+  [EventTypes.Api.version]: { target: 'apiVersion' },
+  [EventTypes.Api.documentMeta]: { target: 'documentMeta' },
   [EventTypes.Endpoint.get]: { target: 'getEndpoint', args: ['id'], },
   [EventTypes.Endpoint.byPath]: { target: 'getEndpointByPath', args: ['id'], },
   [EventTypes.Endpoint.list]: { target: 'listEndpointsWithOperations' },
-  [EventTypes.Server.query]: { target: 'queryServers' },
+  [EventTypes.Operation.get]: { target: 'getOperation', args: ['id', 'parent'] },
+  [EventTypes.Operation.getParent]: { target: 'getOperationParent', args: ['id'] },
+  [EventTypes.Server.query]: { target: 'queryServers', passDetail: true },
+  [EventTypes.Documentation.list]: { target: 'listDocumentations' },
+  [EventTypes.Documentation.get]: { args: ['id'], target: 'getDocumentation' },
+  [EventTypes.Security.get]: { args: ['id'], target: 'getSecurityScheme' },
+  [EventTypes.Security.getRequirement]: { args: ['id'], target: 'getSecurityRequirement' },
+  [EventTypes.Security.list]: { target: 'listSecurity' },
+  [EventTypes.Request.get]: { args: ['id'], target: 'getRequest', },
+  [EventTypes.Response.get]: { args: ['id'], target: 'getResponse', },
+  [EventTypes.Payload.get]: { args: ['id'], target: 'getPayload', },
+  [EventTypes.Type.list]: { target: 'listTypes' },
+  [EventTypes.Type.get]: { args: ['id'], target: 'getType' },
 };
 
 /**
@@ -76,8 +91,11 @@ const mxFunction = base => {
         console.warn(`Incorrectly handled event ${e.type}`);
         return;
       }
-      const { args, target } = info;
-      if (!Array.isArray(args) || !args.length) {
+      const { args, target, passDetail } = info;
+      if (passDetail) {
+        const cp = { ...(e.detail || {}) };
+        e.detail.result = this[target](cp);
+      } else if (!Array.isArray(args) || !args.length) {
         e.detail.result = this[target]();
       } else {
         const params = [];

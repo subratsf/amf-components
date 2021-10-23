@@ -28,7 +28,6 @@ import { ns } from './Namespace.js';
 /** @typedef {import('./amf').Request} Request */
 /** @typedef {import('./amf').Response} Response */
 /** @typedef {import('./amf').Payload} Payload */
-/** @typedef {import('./amf').SecurityRequirement} SecurityRequirement */
 /** @typedef {import('./amf').SecurityScheme} SecurityScheme */
 /** @typedef {import('./api').ServersQueryOptions} ServersQueryOptions */
 /** @typedef {import('./api').ServerQueryOptions} ServerQueryOptions */
@@ -38,6 +37,7 @@ export const expandKey = Symbol('expandKey');
 export const findAmfType = Symbol('findAmfType');
 export const findReferenceObject = Symbol('findReferenceObject');
 export const getArrayItems = Symbol('getArrayItems');
+export const computeReferenceSecurity = Symbol('computeReferenceSecurity');
 
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
@@ -698,7 +698,7 @@ export const AmfHelperMixin = (base) => class extends base {
       if (!methods) {
         continue;
       }
-      if (!(methods instanceof Array)) {
+      if (!Array.isArray(methods)) {
         methods = [methods];
       }
       for (let j = 0, jLen = methods.length; j < jLen; j++) {
@@ -858,7 +858,7 @@ export const AmfHelperMixin = (base) => class extends base {
     if (!webApi || !selected) {
       return undefined;
     }
-    const key = this._getAmfKey(this.ns.schema.doc);
+    const key = this._getAmfKey(this.ns.aml.vocabularies.core.documentation);
     const docs = this._ensureArray(webApi[key]);
     return docs && docs.find((item) => item['@id'] === selected);
   }
@@ -1106,5 +1106,60 @@ export const AmfHelperMixin = (base) => class extends base {
       return value;
     }
     return `${prefix}${key}`;
+  }
+
+  /**
+   * Computes a security model from a reference (library for example).
+   * @param {string} domainId Domain id of the security requirement to find.
+   * @returns {SecurityScheme|undefined} Type definition or undefined if not found.
+   */
+  findSecurityScheme(domainId) {
+    const { amf } = this;
+    const declares = this._computeDeclares(amf);
+    let result;
+    if (declares) {
+      result = declares.find((item) => item['@id'] === domainId);
+    }
+    if (result) {
+      result = this._resolve(result);
+      return result;
+    }
+    const references = this._computeReferences(amf);
+    if (Array.isArray(references) && references.length) {
+      for (const ref of references) {
+        if (this._hasType(ref, this.ns.aml.vocabularies.document.Module)) {
+          result = this[computeReferenceSecurity](ref, domainId);
+          if (result) {
+            result = this._resolve(result);
+            return result;
+          }
+        }
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Computes a security model from a reference (library for example).
+   * @param {DomainElement} reference AMF model for a reference to extract the data from
+   * @param {string} selected Node ID to look for
+   * @returns {SecurityScheme|undefined} Type definition or undefined if not found.
+   */
+  [computeReferenceSecurity](reference, selected) {
+    const declare = this._computeDeclares(reference);
+    if (!declare) {
+      return undefined;
+    }
+    let result = declare.find((item) => {
+      let declared = item;
+      if (Array.isArray(declared)) {
+        [declared] = declared;
+      }
+      return declared['@id'] === selected;
+    });
+    if (Array.isArray(result)) {
+      [result] = result;
+    }
+    return this._resolve(result);
   }
 };

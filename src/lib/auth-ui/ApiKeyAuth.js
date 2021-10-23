@@ -11,12 +11,12 @@ import * as InputCache from '../InputCache.js';
 
 export default class ApiKeyAuth extends ApiUiBase {
   async initializeApiModel() {
-    const { amf, security } = this;
+    const { security } = this;
     const source = 'settings';
     const list = /** @type OperationParameter[] */ (this.parametersValue);
     this.parametersValue = list.filter(item => item.source !== source);
 
-    if (!amf || !security) {
+    if (!security) {
       return;
     }
     if (!security.types.includes(ns.aml.vocabularies.security.ParametrizedSecurityScheme)) {

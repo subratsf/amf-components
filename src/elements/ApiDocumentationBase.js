@@ -9,13 +9,10 @@ import '@anypoint-web-components/awc/anypoint-collapse.js';
 import '@advanced-rest-client/icons/arc-icon.js';
 import '@advanced-rest-client/highlight/arc-marked.js';
 import { ApiExampleGenerator } from '../schema/ApiExampleGenerator.js';
-import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
-import { AmfSerializer } from '../helpers/AmfSerializer.js';
 import { EventTypes } from '../events/EventTypes.js';
 import '../../define/api-annotation-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
 /** @typedef {import('../helpers/api').ApiCustomDomainProperty} ApiCustomDomainProperty */
@@ -26,8 +23,6 @@ export const sectionToggleClickHandler = Symbol('sectionToggleClickHandler');
 export const processDebounce = Symbol('queryDebounce');
 export const debounceValue = Symbol('debounceValue');
 export const domainIdValue = Symbol('domainIdValue');
-export const domainModelValue = Symbol('domainModelValue');
-export const serializerValue = Symbol('domainIdValue');
 export const clickHandler = Symbol('clickHandler');
 export const descriptionTemplate = Symbol('descriptionTemplate');
 export const sectionToggleTemplate = Symbol('sectionToggleTemplate');
@@ -44,7 +39,7 @@ export const graphChangeHandler = Symbol('graphChangeHandler');
 /**
  * A base class for the documentation components with common templates and functions.
  */
-export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitElement)) {
+export class ApiDocumentationBase extends EventsTargetMixin(LitElement) {
   /** 
    * @returns {string|undefined} The domain id of the object to render.
    */
@@ -62,28 +57,6 @@ export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitEl
     }
     this[domainIdValue] = value;
     this.requestUpdate('domainId', old);
-    if (value) {
-      this[processDebounce]();
-    }
-  }
-
-  /** 
-   * @returns {DomainElement|undefined} The domain object read from the AMF graph model.
-   */
-  get domainModel() {
-    return this[domainModelValue];
-  }
-
-  /** 
-   * @returns {DomainElement|undefined} The domain object read from the AMF graph model.
-   */
-  set domainModel(value) {
-    const old = this[domainModelValue];
-    if (old === value) {
-      return;
-    }
-    this[domainModelValue] = value;
-    this.requestUpdate('domainModel', old);
     if (value) {
       this[processDebounce]();
     }
@@ -108,24 +81,15 @@ export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitEl
      * The timeout after which the `queryGraph()` function is called 
      * in the debouncer.
      */
-    this.queryDebouncerTimeout = 2;
+    this.queryDebouncerTimeout = 1;
     /** @type {boolean} */
     this.anypoint = undefined;
     /**
      * @type {SchemaExample[]}
      */
     this[examplesValue] = undefined;
-    this[serializerValue] = new AmfSerializer();
 
     this[graphChangeHandler] = this[graphChangeHandler].bind(this);
-  }
-
-  /**
-   * @param {AmfDocument} amf 
-   */
-  __amfChanged(amf) {
-    this[serializerValue].amf = amf;
-    this[processDebounce]();
   }
 
   connectedCallback() {
@@ -163,7 +127,7 @@ export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitEl
    * Handler for the event dispatched by the store when the graph model change.
    */
   [graphChangeHandler]() {
-    this[processDebounce]()
+    this[processDebounce]();
   }
 
   /**
@@ -309,7 +273,6 @@ export class ApiDocumentationBase extends EventsTargetMixin(AmfHelperMixin(LitEl
   [schemaItemTemplate](model, dataName) {
     return html`
     <api-parameter-document 
-      .amf="${this.amf}" 
       .parameter="${model}" 
       class="property-item"
       data-name="${ifDefined(dataName)}"

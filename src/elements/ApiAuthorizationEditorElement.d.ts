@@ -1,6 +1,5 @@
 import { TemplateResult, LitElement } from 'lit-element';
 import { ApiParametrizedSecurityScheme, ApiSecurityRequirement, } from '../helpers/api';
-import { AmfDocument, } from '../helpers/amf';
 import { Oauth2Credentials } from '@advanced-rest-client/app';
 import { RequestAuthorization } from '@advanced-rest-client/events/src/request/ArcRequest';
 import { default as ApiAuthorizationMethodElement } from './ApiAuthorizationMethodElement';
@@ -31,11 +30,6 @@ export const createSettings: unique symbol;
 
 export default class ApiAuthorizationEditorElement extends LitElement {
   security: ApiSecurityRequirement;
-
-  /** 
-   * The AMF graph model of the API.
-   */
-  amf: AmfDocument;
   /**
    * Current HTTP method. Passed by digest method.
    * @attribute

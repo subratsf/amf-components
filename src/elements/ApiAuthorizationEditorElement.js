@@ -6,7 +6,6 @@ import elementStyles from './styles/AuthorizationEditor.js';
 import '../../define/api-authorization-method.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
 /** @typedef {import('../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('../helpers/api').ApiSecurityScheme} ApiSecurityScheme */
@@ -68,10 +67,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
 
   static get properties() {
     return {
-      /** 
-       * The AMF graph model of the API.
-       */
-      amf: { type: Object },
       // Current HTTP method. Passed by digest method.
       httpMethod: { type: String },
       // Current request URL. Passed by digest method.
@@ -131,8 +126,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
 
   constructor() {
     super();
-    /** @type {DomainElement} */
-    this.amf = undefined;
     /** @type {ApiSecurityRequirement} */
     this[securityValue] = undefined;
     /** @type string */
@@ -381,11 +374,10 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [basicAuthTemplate](security) {
-    const { anypoint, outlined, amf, globalCache } = this;
+    const { anypoint, outlined, globalCache } = this;
     return html`
     ${this[methodTitleTemplate](security)}
     <api-authorization-method
-      .amf="${amf}"
       ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
@@ -408,7 +400,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       httpMethod,
       requestUrl,
       requestBody,
-      amf,
       globalCache,
     } = this;
     return html`
@@ -417,7 +408,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
-      .amf="${amf}"
       .httpMethod="${httpMethod}"
       .requestUrl="${requestUrl}"
       .requestBody="${requestBody}"
@@ -434,14 +424,13 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [passThroughAuthTemplate](security, renderTitle) {
-    const { anypoint, outlined, amf, globalCache, } = this;
+    const { anypoint, outlined, globalCache, } = this;
     return html`
     ${renderTitle ? this[methodTitleTemplate](security) : ''}
     <api-authorization-method
       ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
-      .amf="${amf}"
       .security="${security}"
       type="pass through"
       @change="${this[changeHandler]}"
@@ -455,12 +444,11 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [ramlCustomAuthTemplate](security) {
-    const { anypoint, outlined, amf, globalCache, } = this;
+    const { anypoint, outlined, globalCache, } = this;
     return html`<api-authorization-method
       ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
-      .amf="${amf}"
       .security="${security}"
       type="custom"
       @change="${this[changeHandler]}"
@@ -475,7 +463,7 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [bearerAuthTemplate](security, renderTitle) {
-    const { anypoint, outlined, amf, globalCache, } = this;
+    const { anypoint, outlined, globalCache, } = this;
     return html`
     ${renderTitle ? this[methodTitleTemplate](security) : ''}
     <api-authorization-method
@@ -483,7 +471,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
       type="bearer"
-      .amf="${amf}"
       .security="${security}"
       @change="${this[changeHandler]}"
     ></api-authorization-method>`;
@@ -497,7 +484,7 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [oa1AuthTemplate](security, renderTitle) {
-    const { anypoint, outlined, oauth2RedirectUri, amf, globalCache, } = this;
+    const { anypoint, outlined, oauth2RedirectUri, globalCache, } = this;
     return html`
     ${renderTitle ? this[methodTitleTemplate](security) : ''}
     <api-authorization-method
@@ -506,7 +493,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       ?globalCache="${globalCache}"
       type="oauth 1"
       .redirectUri="${oauth2RedirectUri}"
-      .amf="${amf}"
       .security="${security}"
       @change="${this[changeHandler]}"
     ></api-authorization-method>`;
@@ -526,7 +512,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       credentialsSource,
       oauth2AuthorizationUri,
       oauth2AccessTokenUri,
-      amf,
       globalCache,
     } = this;
     return html`
@@ -539,7 +524,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       .redirectUri="${oauth2RedirectUri}"
       .overrideAuthorizationUri="${oauth2AuthorizationUri}"
       .overrideAccessTokenUri="${oauth2AccessTokenUri}"
-      .amf="${amf}"
       .security="${security}"
       .credentialsSource="${credentialsSource}"
       @change="${this[changeHandler]}"
@@ -560,7 +544,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       credentialsSource,
       oauth2AuthorizationUri,
       oauth2AccessTokenUri,
-      amf,
       globalCache,
     } = this;
     return html`
@@ -573,7 +556,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       .redirectUri="${oauth2RedirectUri}"
       .overrideAuthorizationUri="${oauth2AuthorizationUri}"
       .overrideAccessTokenUri="${oauth2AccessTokenUri}"
-      .amf="${amf}"
       .security="${security}"
       .credentialsSource="${credentialsSource}"
       @change="${this[changeHandler]}"
@@ -587,7 +569,7 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [apiKeyTemplate](security) {
-    const { anypoint, outlined, amf, globalCache, } = this;
+    const { anypoint, outlined, globalCache, } = this;
     return html`
     ${this[methodTitleTemplate](security)}
     <api-authorization-method
@@ -595,7 +577,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
       ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       type="api key"
-      .amf="${amf}"
       .security="${security}"
       @change="${this[changeHandler]}"
     ></api-authorization-method>

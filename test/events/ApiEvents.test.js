@@ -1,6 +1,6 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import sinon from 'sinon';
-import { Events, EventTypes } from  '../../index.js';
+import { ApiEvents, ApiEventTypes } from  '../../index.js';
 
 describe('Events', () => {
   /**
@@ -15,19 +15,19 @@ describe('Events', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Api.summary, spy);
-        Events.Api.summary(et);
+        et.addEventListener(ApiEventTypes.Api.summary, spy);
+        ApiEvents.Api.summary(et);
         assert.isTrue(spy.calledOnce);
       });
 
       it('waits until resolved', async () => {
         const et = await etFixture();
         const data = { id: 'test' };
-        et.addEventListener(EventTypes.Api.summary, (e) => {
+        et.addEventListener(ApiEventTypes.Api.summary, (e) => {
           // @ts-ignore
           e.detail.result = Promise.resolve(data);
         });
-        const result = await Events.Api.summary(et);
+        const result = await ApiEvents.Api.summary(et);
         assert.deepEqual(result, data);
       });
     });

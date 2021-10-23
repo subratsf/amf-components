@@ -1,6 +1,5 @@
 import { TemplateResult } from 'lit-element';
 import { ApiDocumentationBase } from './ApiDocumentationBase.js';
-import { Request } from '../helpers/amf';
 import { ApiRequest, ApiPayload, ApiServer, ApiEndPoint, ApiParameter } from '../helpers/api';
 import { OperationParameter } from '../types';
 
@@ -92,7 +91,6 @@ export default class ApiRequestDocumentElement extends ApiDocumentationBase {
   */
   endpoint: ApiEndPoint;
   [queryParametersValue]: OperationParameter[];
-  domainModel: Request;
   constructor();
   processGraph(): Promise<void>;
   [queryPayloads](): Promise<void>;

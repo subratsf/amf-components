@@ -24,16 +24,15 @@ import {
 } from './SchemaCommonTemplates.js';
 import { 
   ApiDocumentationBase,
-  serializerValue,
   descriptionTemplate,
   customDomainPropertiesTemplate,
   evaluateExamples,
   examplesTemplate,
   examplesValue,
 } from './ApiDocumentationBase.js';
+import { Events } from '../events/Events.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('../helpers/amf').Shape} Shape */
 /** @typedef {import('../helpers/api').ApiShape} ApiShape */
 /** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../helpers/api').ApiExample} ApiExample */
@@ -188,32 +187,40 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     this.schemaTitle = undefined;
     /** @type boolean */
     this.noReadOnly = undefined;
-    /** @type Shape */
-    this.domainModel = undefined;
   }
 
   /**
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel, domainId, amf } = this;
-    if (domainModel) {
-      this[schemaValue] = this[serializerValue].unknownShape(domainModel);
-    }
     this[expandedValue] = [];
     this[selectedUnionsValue] = {};
-
-    if (domainId && amf) {
-      const declares = this._computeDeclares(amf);
-      const references = this._computeReferences(amf);
-      const model = this._computeType(declares, references, domainId);
-      if (model) {
-        this[schemaValue] = this[serializerValue].unknownShape(model);
-      }
-    }
-    
+    await this[querySchema]();
     this[processSchema]();
     await this.requestUpdate();
+  }
+
+  /**
+   * Queries the store for the schema data, when needed.
+   * @returns {Promise<void>}
+   */
+  async [querySchema]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[schemaValue] = undefined;
+      return;
+    }
+    if (this[schemaValue] && this[schemaValue].id === domainId) {
+      // in case the schema model was provided via the property setter.
+      return;
+    }
+    try {
+      const info = await Events.Type.get(this, domainId);
+      this[schemaValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API schema data: ${e.message}`, this.localName);
+    }
   }
 
   /**

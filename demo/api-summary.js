@@ -53,7 +53,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   componentTemplate() {
-    const { demoStates, darkThemeActive, amf, overrideBaseUri } = this;
+    const { demoStates, darkThemeActive, overrideBaseUri } = this;
     return html`
     <arc-interactive-demo
       .states="${demoStates}"
@@ -61,7 +61,6 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-summary
-        .amf="${amf}"
         .baseUri="${overrideBaseUri ? 'https://custom.api.com' : undefined}"
         @apinavigate="${this._navigationHandler}"
         slot="content"

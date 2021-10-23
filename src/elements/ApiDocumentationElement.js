@@ -6,10 +6,12 @@ import '@anypoint-web-components/awc/anypoint-radio-group.js';
 import elementStyles from './styles/ApiDocumentation.js';
 import { 
   ApiDocumentationBase,
-  serializerValue,
   processDebounce,
+  domainIdValue,
 } from './ApiDocumentationBase.js';
 import { EventTypes } from '../events/EventTypes.js';
+import { Events } from '../events/Events.js';
+import { ns } from '../helpers/Namespace.js';
 import '../../define/api-summary.js'
 import '../../define/api-operation-document.js'
 import '../../define/api-resource-document.js';
@@ -19,19 +21,15 @@ import '../../define/api-schema-document.js';
 import '../../define/api-server-selector.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
-/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
-/** @typedef {import('../helpers/amf').EndPoint} EndPoint */
-/** @typedef {import('../helpers/amf').Operation} Operation */
 /** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
 /** @typedef {import('../types').ServerType} ServerType */
 /** @typedef {import('../types').SelectionType} SelectionType */
+/** @typedef {import('../types').DocumentMeta} DocumentMeta */
 /** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 /** @typedef {import('../events/ServerEvents').ServerCountChangeEvent} ServerCountChangeEvent */
 /** @typedef {import('../events/ServerEvents').ServerChangeEvent} ServerChangeEvent */
 /** @typedef {import('@anypoint-web-components/awc').AnypointRadioGroupElement} AnypointRadioGroupElement */
 
-export const isAsyncValue = Symbol('isAsyncValue');
 export const operationIdValue = Symbol('operationIdValue');
 export const domainTypeValue = Symbol('domainTypeValue');
 export const navigationHandler = Symbol('navigationHandler');
@@ -40,22 +38,11 @@ export const registerNavigationEvents = Symbol('registerNavigationEvents');
 export const unregisterNavigationEvents = Symbol('unregisterNavigationEvents');
 export const handleNavigationEventsValue = Symbol('handleNavigationEventsValue');
 export const processApiSpecSelection = Symbol('processApiSpecSelection');
-export const isLibrary = Symbol('isLibrary');
 export const processLibrarySelection = Symbol('processLibrarySelection');
-export const computeDeclById = Symbol('computeDeclById');
 export const renderedViewValue = Symbol('renderedViewValue');
-export const renderedModelValue = Symbol('renderedModelValue');
-export const computeSecurityApiModel = Symbol('computeSecurityApiModel');
-export const computeReferenceSecurity = Symbol('computeReferenceSecurity');
-export const computeTypeApiModel = Symbol('computeTypeApiModel');
-export const computeDocsApiModel = Symbol('computeDocsApiModel');
-export const computeResourceApiModel = Symbol('computeEndpointApiModel');
-export const computeEndpointApiMethodModel = Symbol('computeEndpointApiMethodModel');
-export const computeMethodApiModel = Symbol('computeMethodApiModel');
 export const processFragment = Symbol('processFragment');
 export const processPartial = Symbol('processPartial');
 export const processEndpointPartial = Symbol('processEndpointPartial');
-export const endpointValue = Symbol('endpointValue');
 export const apiSummaryValue = Symbol('apiSummaryValue');
 export const serverSelectorTemplate = Symbol('serverSelectorTemplate');
 export const serversCountHandler = Symbol('serversCountHandler');
@@ -68,6 +55,9 @@ export const schemaTemplate = Symbol('schemaTemplate');
 export const resourceTemplate = Symbol('resourceTemplate');
 export const schemaMediaSelectorTemplate = Symbol('schemaMediaSelectorTemplate');
 export const mediaTypeSelectHandler = Symbol('mediaTypeSelectHandler');
+export const queryDocumentMeta = Symbol('queryDocumentMeta');
+export const documentMetaValue = Symbol('documentMetaValue');
+export const queryApiSummary = Symbol('queryApiSummary');
 
 /**
  * A main documentation view for an AMF model representing a sync or an async API.
@@ -255,11 +245,6 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     return this[renderedViewValue];
   }
 
-  /** @returns {any} The domain model rendered in the view. */
-  get renderedModel() {
-    return this[renderedModelValue];
-  }
-
   /** @returns {boolean} */
   get renderSelector() {
     const { domainType, serversCount, allowCustomBaseUri } = this;
@@ -276,7 +261,11 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns {boolean} true when whe currently loaded API is an async API.
    */
   get isAsync() {
-    return this[isAsyncValue];
+    const { documentMeta } = this;
+    if (!documentMeta) {
+      return false;
+    }
+    return documentMeta.isAsync;
   }
 
   /**
@@ -296,6 +285,11 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
       return undefined;
     }
     return accepts[0];
+  }
+
+  /** @type DocumentMeta */
+  get documentMeta() {
+    return this[documentMetaValue];
   }
 
   constructor() {
@@ -329,8 +323,6 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     /** @type {boolean} */
     this.httpApplyAuthorization = undefined;
     this.httpCredentialsSource = undefined;
-    /** @type {EndPoint} */
-    this[endpointValue] = undefined;
     /** @type {ApiSummary} */
     this[apiSummaryValue] = undefined;
     /** @type {string} */
@@ -338,6 +330,13 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
 
     this[navigationHandler] = this[navigationHandler].bind(this);
     this[navEventsRegistered] = false;
+    /** @type DocumentMeta */
+    this[documentMetaValue] = undefined;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this[processDebounce]();
   }
 
   disconnectedCallback() {
@@ -388,100 +387,106 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     this.processGraph();
   }
 
-  /** @param {any} amf */
-  __amfChanged(amf) {
-    this.schemaMimeType = undefined;
-    this[apiSummaryValue] = undefined;
-    super.__amfChanged(amf);
-  }
-
   /**
    * @returns {Promise<void>}
    */
   async processGraph() {
-    let { amf } = this;
-    if (!amf) {
+    this.schemaMimeType = undefined;
+    await this[queryDocumentMeta]();
+    const { documentMeta } = this;
+    if (!documentMeta) {
+      this.requestUpdate();
       return;
     }
-    if (Array.isArray(amf)) {
-      [amf] = amf;
-    }
-    this[isAsyncValue] = this._isAsyncAPI(amf);
-    const api = this._computeApi(amf);
-    if (api) {
-      const summary = this[serializerValue].apiSummary(api);
-      this[apiSummaryValue] = summary;
-      this[processApiSpecSelection](amf);
+    if (documentMeta.isApi) {
+      await this[queryApiSummary]();
+      this[processApiSpecSelection]();
       return;
     }
-    if (this[isLibrary](amf)) {
-      this[processLibrarySelection](amf);
+    if (documentMeta.isLibrary) {
+      this[processLibrarySelection]();
       return;
     }
-    if (this._hasType(amf, this.ns.aml.vocabularies.security.SecuritySchemeFragment)) {
-      this[processFragment](amf, 'security');
+    const { isFragment, types } = documentMeta;
+    
+    if (isFragment) {
+      /** @type SelectionType */
+      let type;
+      if (types.includes(ns.aml.vocabularies.security.SecuritySchemeFragment)) {
+        type = 'security';
+      } else if (types.includes(ns.aml.vocabularies.apiContract.UserDocumentationFragment)) {
+        type = 'documentation';
+      } else if (types.includes(ns.aml.vocabularies.shapes.DataTypeFragment)) {
+        type = 'schema';
+      }
+      this[processFragment](type);
       return;
     }
-    if (this._hasType(amf, this.ns.aml.vocabularies.apiContract.UserDocumentationFragment)) {
-      this[processFragment](amf, 'documentation');
+
+    //
+    // partial models
+    // 
+
+    if (types.includes(ns.aml.vocabularies.apiContract.EndPoint)) {
+      this[processEndpointPartial]();
       return;
     }
-    if (this._hasType(amf, this.ns.aml.vocabularies.shapes.DataTypeFragment)) {
-      this[processFragment](amf, 'schema');
-      return;
+
+    /** @type SelectionType */
+    let type;
+    if (types.includes(ns.aml.vocabularies.core.CreativeWork)) {
+      type = 'documentation';
+    } else if (types.includes(ns.aml.vocabularies.security.SecurityScheme)) {
+      type = 'security';
+    } else if (types.includes(ns.w3.shacl.Shape)) {
+      type = 'schema';
     }
-    if (this._hasType(amf, this.ns.aml.vocabularies.core.CreativeWork)) {
-      this[processPartial](amf, 'documentation');
-      return;
+    this[processPartial](type);
+  }
+
+  /**
+   * Reads the currently loaded document meta data from the store.
+   */
+  async [queryDocumentMeta]() {
+    this[documentMetaValue] = undefined;
+    try {
+      const info = await Events.Api.documentMeta(this);
+      this[documentMetaValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for the document meta data: ${e.message}`, this.localName);
     }
-    if (this._hasType(amf, this.ns.aml.vocabularies.security.SecurityScheme)) {
-      this[processPartial](amf, 'security');
-      return;
-    }
-    if (this._hasType(amf, this.ns.aml.vocabularies.apiContract.EndPoint)) {
-      this[processEndpointPartial](amf);
-      return;
-    }
-    if (this._hasType(amf, this.ns.w3.shacl.Shape) || this._hasType(amf, this.ns.aml.vocabularies.document.DomainElement)) {
-      this[processPartial](amf, 'schema');
+  }
+
+  /**
+   * Reads the API summary.
+   * Called only when the currently loaded document is an API.
+   */
+  async [queryApiSummary]() {
+    try {
+      const info = await Events.Api.summary(this);
+      this[apiSummaryValue] = info;
+    } catch (e) {
+      this[apiSummaryValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for the API summary data: ${e.message}`, this.localName);
     }
   }
 
   /**
    * Processes selection for the web API data model. It ignores the input if
    * `domainId` or `domainType` is not set.
-   * 
-   * @param {AmfDocument} model WebApi AMF model. Do not use an array here.
    */
-  [processApiSpecSelection](model) {
+  [processApiSpecSelection]() {
     const { domainId, tryItPanel } = this;
     let { domainType } = this;
     if (!domainId || !domainType) {
       // Not all required properties were set.
       return;
     }
-    let result;
-    switch (domainType) {
-      case 'summary': result = model; break;
-      case 'security': result = this[computeSecurityApiModel](model, domainId); break;
-      case 'schema': result = this[computeTypeApiModel](model, domainId); break;
-      case 'documentation': result = this[computeDocsApiModel](model, domainId); break;
-      case 'resource':
-        result = this[computeResourceApiModel](model, domainId);
-        break;
-      case 'operation':
-        if (tryItPanel) {
-          domainType = 'resource';
-          result = this[computeEndpointApiMethodModel](model, domainId);
-        } else {
-          result = this[computeMethodApiModel](model, domainId);
-          this[endpointValue] = this[computeEndpointApiMethodModel](model, domainId);
-        }
-        break;
-      default:
-        return;
+    if (domainType === 'operation' && tryItPanel) {
+      domainType = 'resource';
     }
-    this[renderedModelValue] = result;
     this[renderedViewValue] = domainType;
     this.requestUpdate();
   }
@@ -489,24 +494,13 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
   /**
    * Processes selection for a library data model. It ignores the input if
    * `domainId` or `domainType` is not set.
-   * @param {AmfDocument} model Library AMF model. Do not use an array here.
    */
-  [processLibrarySelection](model) {
+  [processLibrarySelection]() {
     const { domainId, domainType } = this;
     if (!domainId || !domainType) {
       // Not all required properties were set.
       return;
     }
-    let result;
-    switch (domainType) {
-      case 'security':
-      case 'schema': 
-        result = this[computeDeclById](model, domainId); 
-        break;
-      default:
-        result = model;
-    }
-    this[renderedModelValue] = result;
     this[renderedViewValue] = domainType;
     this.requestUpdate();
   }
@@ -514,12 +508,10 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
   /**
    * Processes fragment model and sets current selection and the model.
    * 
-   * @param {AmfDocument} model RAML fragment model
    * @param {SelectionType} domainType The selected domain type.
    */
-  [processFragment](model, domainType) {
-    const result = this._computeEncodes(model);
-    this[renderedModelValue] = result;
+  [processFragment](domainType) {
+    this[domainIdValue] = this.documentMeta.encodesId;
     this[renderedViewValue] = domainType;
     this.requestUpdate();
   }
@@ -527,11 +519,9 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
   /**
    * Sets the partial model to be rendered.
    * 
-   * @param {AmfDocument} model RAML partial model
    * @param {SelectionType} domainType The domain type representing the partial model.
    */
-  [processPartial](model, domainType) {
-    this[renderedModelValue] = model;
+  [processPartial](domainType) {
     this[renderedViewValue] = domainType;
     this.requestUpdate();
   }
@@ -541,10 +531,8 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * It sets models that are used by the docs.
    *
    * If `selected` or `selectedType` is not set then it automatically selects
-   * an endpoint.
-   * @param {DomainElement} model Partial model for endpoints
    */
-  [processEndpointPartial](model) {
+  [processEndpointPartial]() {
     const { tryItPanel } = this;
     let { domainType } = this;
 		if (!domainType || tryItPanel) {
@@ -553,167 +541,8 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     if (!['operation', 'resource'].includes(domainType)) {
       domainType = 'resource';
     }
-		this[endpointValue] = model;
-		this[renderedModelValue] = model;
 		this[renderedViewValue] = domainType;
     this.requestUpdate();
-  }
-
-  /**
-   * Tests if `model` is of a RAML library model.
-   * @param {AmfDocument} model A shape to test
-   * @returns {boolean} true when the presented model is a library.
-   */
-  [isLibrary](model) {
-    if (!model) {
-      return false;
-    }
-    let doc = model;
-    if (Array.isArray(doc)) {
-      [doc] = doc;
-    }
-    if (!doc['@type']) {
-      return false;
-    }
-    const moduleKey = this._getAmfKey(this.ns.aml.vocabularies.document.Module);
-    return moduleKey === doc['@type'][0];
-  }
-
-  /**
-   * Computes model of a shape defined in `declares` list
-   * @param {AmfDocument} model AMF model
-   * @param {string} domainId Current selection
-   * @returns {any|undefined}
-   */
-  [computeDeclById](model, domainId) {
-    const declares = this._computeDeclares(model);
-		if (!declares) {
-			return undefined;
-		}
-		let selectedDeclaration = this._findById(declares, domainId)
-		if (!selectedDeclaration) {
-			const references = this._computeReferences(model);
-			if (references) {
-				const declarationsInRef = references.map((r) => this._computeDeclares(r)).flat();
-				selectedDeclaration = this._findById(declarationsInRef, domainId);
-			}
-		}
-		return selectedDeclaration;
-  }
-
-  /**
-   * Computes security scheme definition model from web API and current selection.
-   * It looks for the definition in both `declares` and `references` properties.
-   * Returned value is already resolved AMF model (references are resolved).
-   *
-   * @param {AmfDocument} model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined} Model definition for the security scheme.
-   */
-  [computeSecurityApiModel](model, domainId) {
-    const declares = this._computeDeclares(model);
-    if (declares) {
-      const result = declares.find((item) => item['@id'] === domainId);
-      if (result) {
-        return this._resolve(result);
-      }
-    }
-    const references = this._computeReferences(model);
-    if (Array.isArray(references) && references.length) {
-      for (const reference of references) {
-        if (this._hasType(reference, this.ns.aml.vocabularies.document.Module)) {
-          const result = this[computeReferenceSecurity](reference, domainId);
-          if (result) {
-            return this._resolve(result);
-          }
-        } 
-      }
-    }
-    return undefined;
-  }
-
-  /**
-   * Computes a security model from a reference (library for example).
-   * @param {AmfDocument} reference AMF model for a reference to extract the data from
-   * @param {string} domainId Node ID to look for
-   * @returns {DomainElement|undefined} Type definition or undefined if not found.
-   */
-  [computeReferenceSecurity](reference, domainId) {
-    const declare = this._computeDeclares(reference);
-    if (!declare) {
-      return undefined;
-    }
-    let result = declare.find((item) => {
-      if (Array.isArray(item)) {
-        [item] = item;
-      }
-      return item['@id'] === domainId;
-    });
-    if (Array.isArray(result)) {
-      [result] = result;
-    }
-    return this._resolve(result);
-  }
-
-  /**
-   * Computes type definition model from web API and current selection.
-   * It looks for the definition in both `declares` and `references` properties.
-   * Returned value is already resolved AMF model (references are resolved).
-   *
-   * @param {AmfDocument} model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined} Model definition for a type.
-   */
-  [computeTypeApiModel](model, domainId) {
-    const declares = this._computeDeclares(model);
-    const references = this._computeReferences(model);
-    return this._computeType(declares, references, domainId);
-  }
-
-  /**
-   * Computes documentation definition model from web API and current selection.
-   *
-   * @param {AmfDocument} model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined} Model definition for a documentation fragment.
-   */
-  [computeDocsApiModel](model, domainId) {
-    const webApi = this._computeApi(model);
-    return this._computeDocument(webApi, domainId);
-  }
-
-  /**
-   * Computes Endpoint definition model from web API and current selection.
-   *
-   * @param {AmfDocument} model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined} Model definition for an endpoint fragment.
-   */
-  [computeResourceApiModel](model, domainId) {
-    const webApi = this._computeApi(model);
-    return this._computeEndpointModel(webApi, domainId);
-  }
-
-  /**
-   * Computes Method definition model from web API and current selection.
-   *
-   * @param {AmfDocument} model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined}
-   */
-  [computeMethodApiModel](model, domainId) {
-    const webApi = this._computeApi(model);
-    return this._computeMethodModel(webApi, domainId);
-  }
-
-  /**
-   * @param {AmfDocument} model WebApi AMF model.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined}
-   */
-  [computeEndpointApiMethodModel](model, domainId) {
-    const webApi = this._computeApi(model);
-    return this._computeMethodEndpoint(webApi, domainId);
   }
 
   /**
@@ -757,14 +586,13 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
     if (this.noServerSelector) {
       return '';
     }
-    const { amf, anypoint, serverType, serverValue, allowCustomBaseUri, renderSelector, domainId, domainType } = this;
+    const { anypoint, serverType, serverValue, allowCustomBaseUri, renderSelector, domainId, domainType } = this;
     const id = domainType === 'operation' ? this.operationId : domainId;
     return html`
       <api-server-selector
         class="server-selector"
-        .amf="${amf}"
-        .selectedShape="${id}"
-        .selectedShapeType="${domainType}"
+        .domainId="${id}"
+        .domainType="${domainType}"
         .value="${serverValue}"
         .type="${serverType}"
         ?hidden="${!renderSelector}"
@@ -799,20 +627,17 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    */
   [summaryTemplate]() {
     const { baseUri, anypoint } = this;
-    const model = this[renderedModelValue];
     return html`
-    <api-summary .amf="${model}" .baseUri="${baseUri}" .anypoint="${anypoint}"></api-summary>`;
+    <api-summary .baseUri="${baseUri}" .anypoint="${anypoint}"></api-summary>`;
   }
 
   /**
    * @returns {TemplateResult|string} The template for the API security definition page.
    */
   [securityTemplate]() {
-    const { amf, anypoint } = this;
-    const model = this[renderedModelValue];
+    const { domainId, anypoint } = this;
     return html`<api-security-document
-      .amf="${amf}"
-      .domainModel="${model}"
+      .domainId="${domainId}"
       .anypoint="${anypoint}"
       settingsOpened
     ></api-security-document>`;
@@ -822,11 +647,9 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string} The template for the RAML's documentation page.
    */
   [documentationTemplate]() {
-    const { amf, anypoint } = this;
-    const model = this[renderedModelValue];
+    const { domainId, anypoint } = this;
     return html`<api-documentation-document
-      .amf="${amf}"
-      .domainModel="${model}"
+      .domainId="${domainId}"
       .anypoint="${anypoint}"></api-documentation-document>`;
   }
 
@@ -834,14 +657,12 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string} The template for the API schema page.
    */
   [schemaTemplate]() {
-    const { amf, anypoint, schemaMime } = this;
-    const model = this[renderedModelValue];
+    const { anypoint, schemaMime, domainId } = this;
     return html`
     ${this[schemaMediaSelectorTemplate]()}
     <api-schema-document
-      .amf="${amf}"
+      .domainId="${domainId}"
       .mimeType="${schemaMime}"
-      .domainModel="${model}"
       .anypoint="${anypoint}"
       forceExamples
     ></api-schema-document>`;
@@ -851,13 +672,10 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string} The template for the API endpoint page.
    */
   [resourceTemplate]() {
-    const { amf, domainId, operationId, isAsync } = this;
-    const model = this[renderedModelValue];
+    const { domainId, operationId, isAsync } = this;
     return html`<api-resource-document
-      .amf="${amf}"
       .domainId="${domainId}"
       .operationId="${operationId}"
-      .domainModel="${model}"
       .redirectUri="${this.redirectUri}"
       .serverType="${this.serverType}"
       .serverValue="${this.serverValue}"
@@ -878,9 +696,10 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string}
    */
   [schemaMediaSelectorTemplate]() {
+    const { documentMeta } = this;
     // only APIs have top level media types (?)
     const summary = this[apiSummaryValue];
-    if (!summary) {
+    if (!summary || !documentMeta || !documentMeta.isApi) {
       return '';
     }
     const { accepts=[] } = summary;

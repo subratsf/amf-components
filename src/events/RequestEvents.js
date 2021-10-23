@@ -1,9 +1,11 @@
 /* eslint-disable max-classes-per-file */
 import { EventTypes } from './EventTypes.js';
+import { ApiStoreReadEvent } from './BaseEvents.js';
 
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 /** @typedef {import('../types').ApiConsoleResponse} ApiConsoleResponse */
 /** @typedef {import('../types').AbortRequestEventDetail} AbortRequestEventDetail */
+/** @typedef {import('../helpers/api').ApiRequest} ApiRequest */
 
 /**
  * The event dispatched to transport request from the api request editor.
@@ -110,5 +112,16 @@ export const RequestEvents = {
   apiResponseLegacy: (target, response) => {
     const e = new ApiResponseEvent(EventTypes.Request.apiResponseLegacy, response);
     target.dispatchEvent(e);
+  },
+  /**
+   * Reads a Request from the store.
+   * @param {EventTarget} target The node on which to dispatch the event
+   * @param {string} id The id of the request to read.
+   * @returns {Promise<ApiRequest>}
+   */
+  get: async (target, id) => {
+    const e = new ApiStoreReadEvent(EventTypes.Request.get, id);
+    target.dispatchEvent(e);
+    return e.detail.result;
   },
 }

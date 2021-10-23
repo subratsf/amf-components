@@ -1,6 +1,6 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import sinon from 'sinon';
-import { Events, EventTypes } from  '../../index.js';
+import { ApiEvents, ApiEventTypes } from  '../../index.js';
 
 describe('Events', () => {
   /**
@@ -20,40 +20,40 @@ describe('Events', () => {
       it('dispatches the event', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Navigation.apiNavigate, spy);
-        Events.Navigation.apiNavigate(et, domainId, domainType);
+        et.addEventListener(ApiEventTypes.Navigation.apiNavigate, spy);
+        ApiEvents.Navigation.apiNavigate(et, domainId, domainType);
         assert.isTrue(spy.calledOnce);
       });
 
       it('the event has the "domainId" property', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Navigation.apiNavigate, spy);
-        Events.Navigation.apiNavigate(et, domainId, domainType);
+        et.addEventListener(ApiEventTypes.Navigation.apiNavigate, spy);
+        ApiEvents.Navigation.apiNavigate(et, domainId, domainType);
         assert.deepEqual(spy.args[0][0].detail.domainId, domainId);
       });
 
       it('the event has the "domainType" property', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Navigation.apiNavigate, spy);
-        Events.Navigation.apiNavigate(et, domainId, domainType);
+        et.addEventListener(ApiEventTypes.Navigation.apiNavigate, spy);
+        ApiEvents.Navigation.apiNavigate(et, domainId, domainType);
         assert.deepEqual(spy.args[0][0].detail.domainType, domainType);
       });
 
       it('the event has the "parentId" property', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Navigation.apiNavigate, spy);
-        Events.Navigation.apiNavigate(et, domainId, domainType, parentId);
+        et.addEventListener(ApiEventTypes.Navigation.apiNavigate, spy);
+        ApiEvents.Navigation.apiNavigate(et, domainId, domainType, parentId);
         assert.deepEqual(spy.args[0][0].detail.parentId, parentId);
       });
 
       it('the event has the "passive" property', async () => {
         const et = await etFixture();
         const spy = sinon.spy();
-        et.addEventListener(EventTypes.Navigation.apiNavigate, spy);
-        Events.Navigation.apiNavigate(et, domainId, domainType, parentId, passive);
+        et.addEventListener(ApiEventTypes.Navigation.apiNavigate, spy);
+        ApiEvents.Navigation.apiNavigate(et, domainId, domainType, parentId, passive);
         assert.deepEqual(spy.args[0][0].detail.passive, passive);
       });
     });

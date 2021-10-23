@@ -78,7 +78,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   componentTemplate() {
-    const { demoStates, darkThemeActive, selectedId, selectedOperation, amf } = this;
+    const { demoStates, darkThemeActive, selectedId, selectedOperation } = this;
     if (!selectedId) {
       return html`<p>Select API operation in the navigation</p>`;
     }
@@ -89,7 +89,6 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-channel-document
-        .amf="${amf}"
         .domainId="${selectedId}"
         .operationId="${selectedOperation}"
         slot="content"

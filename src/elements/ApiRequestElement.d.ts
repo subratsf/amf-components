@@ -13,7 +13,6 @@ the License.
 */
 import { TemplateResult, LitElement } from 'lit-element';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
-import { AmfDocument } from '../helpers/amf';
 import { ArcResponse, ArcRequest, ApiTypes } from '@advanced-rest-client/events';
 import { Oauth2Credentials } from '@advanced-rest-client/app';
 import { ServerType, ApiConsoleResponse, ApiConsoleRequest } from '../types';
@@ -36,11 +35,6 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
    * True when the panel render the response.
    */
   get hasResponse(): boolean;
-
-  /**
-   * The `amf` property that passes amf model to the request editor.
-   */
-  amf: AmfDocument;
   /**
   * The domain id (AMF's id) of an API operation.
   * @attribute

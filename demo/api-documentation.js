@@ -11,6 +11,7 @@ import '../define/api-server-selector.js';
 import '../define/api-documentation.js';
 
 /** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+/** @typedef {import('../src/types').SelectionType} SelectionType */
 
 class ComponentDemo extends AmfDemoBase {
   constructor() {
@@ -28,6 +29,7 @@ class ComponentDemo extends AmfDemoBase {
     this.editorOpened = false;
     this.editorOperation = undefined;
     this.domainId = undefined;
+    /** @type SelectionType */
     this.domainType = undefined;
     this.operationId = undefined;
     this.tryItButton = true;
@@ -39,6 +41,13 @@ class ComponentDemo extends AmfDemoBase {
     this.noServerSelector = false;
     this.allowCustomBaseUri = false;
     this.demoStates = ['Material', 'Anypoint'];
+  }
+
+  /** @param {Event} e */
+  _apiChanged(e) {
+    this.domainId = 'summary';
+    this.domainType = 'summary';
+    super._apiChanged(e);
   }
 
   /**
@@ -57,6 +66,12 @@ class ComponentDemo extends AmfDemoBase {
       this.operationId = undefined;
       this.domainId = domainId;
     }
+
+    // 
+    // Here your application can be smart and determine
+    // the domainId and type for fragments and partial models
+    // so when the API is loaded it shows a specific value.
+    // 
   }
 
   /**
@@ -105,7 +120,7 @@ class ComponentDemo extends AmfDemoBase {
   }
 
   componentTemplate() {
-    const { demoStates, darkThemeActive, amf, } = this;
+    const { demoStates, darkThemeActive, } = this;
     let finalBaseUri;
     if (this.overrideBaseUri) {
       finalBaseUri = 'https://custom.api.com';
@@ -118,7 +133,6 @@ class ComponentDemo extends AmfDemoBase {
     >
       <api-documentation
         slot="content"
-        .amf="${amf}"
         .domainId="${this.domainId}"
         .operationId="${this.operationId}"
         .domainType="${this.domainType}"
@@ -241,7 +255,6 @@ class ComponentDemo extends AmfDemoBase {
       <h2>API request</h2>
       <anypoint-dialog-scrollable>
         <api-request
-          .amf="${this.amf}"
           .domainId="${this.editorOperation}"
           ?anypoint="${this.anypoint}"
           urlLabel

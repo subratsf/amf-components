@@ -1,6 +1,7 @@
 import { fixture, assert, html, nextFrame, aTimeout } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from '../AmfLoader.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 import '../../define/api-operation-document.js';
 import '../../define/api-request-document.js';
 
@@ -9,89 +10,86 @@ import '../../define/api-request-document.js';
 /** @typedef {import('../../').ApiParameterDocumentElement} ApiParameterDocumentElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
-/** @typedef {import('../../src/helpers/amf').Operation} Operation */
+/** @typedef {import('../../src/helpers/api').ApiOperation} ApiOperation */
 /** @typedef {import('@anypoint-web-components/awc').AnypointTabsElement} AnypointTabs */
 
 describe('ApiOperationDocumentElement', () => {
   const loader = new AmfLoader();
+  const store = new DomEventsAmfStore(window);
+  store.listen();
 
   /**
-   * @param {AmfDocument} amf
-   * @param {Operation=} shape
+   * @param {ApiOperation=} operation
    * @returns {Promise<ApiOperationDocumentElement>}
    */
-  async function basicFixture(amf, shape) {
+  async function basicFixture(operation) {
     const element = await fixture(html`<api-operation-document 
       .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
-      .domainModel="${shape}"
+      .domainId="${operation && operation.id}"
+      .operation="${operation}"
     ></api-operation-document>`);
-    await aTimeout(0);
+    await aTimeout(2);
     return /** @type ApiOperationDocumentElement */ (element);
   }
 
   /**
-   * @param {AmfDocument} amf
-   * @param {Operation=} shape
+   * @param {ApiOperation=} operation
    * @returns {Promise<ApiOperationDocumentElement>}
    */
-  async function tryItFixture(amf, shape) {
+  async function tryItFixture(operation) {
     const element = await fixture(html`<api-operation-document 
       .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
-      .domainModel="${shape}"
+      .domainId="${operation && operation.id}"
+      .operation="${operation}"
       tryItButton
     ></api-operation-document>`);
-    await aTimeout(0);
+    await aTimeout(2);
     return /** @type ApiOperationDocumentElement */ (element);
   }
 
   /**
-   * @param {AmfDocument} amf
-   * @param {Operation=} shape
+   * @param {ApiOperation=} operation
    * @returns {Promise<ApiOperationDocumentElement>}
    */
-  async function snippetsFixture(amf, shape) {
+  async function snippetsFixture(operation) {
     const element = await fixture(html`<api-operation-document 
       .queryDebouncerTimeout="${0}" 
       renderCodeSnippets
-      .amf="${amf}" 
-      .domainModel="${shape}"
+      .domainId="${operation && operation.id}"
+      .operation="${operation}"
     ></api-operation-document>`);
-    await aTimeout(0);
+    await aTimeout(2);
     return /** @type ApiOperationDocumentElement */ (element);
   }
 
   /**
-   * @param {AmfDocument} amf
-   * @param {Operation=} shape
+   * @param {ApiOperation=} operation
    * @returns {Promise<ApiOperationDocumentElement>}
    */
-  async function asyncFixture(amf, shape) {
+  async function asyncFixture(operation) {
     const element = await fixture(html`<api-operation-document 
       .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
-      .domainModel="${shape}"
+      .domainId="${operation && operation.id}"
+      .operation="${operation}"
       renderCodeSnippets
       asyncApi
     ></api-operation-document>`);
-    await aTimeout(0);
+    await aTimeout(2);
     return /** @type ApiOperationDocumentElement */ (element);
   }
 
   /**
-   * @param {AmfDocument} amf
-   * @param {Operation=} shape
+   * @param {ApiOperation=} operation
    * @returns {Promise<ApiOperationDocumentElement>}
    */
-  async function securityFixture(amf, shape) {
+  async function securityFixture(operation) {
     const element = await fixture(html`<api-operation-document 
       .queryDebouncerTimeout="${0}" 
       renderSecurity
-      .amf="${amf}" 
-      .domainModel="${shape}"
+      .domainId="${operation && operation.id}"
+      .operation="${operation}"
     ></api-operation-document>`);
-    await aTimeout(0);
+    await aTimeout(2);
     return /** @type ApiOperationDocumentElement */ (element);
   }
 
@@ -102,13 +100,14 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiOperationDocumentElement */
         let element;
         beforeEach(async () => {
-          const data = loader.lookupOperation(model, '/people', 'get');
-          element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/people', 'get');
+          element = await basicFixture(data);
         });
 
         it('sets the operation property', () => {
@@ -183,48 +182,54 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('renders the operation name, when defined', async () => {
-          const data = loader.lookupOperation(demoModel, '/people', 'get');
-          const element = await basicFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/people', 'get');
+          const element = await basicFixture(data);
           const header = element.shadowRoot.querySelector('.operation-header');
           const label = header.querySelector('.label');
           assert.equal(label.textContent.trim(), 'List people');
         });
 
         it('renders the operation method, when name not defined', async () => {
-          const data = loader.lookupOperation(demoModel, '/orgs/{orgId}', 'put');
-          const element = await basicFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/orgs/{orgId}', 'put');
+          const element = await basicFixture(data);
           const header = element.shadowRoot.querySelector('.operation-header');
           const label = header.querySelector('.label');
           assert.equal(label.textContent.trim(), 'put');
         });
 
         it('renders the operation sub-title for sync API', async () => {
-          const data = loader.lookupOperation(demoModel, '/orgs/{orgId}', 'put');
-          const element = await basicFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/orgs/{orgId}', 'put');
+          const element = await basicFixture(data);
           const header = element.shadowRoot.querySelector('.operation-header');
           const label = header.querySelector('.sub-header');
           assert.equal(label.textContent.trim(), 'API operation');
         });
 
         it('renders the operation sub-title for async API', async () => {
-          const data = loader.lookupOperation(asyncModel, 'hello', 'publish');
-          const element = await asyncFixture(asyncModel, data);
+          store.amf = asyncModel;
+          const data = loader.getOperation(asyncModel, 'hello', 'publish');
+          const element = await asyncFixture(data);
           const header = element.shadowRoot.querySelector('.operation-header');
           const label = header.querySelector('.sub-header');
           assert.equal(label.textContent.trim(), 'Async operation');
         });
 
         it('renders the operation summary', async () => {
-          const data = loader.lookupOperation(petStoreModel, '/pets', 'get');
-          const element = await basicFixture(petStoreModel, data);
+          store.amf = petStoreModel;
+          const data = loader.getOperation(petStoreModel, '/pets', 'get');
+          const element = await basicFixture(data);
           const summary = element.shadowRoot.querySelector('.summary');
           assert.ok(summary, 'has the summary');
           assert.equal(summary.textContent.trim(), 'Finds pets by tag');
         });
 
         it('renders the operation id', async () => {
-          const data = loader.lookupOperation(petStoreModel, '/pets', 'get');
-          const element = await basicFixture(petStoreModel, data);
+          store.amf = petStoreModel;
+          const data = loader.getOperation(petStoreModel, '/pets', 'get');
+          const element = await basicFixture(data);
           const field = element.shadowRoot.querySelector('.schema-property-item[data-name="operation-id"]');
           assert.ok(field, 'has the operation id label');
           const value = field.querySelector('.schema-property-value');
@@ -232,8 +237,9 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('renders the endpoint URI', async () => {
-          const data = loader.lookupOperation(demoModel, '/people/{personId}', 'get');
-          const element = await basicFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/people/{personId}', 'get');
+          const element = await basicFixture(data);
           const section = element.shadowRoot.querySelector('.endpoint-url');
           assert.ok(section, 'has the url section');
           const node = section.querySelector('.url-value');
@@ -241,8 +247,9 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('renders the method with the endpoint URI', async () => {
-          const data = loader.lookupOperation(demoModel, '/people/{personId}', 'get');
-          const element = await basicFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/people/{personId}', 'get');
+          const element = await basicFixture(data);
           const section = element.shadowRoot.querySelector('.endpoint-url');
           assert.ok(section, 'has the url section');
           const node = section.querySelector('.method-label');
@@ -250,8 +257,9 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('does not render the URI when async API', async () => {
-          const data = loader.lookupOperation(asyncModel, 'hello', 'publish');
-          const element = await asyncFixture(asyncModel, data);
+          store.amf = asyncModel;
+          const data = loader.getOperation(asyncModel, 'hello', 'publish');
+          const element = await asyncFixture(data);
           const section = element.shadowRoot.querySelector('.endpoint-url');
           assert.notOk(section, 'has no url section');
         });
@@ -261,43 +269,49 @@ describe('ApiOperationDocumentElement', () => {
         // a valid model.
         // 
         it.skip('renders the traits', async () => {
-          const data = loader.lookupOperation(demoModel, '/people', 'get');
-          const element = await asyncFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/people', 'get');
+          const element = await asyncFixture(data);
           const section = element.shadowRoot.querySelector('.extensions');
           assert.ok(section, 'has the traits line');
           assert.equal(section.textContent.trim(), 'Mixes in Paginated.', 'has the traits content');
         });
 
         it('renders the annotations', async () => {
-          const data = loader.lookupOperation(demoModel, '/test-parameters/{feature}', 'get');
-          const element = await asyncFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/test-parameters/{feature}', 'get');
+          const element = await asyncFixture(data);
           const section = element.shadowRoot.querySelector('api-annotation-document');
           assert.ok(section, 'has the annotations');
           assert.equal(section.getAttribute('aria-hidden'), 'false', 'renders the content');
         });
 
         it('renders the request document', async () => {
-          const data = loader.lookupOperation(demoModel, '/test-parameters/{feature}', 'get');
-          const element = await asyncFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/test-parameters/{feature}', 'get');
+          const element = await asyncFixture(data);
           const section = /** @type ApiRequestDocumentElement */ (element.shadowRoot.querySelector('api-request-document'));
           assert.ok(section, 'has the request document');
-          assert.isTrue(section.amf === demoModel, 'passes the amf model');
+          
+          assert.equal(section.domainId, data.request.id, 'sets the domainId');
           assert.typeOf(section.request, 'object', 'passes the request model');
           assert.typeOf(section.endpoint, 'object', 'passes the endpoint model');
           assert.typeOf(section.server, 'object', 'passes the server model');
         });
 
         it('renders the deprecated message', async () => {
-          const data = loader.lookupOperation(petStoreModel, '/pets', 'get');
-          const element = await basicFixture(petStoreModel, data);
+          store.amf = petStoreModel;
+          const data = loader.getOperation(petStoreModel, '/pets', 'get');
+          const element = await basicFixture(data);
           const message = element.shadowRoot.querySelector('.deprecated-message');
           assert.ok(message, 'has the message');
           assert.equal(message.querySelector('.message').textContent.trim(), 'This operation is marked as deprecated.');
         });
 
         it('renders the callbacks section', async () => {
-          const data = loader.lookupOperation(oasCallbacksModel, '/subscribe', 'post');
-          const element = await basicFixture(oasCallbacksModel, data);
+          store.amf = oasCallbacksModel;
+          const data = loader.getOperation(oasCallbacksModel, '/subscribe', 'post');
+          const element = await basicFixture(data);
           const callbacksSection = element.shadowRoot.querySelector('[data-controlled-by="callbacksOpened"]');
           assert.ok(callbacksSection, 'has the message');
 
@@ -310,8 +324,9 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('renders the links section', async () => {
-          const data = loader.lookupOperation(oasCallbacksModel, '/subscribe', 'post');
-          const element = await basicFixture(oasCallbacksModel, data);
+          store.amf = oasCallbacksModel;
+          const data = loader.getOperation(oasCallbacksModel, '/subscribe', 'post');
+          const element = await basicFixture(data);
           const response = element.shadowRoot.querySelector('api-response-document');
           assert.ok(response, 'has the response');
 
@@ -330,18 +345,20 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('renders the responses section', async () => {
-          const data = loader.lookupOperation(oasCallbacksModel, '/subscribe', 'post');
-          const element = await basicFixture(oasCallbacksModel, data);
+          store.amf = oasCallbacksModel;
+          const data = loader.getOperation(oasCallbacksModel, '/subscribe', 'post');
+          const element = await basicFixture(data);
           const response = element.shadowRoot.querySelector('api-response-document');
           assert.ok(response, 'has the response');
 
-          assert.isTrue(response.amf === oasCallbacksModel, 'passes the amf model');
+          assert.equal(response.domainId, data.responses[0].id, 'passes the amf model');
           assert.typeOf(response.response, 'object', 'passes the response model');
         });
 
         it('does not render responses when not defined', async () => {
-          const data = loader.lookupOperation(demoModel, '/query-params/bool', 'get');
-          const element = await basicFixture(demoModel, data);
+          store.amf = demoModel;
+          const data = loader.getOperation(demoModel, '/query-params/bool', 'get');
+          const element = await basicFixture(data);
           const response = element.shadowRoot.querySelector('api-response-document');
           assert.notOk(response, 'has not response documentation');
         });
@@ -352,19 +369,20 @@ describe('ApiOperationDocumentElement', () => {
         let demoModel;
         before(async () => {
           demoModel = await loader.getGraph(compact);
+          store.amf = demoModel;
         });
 
         it('does not render the try-it by default', async () => {
-          const data = loader.lookupOperation(demoModel, '/orgs/{orgId}', 'put');
-          const element = await basicFixture(demoModel, data);
+          const data = loader.getOperation(demoModel, '/orgs/{orgId}', 'put');
+          const element = await basicFixture( data);
           const header = element.shadowRoot.querySelector('.operation-header');
           const button = header.querySelector('.action-button');
           assert.notOk(button, 'has no button in the header');
         });
 
         it('renders the try-it when configured', async () => {
-          const data = loader.lookupOperation(demoModel, '/orgs/{orgId}', 'put');
-          const element = await tryItFixture(demoModel, data);
+          const data = loader.getOperation(demoModel, '/orgs/{orgId}', 'put');
+          const element = await tryItFixture(data);
           const header = element.shadowRoot.querySelector('.operation-header');
           const button = header.querySelector('.action-button');
           assert.ok(button, 'has the button');
@@ -372,8 +390,8 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('dispatches the bubbling tryit event when clicking on the button', async () => {
-          const data = loader.lookupOperation(demoModel, '/orgs/{orgId}', 'put');
-          const element = await tryItFixture(demoModel, data);
+          const data = loader.getOperation(demoModel, '/orgs/{orgId}', 'put');
+          const element = await tryItFixture(data);
           const header = element.shadowRoot.querySelector('.operation-header');
           const button = /** @type HTMLElement */ (header.querySelector('.action-button'));
           const spy = sinon.spy();
@@ -386,8 +404,8 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('dispatches the bubbling legacy tryit-requested event when clicking on the button', async () => {
-          const data = loader.lookupOperation(demoModel, '/orgs/{orgId}', 'put');
-          const element = await tryItFixture(demoModel, data);
+          const data = loader.getOperation(demoModel, '/orgs/{orgId}', 'put');
+          const element = await tryItFixture(data);
           const header = element.shadowRoot.querySelector('.operation-header');
           const button = /** @type HTMLElement */ (header.querySelector('.action-button'));
           const spy = sinon.spy();
@@ -405,11 +423,12 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         it('renders the response status code selector', async () => {
-          const data = loader.lookupOperation(model, '/people', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/people', 'get');
+          const element = await basicFixture(data);
 
           const selector = element.shadowRoot.querySelector('.status-codes-selector');
           assert.ok(selector, 'has the selector section');
@@ -425,20 +444,20 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('renders the response for the status', async () => {
-          const data = loader.lookupOperation(model, '/people', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/people', 'get');
+          const element = await basicFixture(data);
 
           const doc = element.shadowRoot.querySelector('api-response-document');
           assert.ok(doc);
 
-          assert.isTrue(doc.amf === model, 'passes the amf model');
+          assert.equal(doc.domainId, data.responses[0].id, 'passes the amf model');
           assert.typeOf(doc.response, 'object', 'passes the response model');
           assert.typeOf(doc.response.id, 'string', 'passes the serialized response model');
         });
 
         it('switches the response when selecting a status code', async () => {
-          const data = loader.lookupOperation(model, '/people', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/people', 'get');
+          const element = await basicFixture(data);
 
           const requestBefore = element.shadowRoot.querySelector('api-response-document').response.id;
 
@@ -456,8 +475,8 @@ describe('ApiOperationDocumentElement', () => {
         });
 
         it('does not render responses section when no responses in the model', async () => {
-          const data = loader.lookupOperation(model, '/scalarArrays', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/scalarArrays', 'post');
+          const element = await basicFixture(data);
 
           const doc = element.shadowRoot.querySelector('api-response-document');
           assert.notOk(doc);
@@ -469,13 +488,14 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiOperationDocumentElement */
         let element;
         beforeEach(async () => {
-          const data = loader.lookupOperation(model, '/people', 'put');
-          element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/people', 'put');
+          element = await basicFixture(data);
         });
 
         it('renders the status codes section', () => {
@@ -518,17 +538,18 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'secured-api');
+          store.amf = model;
         });
 
         it('preselects the first security', async () => {
-          const data = loader.lookupOperation(model, '/basic', 'get');
-          const element = await securityFixture(model, data);
+          const data = loader.getOperation(model, '/basic', 'get');
+          const element = await securityFixture(data);
           assert.typeOf(element.securityId, 'string', 'has the securityId');
         });
 
         it('renders a single security', async () => {
-          const data = loader.lookupOperation(model, '/basic', 'get');
-          const element = await securityFixture(model, data);
+          const data = loader.getOperation(model, '/basic', 'get');
+          const element = await securityFixture(data);
 
           const selector = element.shadowRoot.querySelector('.security-selector');
           assert.notOk(selector, 'has no security selector');
@@ -536,14 +557,14 @@ describe('ApiOperationDocumentElement', () => {
           const doc = element.shadowRoot.querySelector('api-security-requirement-document');
           assert.ok(doc, 'has the security documentation');
 
-          assert.isTrue(doc.amf === model, 'passes the model');
+          assert.equal(doc.domainId, data.security[0].id, 'passes the security id');
           assert.typeOf(doc.securityRequirement, 'object', 'passes the security object');
           // assert.typeOf(doc.domainId, 'string', 'passes the security id');
         });
 
         it('renders multiple security options', async () => {
-          const data = loader.lookupOperation(model, '/combo-types', 'get');
-          const element = await securityFixture(model, data);
+          const data = loader.getOperation(model, '/combo-types', 'get');
+          const element = await securityFixture(data);
 
           const selector = element.shadowRoot.querySelector('.security-selector');
           assert.ok(selector, 'has the security selector');
@@ -551,14 +572,13 @@ describe('ApiOperationDocumentElement', () => {
           const doc = element.shadowRoot.querySelector('api-security-requirement-document');
           assert.ok(doc, 'has the security documentation');
 
-          assert.isTrue(doc.amf === model, 'passes the model');
+          assert.equal(doc.domainId, data.security[0].id, 'passes the security id');
           assert.typeOf(doc.securityRequirement, 'object', 'passes the security object');
-          // assert.typeOf(doc.domainId, 'string', 'passes the security id');
         });
 
         it('switches between the security schemes', async () => {
-          const data = loader.lookupOperation(model, '/combo-types', 'get');
-          const element = await securityFixture(model, data);
+          const data = loader.getOperation(model, '/combo-types', 'get');
+          const element = await securityFixture(data);
 
           const selector = element.shadowRoot.querySelector('.security-selector');
           const tabs = selector.querySelectorAll('anypoint-tab');
@@ -570,7 +590,7 @@ describe('ApiOperationDocumentElement', () => {
           const doc = element.shadowRoot.querySelector('api-security-requirement-document');
           assert.ok(doc, 'has the security documentation');
 
-          // assert.equal(doc.domainId, tabs[1].dataset.id, 'passes the security id');
+          assert.equal(doc.domainId, tabs[1].dataset.id, 'passes the security id');
           assert.equal(doc.securityRequirement.id, tabs[1].dataset.id, 'passes the security object');
         });
       });
@@ -580,35 +600,36 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'SE-12752');
+          store.amf = model;
         });
 
         it('renders parameters table with query parameters as a NodeShape', async () => {
-          const data = loader.lookupOperation(model, '/test', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/test', 'get');
+          const element = await basicFixture(data);
           const requestDoc = /** @type HTMLElement */ (element.shadowRoot.querySelector('api-request-document'));
           const params = requestDoc.shadowRoot.querySelectorAll('api-parameter-document[data-name="query"]');
           assert.lengthOf(params, 2, 'has both parameters from the query string');
         });
   
         it('renders parameters table with query parameters as an ArrayShape', async () => {
-          const data = loader.lookupOperation(model, '/array', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/array', 'get');
+          const element = await basicFixture(data);
           const requestDoc = /** @type HTMLElement */ (element.shadowRoot.querySelector('api-request-document'));
           const params = requestDoc.shadowRoot.querySelectorAll('api-parameter-document[data-name="query"]');
           assert.lengthOf(params, 1, 'has the single parameter item');
         });
   
         it('renders parameters table with query parameters as an UnionShape', async () => {
-          const data = loader.lookupOperation(model, '/union', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/union', 'get');
+          const element = await basicFixture(data);
           const requestDoc = /** @type HTMLElement */ (element.shadowRoot.querySelector('api-request-document'));
           const params = requestDoc.shadowRoot.querySelectorAll('api-parameter-document[data-name="query"]');
           assert.lengthOf(params, 2, 'has both parameters from the query string');
         });
   
         it('renders parameters table with query parameters as an ScalarShape', async () => {
-          const data = loader.lookupOperation(model, '/scalar', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/scalar', 'get');
+          const element = await basicFixture(data);
           const requestDoc = /** @type HTMLElement */ (element.shadowRoot.querySelector('api-request-document'));
           const params = requestDoc.shadowRoot.querySelectorAll('api-parameter-document[data-name="query"]');
           assert.lengthOf(params, 1, 'has the single parameter item');
@@ -620,6 +641,7 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'SE-12957');
+          store.amf = model;
         });
 
         /** @type ApiOperationDocumentElement */
@@ -627,8 +649,8 @@ describe('ApiOperationDocumentElement', () => {
         /** @type ApiRequestDocumentElement */
         let request;
         beforeEach(async () => {
-          const data = loader.lookupOperation(model, '/api/v1/alarm/{scada-object-key}', 'get');
-          element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/api/v1/alarm/{scada-object-key}', 'get');
+          element = await basicFixture(data);
           request = element.shadowRoot.querySelector('api-request-document');
         });
 
@@ -657,18 +679,19 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'SE-12959');
+          store.amf = model;
         });
 
         it('has no summary by default', async () => {
-          const data = loader.lookupOperation(model, '/api/v1/alarm/{scada-object-key}', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/api/v1/alarm/{scada-object-key}', 'get');
+          const element = await basicFixture(data);
           const summary = element.shadowRoot.querySelector('.summary');
           assert.notOk(summary, 'has no summary field');
         });
 
         it('renders the summary', async () => {
-          const data = loader.lookupOperation(model, '/api/v1/downtime/site/{site-api-key}', 'get');
-          const element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/api/v1/downtime/site/{site-api-key}', 'get');
+          const element = await basicFixture(data);
           const summary = element.shadowRoot.querySelector('.summary');
           assert.ok(summary, 'has the summary field');
           assert.equal(summary.textContent.trim(), 'Get a list of downtime events for a site that overlap with a time period');
@@ -680,18 +703,19 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'APIC-553');
+          store.amf = model;
         });
 
         it('sets the code snippets with endpoint uri and no query params', async () => {
-          const data = loader.lookupOperation(model, '/cmt', 'get');
-          const element = await snippetsFixture(model, data);
+          const data = loader.getOperation(model, '/cmt', 'get');
+          const element = await snippetsFixture(data);
           assert.equal(element.snippetsUri, 'http://domain.org/cmt');
           assert.equal(element.shadowRoot.querySelector('http-code-snippets').url, 'http://domain.org/cmt');
         });
 
         it('sets the code snippets with endpoint uri and a query params', async () => {
-          const data = loader.lookupOperation(model, '/cmt-with-qp-example', 'get');
-          const element = await snippetsFixture(model, data);
+          const data = loader.getOperation(model, '/cmt-with-qp-example', 'get');
+          const element = await snippetsFixture(data);
           assert.equal(element.snippetsUri, 'http://domain.org/cmt-with-qp-example?orx=foo');
           assert.equal(element.shadowRoot.querySelector('http-code-snippets').url, 'http://domain.org/cmt-with-qp-example?orx=foo');
         });
@@ -702,18 +726,19 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'APIC-582');
+          store.amf = model;
         });
 
         it('does not render code snippets', async () => {
-          const data = loader.lookupOperation(model, 'user/signedup', 'subscribe');
-          const element = await asyncFixture(model, data);
+          const data = loader.getOperation(model, 'user/signedup', 'subscribe');
+          const element = await asyncFixture(data);
           const node = element.shadowRoot.querySelector('http-code-snippets');
           assert.notOk(node);
         });
 
         it('does not render request parameters', async () => {
-          const data = loader.lookupOperation(model, 'user/signedup', 'subscribe');
-          const element = await snippetsFixture(model, data);
+          const data = loader.getOperation(model, 'user/signedup', 'subscribe');
+          const element = await snippetsFixture(data);
           const requestDoc = /** @type HTMLElement */ (element.shadowRoot.querySelector('api-request-document'));
           const params = requestDoc.shadowRoot.querySelectorAll('.params-section');
           assert.lengthOf(params, 0);
@@ -725,6 +750,7 @@ describe('ApiOperationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'APIC-650');
+          store.amf = model;
         });
 
         /** @type ApiOperationDocumentElement */
@@ -732,8 +758,8 @@ describe('ApiOperationDocumentElement', () => {
         /** @type ApiRequestDocumentElement */
         let request;
         beforeEach(async () => {
-          const data = loader.lookupOperation(model, '/testEndpoint1/{uriParam1}', 'get');
-          element = await basicFixture(model, data);
+          const data = loader.getOperation(model, '/testEndpoint1/{uriParam1}', 'get');
+          element = await basicFixture(data);
           request = element.shadowRoot.querySelector('api-request-document');
         });
     
@@ -745,9 +771,10 @@ describe('ApiOperationDocumentElement', () => {
         });
     
         it('endpointVariables updated after selection changes', async () => {
-          const data = loader.lookupOperation(model, '/testEndpoint2/{uriParam2}', 'get');
-          element.domainModel = data;
-          await aTimeout(1);
+          const data = loader.getOperation(model, '/testEndpoint2/{uriParam2}', 'get');
+          element.domainId = data.id;
+          element.operation = data;
+          await aTimeout(2);
           
           const params = request.shadowRoot.querySelectorAll('api-parameter-document[data-name="uri"]');
           assert.lengthOf(params, 1, 'has a single path parameter');

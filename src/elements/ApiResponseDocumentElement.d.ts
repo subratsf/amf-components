@@ -47,7 +47,6 @@ export default class ApiResponseDocumentElement extends ApiDocumentationBase {
   */
   mimeType: string;
   [payloadsValue]: ApiPayload[];
-  domainModel: Response;
   constructor();
 
   /**

@@ -167,7 +167,7 @@ class ComponentPage extends AmfDemoBase {
    */
   payloadTemplate(payload) {
     return html`
-    <api-payload-document .amf="${this.amf}" .domainModel="${payload}"></api-payload-document>
+    <api-payload-document .domainId="${payload['@id']}"></api-payload-document>
     `;
   }
 

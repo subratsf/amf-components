@@ -1,5 +1,6 @@
 import { fixture, assert, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 import '../../define/api-security-requirement-document.js';
 
 /** @typedef {import('../../').ApiSecurityRequirementDocumentElement} ApiSecurityRequirementDocumentElement */
@@ -10,16 +11,16 @@ import '../../define/api-security-requirement-document.js';
 
 describe('ApiSecurityRequirementDocumentElement', () => {
   const loader = new AmfLoader();
+  const store = new DomEventsAmfStore(window);
+  store.listen();
 
   /**
-   * @param {AmfDocument} amf
    * @param {string=} domainId
    * @returns {Promise<ApiSecurityRequirementDocumentElement>}
    */
-  async function domainIdFixture(amf, domainId) {
+  async function domainIdFixture(domainId) {
     const element = await fixture(html`<api-security-requirement-document 
-      .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
+      .queryDebouncerTimeout="${0}"
       .domainId="${domainId}"
     ></api-security-requirement-document>`);
     await aTimeout(0);
@@ -27,30 +28,13 @@ describe('ApiSecurityRequirementDocumentElement', () => {
   }
 
   /**
-   * @param {AmfDocument} amf
    * @param {ApiSecurityRequirement=} model
    * @returns {Promise<ApiSecurityRequirementDocumentElement>}
    */
-  async function serializedFixture(amf, model) {
+  async function modelFixture(model) {
     const element = await fixture(html`<api-security-requirement-document 
-      .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
+      .queryDebouncerTimeout="${0}"
       .securityRequirement="${model}"
-    ></api-security-requirement-document>`);
-    await aTimeout(0);
-    return /** @type ApiSecurityRequirementDocumentElement */ (element);
-  }
-
-  /**
-   * @param {AmfDocument} amf
-   * @param {SecurityRequirement=} model
-   * @returns {Promise<ApiSecurityRequirementDocumentElement>}
-   */
-  async function modelFixture(amf, model) {
-    const element = await fixture(html`<api-security-requirement-document 
-      .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
-      .domainModel="${model}"
     ></api-security-requirement-document>`);
     await aTimeout(0);
     return /** @type ApiSecurityRequirementDocumentElement */ (element);
@@ -62,28 +46,21 @@ describe('ApiSecurityRequirementDocumentElement', () => {
       let model;
       before(async () => {
         model = await loader.getGraph(compact, 'secured-api');
+        store.amf = model;
       });
 
       it('finds the security for an operation', async () => {
         const op = loader.getOperation(model, '/custom1', 'get');
         const [security] = op.security;
         const { id } = security;
-        const element = await domainIdFixture(model, id);
+        const element = await domainIdFixture(id);
         assert.deepEqual(element.securityRequirement, security);
       });
 
       it('renders the security requirement when passing a serialized model', async () => {
         const op = loader.getOperation(model, '/custom1', 'get');
         const [security] = op.security;
-        const element = await serializedFixture(model, security);
-        const node = element.shadowRoot.querySelector('api-parametrized-security-scheme');
-        assert.ok(node, 'has the documentation element node');
-      });
-
-      it('renders the security requirement when passing a domain model', async () => {
-        const op = loader.lookupOperation(model, '/custom1', 'get');
-        const security  = op[loader._getAmfKey(loader.ns.aml.vocabularies.security.security)][0];
-        const element = await modelFixture(model, security);
+        const element = await modelFixture(security);
         const node = element.shadowRoot.querySelector('api-parametrized-security-scheme');
         assert.ok(node, 'has the documentation element node');
       });

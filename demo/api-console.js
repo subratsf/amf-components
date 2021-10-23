@@ -83,7 +83,7 @@ export class ApiConsole extends ApplicationPage {
       'domainId', 'domainType', 'operationId',
       'apiId', 'initializing'
     );
-    this.store = new DomEventsAmfStore(undefined, window);
+    this.store = new DomEventsAmfStore(window);
     this.store.listen();
     /**
      * When set the application is initializing its environment.
@@ -291,12 +291,15 @@ export class ApiConsole extends ApplicationPage {
    * @param {AmfDocument} model 
    */
   postApiLoad(model) {
+    this[apiTitleValue] = undefined;
     if (!model) {
-      this[apiTitleValue] = undefined;
       return;
     }
     const factory = new AmfSerializer(model);
     const api = factory._computeApi(model);
+    if (!api) {
+      return;
+    }
     const summary = factory.apiSummary(api);
     this[apiTitleValue] = summary.name;
   }
@@ -443,8 +446,8 @@ export class ApiConsole extends ApplicationPage {
     return html`
     <nav class="${classMap(classes)}">
       <api-navigation
-        summary
         .amf="${model}"
+        summary
         endpointsOpened
         noOverview
       ></api-navigation>
@@ -470,7 +473,6 @@ export class ApiConsole extends ApplicationPage {
     return html`
     <api-documentation
       slot="content"
-      .amf="${this.model}"
       .domainId="${this.domainId}"
       .operationId="${this.operationId}"
       .domainType="${this.domainType}"

@@ -26,7 +26,7 @@ export class AmfGraphStore {
    */
   async add(graph) {
     const id = v4();
-    const instance = new AmfStore(graph, this.target);
+    const instance = new AmfStore(this.target, graph);
     this.apis.set(id, instance);
     return id;
   }

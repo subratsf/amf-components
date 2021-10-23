@@ -1,13 +1,12 @@
 import { TemplateResult } from 'lit-element';
 import { Oauth2Credentials } from '@advanced-rest-client/app';
 import { ApiDocumentationBase } from './ApiDocumentationBase.js';
-import { AmfDocument, DomainElement, EndPoint } from '../helpers/amf';
 import { ApiSummary } from '../helpers/api';
-import { ServerType, SelectionType } from '../types';
+import { ServerType, SelectionType, DocumentMeta } from '../types';
 import { ApiNavigationEvent } from '../events/NavigationEvents';
 
-export const isAsyncValue: unique symbol;
 export const operationIdValue: unique symbol;
+export const domainIdValue: unique symbol;
 export const domainTypeValue: unique symbol;
 export const navigationHandler: unique symbol;
 export const navEventsRegistered: unique symbol;
@@ -15,22 +14,12 @@ export const registerNavigationEvents: unique symbol;
 export const unregisterNavigationEvents: unique symbol;
 export const handleNavigationEventsValue: unique symbol;
 export const processApiSpecSelection: unique symbol;
-export const isLibrary: unique symbol;
 export const processLibrarySelection: unique symbol;
-export const computeDeclById: unique symbol;
 export const renderedViewValue: unique symbol;
 export const renderedModelValue: unique symbol;
-export const computeSecurityApiModel: unique symbol;
-export const computeReferenceSecurity: unique symbol;
-export const computeTypeApiModel: unique symbol;
-export const computeDocsApiModel: unique symbol;
-export const computeResourceApiModel: unique symbol;
-export const computeEndpointApiMethodModel: unique symbol;
-export const computeMethodApiModel: unique symbol;
 export const processFragment: unique symbol;
 export const processPartial: unique symbol;
 export const processEndpointPartial: unique symbol;
-export const endpointValue: unique symbol;
 export const apiSummaryValue: unique symbol;
 export const serverSelectorTemplate: unique symbol;
 export const serversCountHandler: unique symbol;
@@ -179,7 +168,11 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @returns true when whe currently loaded API is an async API.
    */
   get isAsync(): boolean;
-  [endpointValue]: EndPoint;
+  /**
+   * @returns The mime type of the schema that is being rendered.
+   */
+  get schemaMime(): string|undefined;
+  get documentMeta(): DocumentMeta;
   [apiSummaryValue]: ApiSummary;
   [navEventsRegistered]: boolean;
   /**
@@ -219,14 +212,14 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * 
    * @param model WebApi AMF model. Do not use an array here.
    */
-  [processApiSpecSelection](model: AmfDocument): void;
+  [processApiSpecSelection](): void;
 
   /**
    * Processes selection for a library data model. It ignores the input if
    * `domainId` or `domainType` is not set.
    * @param model Library AMF model. Do not use an array here.
    */
-  [processLibrarySelection](model: AmfDocument): void;
+  [processLibrarySelection](): void;
 
   /**
    * Processes fragment model and sets current selection and the model.
@@ -234,7 +227,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @param model RAML fragment model
    * @param domainType The selected domain type.
    */
-  [processFragment](model: AmfDocument, domainType: SelectionType): void;
+  [processFragment](domainType: SelectionType): void;
 
   /**
    * Sets the partial model to be rendered.
@@ -242,7 +235,7 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    * @param model RAML partial model
    * @param domainType The domain type representing the partial model.
    */
-  [processPartial](model: AmfDocument, domainType: SelectionType): void;
+  [processPartial](domainType: SelectionType): void;
 
   /**
    * Processes endpoint data from partial model definition.
@@ -250,87 +243,8 @@ export default class ApiDocumentationElement extends ApiDocumentationBase {
    *
    * If `selected` or `selectedType` is not set then it automatically selects
    * an endpoint.
-   * @param model Partial model for endpoints
    */
-  [processEndpointPartial](model: DomainElement): void;
-
-  /**
-   * Tests if `model` is of a RAML library model.
-   * @param model A shape to test
-   * @returns {boolean} true when the presented model is a library.
-   */
-  [isLibrary](model: AmfDocument): boolean;
-
-  /**
-   * Computes model of a shape defined in `declares` list
-   * @param model AMF model
-   * @param {string} domainId Current selection
-   */
-  [computeDeclById](model: AmfDocument, domainId: string): any|undefined;
-
-  /**
-   * Computes security scheme definition model from web API and current selection.
-   * It looks for the definition in both `declares` and `references` properties.
-   * Returned value is already resolved AMF model (references are resolved).
-   *
-   * @param model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined} Model definition for the security scheme.
-   */
-  [computeSecurityApiModel](model: AmfDocument, domainId: string): DomainElement|undefined;
-
-  /**
-   * Computes a security model from a reference (library for example).
-   * @param reference AMF model for a reference to extract the data from
-   * @param {string} domainId Node ID to look for
-   * @returns {DomainElement|undefined} Type definition or undefined if not found.
-   */
-  [computeReferenceSecurity](reference: AmfDocument, domainId: string): DomainElement|undefined;
-
-  /**
-   * Computes type definition model from web API and current selection.
-   * It looks for the definition in both `declares` and `references` properties.
-   * Returned value is already resolved AMF model (references are resolved).
-   *
-   * @param model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined} Model definition for a type.
-   */
-  [computeTypeApiModel](model: AmfDocument, domainId: string): DomainElement|undefined;
-
-  /**
-   * Computes documentation definition model from web API and current selection.
-   *
-   * @param model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined} Model definition for a documentation fragment.
-   */
-  [computeDocsApiModel](model: AmfDocument, domainId: string): DomainElement|undefined;
-
-  /**
-   * Computes Endpoint definition model from web API and current selection.
-   *
-   * @param model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined} Model definition for an endpoint fragment.
-   */
-  [computeResourceApiModel](model: AmfDocument, domainId: string): DomainElement|undefined;
-
-  /**
-   * Computes Method definition model from web API and current selection.
-   *
-   * @param model WebApi AMF model. Do not use an array here.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {DomainElement|undefined}
-   */
-  [computeMethodApiModel](model: AmfDocument, domainId: string): DomainElement|undefined;
-
-  /**
-   * @param model WebApi AMF model.
-   * @param {string} domainId Currently selected `@id`.
-   * @returns {}
-   */
-  [computeEndpointApiMethodModel](model: AmfDocument, domainId: string): DomainElement|undefined;
+  [processEndpointPartial](): void;
 
   [serversCountHandler](e: CustomEvent): void;
   [serverChangeHandler](e: CustomEvent): void;

@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { EventTypes } from './EventTypes.js';
 import { ApiStoreContextEvent, ApiStoreReadEvent } from './BaseEvents.js';
 

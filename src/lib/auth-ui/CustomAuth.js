@@ -8,8 +8,6 @@ import * as InputCache from '../InputCache.js';
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
 /** @typedef {import('@advanced-rest-client/events').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
-/** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
-/** @typedef {import('../../helpers/amf').ParametrizedSecurityScheme} ParametrizedSecurityScheme */
 /** @typedef {import('../../helpers/api').ApiNodeShape} ApiNodeShape */
 /** @typedef {import('../../helpers/api').ApiParameter} ApiParameter */
 /** @typedef {import('../../helpers/api').ApiPropertyShape} ApiPropertyShape */
@@ -44,13 +42,13 @@ export default class CustomAuth extends ApiUiBase {
   }
 
   initializeApiModel() {
-    const { amf, security } = this;
+    const { security } = this;
     this.clearInit();
     const source = 'settings';
     const list = /** @type OperationParameter[] */ (this.parametersValue);
     this.parametersValue = list.filter(item => item.source !== source);
 
-    if (!amf || !security) {
+    if (!security) {
       return;
     }
     if (!security.types.includes(ns.aml.vocabularies.security.ParametrizedSecurityScheme)) {

@@ -10,9 +10,9 @@ import {
   ApiDocumentationBase, 
   paramsSectionTemplate, 
   schemaItemTemplate,
-  serializerValue,
   descriptionTemplate,
 } from './ApiDocumentationBase.js';
+import { Events } from '../events/Events.js';
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiSecurityDocument.js';
 import schemaStyles from './styles/SchemaCommon.js';
@@ -29,7 +29,6 @@ import '../../define/api-response-document.js'
 /** @typedef {import('../helpers/api').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
 /** @typedef {import('../helpers/api').ApiSecurityScope} ApiSecurityScope */
 /** @typedef {import('../helpers/api').ApiResponse} ApiResponse */
-/** @typedef {import('../helpers/amf').SecurityScheme} SecurityScheme */
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../helpers/amf').SecurityRequirement} SecurityRequirement */
 /** @typedef {import('@anypoint-web-components/awc').AnypointTabsElement} AnypointTabs */
@@ -64,8 +63,6 @@ export const refreshUriTemplate = Symbol('refreshUriTemplate');
 export const scopesTemplate = Symbol('scopesTemplate');
 export const scopeTemplate = Symbol('scopeTemplate');
 export const grantTitleTemplate = Symbol('grantTitleTemplate');
-export const setModel = Symbol('setModel');
-export const computeReferenceSecurity = Symbol('computeReferenceSecurity');
 export const oAuth1SettingsTemplate = Symbol('oAuth1SettingsTemplate');
 export const tokenCredentialsUriTemplate = Symbol('tokenCredentialsUriTemplate');
 export const signaturesTemplate = Symbol('signaturesTemplate');
@@ -141,82 +138,37 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     this.headersOpened = false;
     this.parametersOpened = false;
     this.settingsOpened = false;
-    /** @type {SecurityScheme} */
-    this.domainModel = undefined;
   }
 
   /**
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainId, domainModel, amf } = this;
-    if (domainModel) {
-      this[setModel](domainModel);
-      return;
-    }
-    if (!domainId || !amf) {
-      return;
-    }
-    const declares = this._computeDeclares(amf);
-    let result;
-    if (declares) {
-      result = declares.find((item) => item['@id'] === domainId);
-    }
-    if (result) {
-      result = this._resolve(result);
-      this[setModel](result);
-      return;
-    }
-    const references = this._computeReferences(amf);
-    if (Array.isArray(references) && references.length) {
-      for (const ref of references) {
-        if (this._hasType(ref, this.ns.aml.vocabularies.document.Module)) {
-          result = this[computeReferenceSecurity](ref, domainId);
-          if (result) {
-            result = this._resolve(result);
-            this[setModel](result);
-            return;
-          }
-        }
-      }
-    }
-    this[setModel]();
-  }
-
-  /**
-   * Computes a security model from a reference (library for example).
-   * @param {DomainElement} reference AMF model for a reference to extract the data from
-   * @param {string} selected Node ID to look for
-   * @return {SecurityRequirement|undefined} Type definition or undefined if not found.
-   */
-  [computeReferenceSecurity](reference, selected) {
-    const declare = this._computeDeclares(reference);
-    if (!declare) {
-      return undefined;
-    }
-    let result = declare.find((item) => {
-      if (Array.isArray(item)) {
-        [item] = item;
-      }
-      return item['@id'] === selected;
-    });
-    if (Array.isArray(result)) {
-      [result] = result;
-    }
-    return this._resolve(result);
-  }
-
-  /**
-   * @param {SecurityScheme=} model 
-   */
-  [setModel](model) {
-    if (model) {
-      this[securityValue] = this[serializerValue].securityScheme(model);
-    } else {
-      this[securityValue] = undefined;
-    }
-    this[processSecurity]();
+    await this[querySecurity]();
     this.requestUpdate();
+  }
+
+  /**
+   * Queries for the security requirements object.
+   */
+  async [querySecurity]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[securityValue] = undefined;
+      return;
+    }
+    if (this[securityValue] && this[securityValue].id === domainId) {
+      // in case the security model was provided via the property setter.
+      return;
+    }
+    try {
+      const info = await Events.Security.get(this, domainId);
+      this[securityValue] = info;
+    } catch (e) {
+      this[securityValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API operation data: ${e.message}`, this.localName);
+    }
   }
 
   async [processSecurity]() {
@@ -381,7 +333,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
       return html`<div class="empty-info text-selectable">Select a response to render the documentation.</div>`;
     }
     return html`
-    <api-response-document .amf="${this.amf}" .response="${response}" ?anypoint="${this.anypoint}" headersOpened payloadOpened></api-response-document>
+    <api-response-document .response="${response}" ?anypoint="${this.anypoint}" headersOpened payloadOpened></api-response-document>
     `;
   }
 

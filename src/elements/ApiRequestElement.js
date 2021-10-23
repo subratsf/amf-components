@@ -29,7 +29,6 @@ import '../../define/api-response-view.js';
 /** @typedef {import('@advanced-rest-client/events').ArcRequest.TransportRequest} TransportRequest */
 /** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */
 /** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
-/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../types').ServerType} ServerType */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 /** @typedef {import('../types').ApiConsoleResponse} ApiConsoleResponse */
@@ -64,10 +63,6 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
 
   static get properties() {
     return {
-      /**
-       * The `amf` property that passes amf model to the request editor.
-       */
-      amf: { type: Object },
       /**
        * The domain id (AMF's id) of an API operation.
        */
@@ -251,8 +246,6 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     this.proxyEncodeUrl = false;
     /** @type boolean */
     this.handleNavigationEvents = false;
-    /** @type AmfDocument */
-    this.amf = undefined;
     /** @type boolean */
     this.urlEditor = undefined;
     /** @type boolean */
@@ -493,7 +486,6 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     const {
       redirectUri,
       domainId,
-      amf,
       urlEditor,
       urlLabel,
       baseUri,
@@ -514,8 +506,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     return html`
     <api-request-editor
       .redirectUri="${redirectUri}"
-      .domainId="${domainId}"
-      .amf="${amf}"
+      domainId="${domainId}"
       ?urlEditor="${urlEditor}"
       ?urlLabel="${urlLabel}"
       .baseUri="${baseUri}"

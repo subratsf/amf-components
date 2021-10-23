@@ -1,17 +1,17 @@
 import { assert } from '@open-wc/testing';
-import { EventTypes } from  '../../index.js';
+import { ApiEventTypes } from  '../../index.js';
 import { ensureUnique } from './EventHelper.js';
 
-describe('EventTypes', () => {
+describe('ApiEventTypes', () => {
   describe('Api', () => {
     it('has Api namespace', () => {
-      assert.typeOf(EventTypes.Api, 'object');
+      assert.typeOf(ApiEventTypes.Api, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Api = { read: '' };
+        ApiEventTypes.Api = { read: '' };
       });
     });
 
@@ -19,24 +19,24 @@ describe('EventTypes', () => {
       ['summary', 'amfstoreapisummary'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Api[prop], value);
+        assert.equal(ApiEventTypes.Api[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Api', EventTypes.Api);
+      ensureUnique('ApiEventTypes.Api', ApiEventTypes.Api);
     });
   });
 
   describe('Endpoint', () => {
     it('has Endpoint namespace', () => {
-      assert.typeOf(EventTypes.Endpoint, 'object');
+      assert.typeOf(ApiEventTypes.Endpoint, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Endpoint = { read: '' };
+        ApiEventTypes.Endpoint = { read: '' };
       });
     });
 
@@ -46,24 +46,24 @@ describe('EventTypes', () => {
       ['list', 'amfstoreendpointlist'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Endpoint[prop], value);
+        assert.equal(ApiEventTypes.Endpoint[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Endpoint', EventTypes.Endpoint);
+      ensureUnique('ApiEventTypes.Endpoint', ApiEventTypes.Endpoint);
     });
   });
 
   describe('Navigation', () => {
     it('has Navigation namespace', () => {
-      assert.typeOf(EventTypes.Navigation, 'object');
+      assert.typeOf(ApiEventTypes.Navigation, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Navigation = { read: '' };
+        ApiEventTypes.Navigation = { read: '' };
       });
     });
 
@@ -71,24 +71,24 @@ describe('EventTypes', () => {
       ['apiNavigate', 'apinavigate'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Navigation[prop], value);
+        assert.equal(ApiEventTypes.Navigation[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Navigation', EventTypes.Navigation);
+      ensureUnique('ApiEventTypes.Navigation', ApiEventTypes.Navigation);
     });
   });
 
   describe('Server', () => {
     it('has Server namespace', () => {
-      assert.typeOf(EventTypes.Server, 'object');
+      assert.typeOf(ApiEventTypes.Server, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Server = { read: '' };
+        ApiEventTypes.Server = { read: '' };
       });
     });
 
@@ -97,24 +97,24 @@ describe('EventTypes', () => {
       ['serverCountChange', 'serverscountchanged'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Server[prop], value);
+        assert.equal(ApiEventTypes.Server[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Server', EventTypes.Server);
+      ensureUnique('ApiEventTypes.Server', ApiEventTypes.Server);
     });
   });
 
   describe('Security', () => {
     it('has Security namespace', () => {
-      assert.typeOf(EventTypes.Security, 'object');
+      assert.typeOf(ApiEventTypes.Security, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Security = { read: '' };
+        ApiEventTypes.Security = { read: '' };
       });
     });
 
@@ -122,24 +122,24 @@ describe('EventTypes', () => {
       ['settingsChanged', 'securitysettingsinfochanged'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Security[prop], value);
+        assert.equal(ApiEventTypes.Security[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Security', EventTypes.Security);
+      ensureUnique('ApiEventTypes.Security', ApiEventTypes.Security);
     });
   });
 
   describe('Request', () => {
     it('has Request namespace', () => {
-      assert.typeOf(EventTypes.Request, 'object');
+      assert.typeOf(ApiEventTypes.Request, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Request = { read: '' };
+        ApiEventTypes.Request = { read: '' };
       });
     });
 
@@ -156,24 +156,24 @@ describe('EventTypes', () => {
       ['populateAnnotatedFieldsLegacy', 'populate_annotated_fields'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Request[prop], value);
+        assert.equal(ApiEventTypes.Request[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Request', EventTypes.Request);
+      ensureUnique('ApiEventTypes.Request', ApiEventTypes.Request);
     });
   });
 
   describe('Reporting', () => {
     it('has Reporting namespace', () => {
-      assert.typeOf(EventTypes.Reporting, 'object');
+      assert.typeOf(ApiEventTypes.Reporting, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Reporting = { read: '' };
+        ApiEventTypes.Reporting = { read: '' };
       });
     });
 
@@ -181,24 +181,24 @@ describe('EventTypes', () => {
       ['error', 'apierror'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Reporting[prop], value);
+        assert.equal(ApiEventTypes.Reporting[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Reporting', EventTypes.Reporting);
+      ensureUnique('ApiEventTypes.Reporting', ApiEventTypes.Reporting);
     });
   });
 
   describe('Telemetry', () => {
     it('has Telemetry namespace', () => {
-      assert.typeOf(EventTypes.Telemetry, 'object');
+      assert.typeOf(ApiEventTypes.Telemetry, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Telemetry = { read: '' };
+        ApiEventTypes.Telemetry = { read: '' };
       });
     });
 
@@ -210,24 +210,24 @@ describe('EventTypes', () => {
       ['timing', 'telemetrytiming'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Telemetry[prop], value);
+        assert.equal(ApiEventTypes.Telemetry[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Telemetry', EventTypes.Telemetry);
+      ensureUnique('ApiEventTypes.Telemetry', ApiEventTypes.Telemetry);
     });
   });
 
   describe('Store', () => {
     it('has Store namespace', () => {
-      assert.typeOf(EventTypes.Store, 'object');
+      assert.typeOf(ApiEventTypes.Store, 'object');
     });
 
     it('is frozen', () => {
       assert.throws(() => {
         // @ts-ignore
-        EventTypes.Store = { read: '' };
+        ApiEventTypes.Store = { read: '' };
       });
     });
 
@@ -235,12 +235,12 @@ describe('EventTypes', () => {
       ['graphChange', 'apistoregraphchange'],
     ].forEach(([prop, value]) => {
       it(`has ${prop} property`, () => {
-        assert.equal(EventTypes.Store[prop], value);
+        assert.equal(ApiEventTypes.Store[prop], value);
       });
     });
 
     it('has unique events for the namespace', () => {
-      ensureUnique('EventTypes.Store', EventTypes.Store);
+      ensureUnique('ApiEventTypes.Store', ApiEventTypes.Store);
     });
   });
 });

@@ -27,8 +27,9 @@ export class ApiStoreReadEvent<T> extends CustomEvent<ApiStoreReadEventDetail<T>
   /**
    * @param type The type of the event
    * @param id The domain id of the object to read
+   * @param parent The domain id of the parent object (like endpoint for an operation).
    */
-  constructor(type: string, id: string);
+  constructor(type: string, id: string, parent?: string);
 }
 
 /**
@@ -65,6 +66,10 @@ export declare interface ApiStoreReadEventDetail<T> extends StoreEventDetailWith
    * The domain id of the domain object to read.
    */
   id: string;
+  /**
+   * The domain id of the parent object (like endpoint for an operation).
+   */
+  parent?: string;
 }
 
 export declare interface ApiStoreReadBulkEventDetail<T> extends StoreEventDetailWithResult<T[]> {

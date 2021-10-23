@@ -16,7 +16,7 @@ class ComponentDemo extends AmfDemoBase {
     super();
     this.initObservableProperties([
       'outlined',
-      'selectedAmfId',
+      'domainId',
       'allowCustom',
       'allowHideOptional',
       'responseBody',
@@ -58,15 +58,21 @@ class ComponentDemo extends AmfDemoBase {
     this.authSettingsValue = value ? JSON.stringify(value, null, 2) : '';
   }
 
+  /** @param {string} file */
+  async _loadFile(file) {
+    await super._loadFile(file);
+    this.domainId = undefined;
+  }
+
   /**
    * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    this.selectedAmfId = undefined;
+    this.domainId = undefined;
     this.responseBody = undefined;
     const { domainId, domainType } = e.detail;
     if (domainType === 'operation') {
-      this.selectedAmfId = domainId;
+      this.domainId = domainId;
       this.hasData = true;
     } else {
       this.hasData = false;
@@ -198,11 +204,10 @@ class ComponentDemo extends AmfDemoBase {
       darkThemeActive,
       outlined,
       anypoint,
-      amf,
       redirectUri,
       allowCustom,
       allowHideOptional,
-      selectedAmfId,
+      domainId,
       responseBody,
       urlLabel,
       urlEditor,
@@ -218,8 +223,7 @@ class ComponentDemo extends AmfDemoBase {
     >
       <div slot="content">
         <api-request-editor
-          .amf="${amf}"
-          .domainId="${selectedAmfId}"
+          .domainId="${domainId}"
           ?allowCustom="${allowCustom}"
           ?allowHideOptional="${allowHideOptional}"
           ?outlined="${outlined}"
@@ -231,7 +235,7 @@ class ComponentDemo extends AmfDemoBase {
           .redirectUri="${redirectUri}"
           ?noServerSelector="${noServerSelector}"
           ?allowCustomBaseUri="${allowCustomBaseUri}"
-          @api-request="${this._apiRequestHandler}"
+          @apirequest="${this._apiRequestHandler}"
           @change="${this.requestChangeHandler}"
         >
           ${this._addCustomServers()}

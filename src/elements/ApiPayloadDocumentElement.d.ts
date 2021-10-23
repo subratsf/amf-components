@@ -1,7 +1,6 @@
 import { TemplateResult } from 'lit-element';
 import { ApiDocumentationBase } from './ApiDocumentationBase.js';
 import { ApiPayload } from '../helpers/api';
-import { Payload } from '../helpers/amf';
 
 export const queryPayload: unique symbol;
 export const queryExamples: unique symbol;
@@ -15,7 +14,6 @@ export default class ApiPayloadDocumentElement extends ApiDocumentationBase {
   get payload(): ApiPayload;
   set payload(value: ApiPayload);
   [payloadValue]: ApiPayload;
-  domainModel: Payload;
 
   constructor();
 

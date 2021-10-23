@@ -14,6 +14,7 @@ import './ApiStyles.js';
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 /** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
 /** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+/** @typedef {import('../../src/events/ReportingEvents').ReportingErrorEventDetail} ReportingErrorEventDetail */
 
 const routes = [
   {
@@ -39,7 +40,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
   constructor() {
     super();
     this.initObservableProperties(["initialized", "loaded", 'selectedFile']);
-    this.store = new DomEventsAmfStore(undefined, window);
+    this.store = new DomEventsAmfStore(window);
     this.store.listen();
 
     this.loaded = false;
@@ -91,6 +92,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
      */
     this.selectedFile = undefined;
     window.addEventListener(EventTypes.Navigation.apiNavigate, this._navChanged.bind(this));
+    window.addEventListener(EventTypes.Reporting.error, this._errorHandler.bind(this));
 
     document.body.classList.add('api');
     this.autoLoad();
@@ -158,6 +160,17 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
     navigate('file', file);
   }
 
+  /**
+   * Handler for the API errors
+   * @param {CustomEvent} e
+   */
+  _errorHandler(e) {
+    const info = /** @type ReportingErrorEventDetail */ (e.detail);
+    const { description, component='Unknown component', error } = info;
+    console.error(`[${component}]: ${description}`);
+    console.error(error);
+  }
+
   /** @param {string} file */
   async _loadFile(file) {
     this.loaded = false;
@@ -175,7 +188,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
    * This method to be overridden in child class to handle navigation.
    * @param {ApiNavigationEvent} e Dispatched navigation event
    */
-   _navChanged(e) {
+  _navChanged(e) {
     const { domainId, domainType } = e.detail;
     // eslint-disable-next-line no-console
     console.log(`Navigation changed. Type: ${domainId}, selected: ${domainType}`);

@@ -5,7 +5,6 @@ import Oauth1, { defaultSignatureMethods } from '@advanced-rest-client/app/src/e
 import { ns } from '../../helpers/Namespace.js';
 
 const securityValue = Symbol("securityValue");
-const apiValue = Symbol("apiValue");
 
 /** @typedef {import('../../helpers/api').ApiSecurityOAuth1Settings} ApiSecurityOAuth1Settings */
 /** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
@@ -31,25 +30,6 @@ export default class OAuth1Auth extends Oauth1 {
     this.initializeApiModel();
   }
 
-  /**
-   * @returns {DomainElement}
-   */
-  get amf() {
-    return this[apiValue];
-  }
-
-  /**
-   * @param {DomainElement} value
-   */
-  set amf(value) {
-    const old = this[apiValue];
-    if (old === value) {
-      return;
-    }
-    this[apiValue] = value;
-    this.initializeApiModel();
-  }
-
   reset() {
     this.signatureMethods = defaultSignatureMethods;
     // @ts-ignore
@@ -59,8 +39,8 @@ export default class OAuth1Auth extends Oauth1 {
   }
 
   initializeApiModel() {
-    const { amf, security } = this;
-    if (!amf || !security) {
+    const { security } = this;
+    if (!security) {
       this.reset();
       return;
     }

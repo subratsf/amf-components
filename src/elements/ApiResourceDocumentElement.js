@@ -7,18 +7,22 @@ import commonStyles from './styles/Common.js';
 import { 
   ApiDocumentationBase,
   descriptionTemplate,
-  serializerValue,
   customDomainPropertiesTemplate,
 } from './ApiDocumentationBase.js';
 import { joinTraitNames } from '../lib/Utils.js';
 import * as UrlLib from '../lib/UrlUtils.js';
+import { ReportingEvents } from '../events/ReportingEvents.js';
+import { TelemetryEvents } from '../events/TelemetryEvents.js';
+import { EndpointEvents } from '../events/EndpointEvents.js';
+import { ServerEvents } from '../events/ServerEvents.js';
+import { ApiEvents } from '../events/ApiEvents.js';
+import { ns } from '../helpers/Namespace.js';
 import '../../define/api-request.js';
 import '../../define/api-operation-document.js'
 import '../../define/api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('../helpers/amf').EndPoint} EndPoint */
 /** @typedef {import('../helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
 /** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
@@ -34,6 +38,8 @@ export const endpointValue = Symbol('endpointValue');
 export const serversValue = Symbol('serversValue');
 export const serverValue = Symbol('serverValue');
 export const serverIdValue = Symbol('serverIdValue');
+export const queryProtocols = Symbol('queryProtocols');
+export const protocolsValue = Symbol('protocolsValue');
 export const urlValue = Symbol('urlValue');
 export const baseUriValue = Symbol('baseUriValue');
 export const computeUrlValue = Symbol('computeUrlValue');
@@ -190,6 +196,13 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     return this[urlValue];
   }
 
+  /**
+   * @returns {string[]|undefined} The API's protocols.
+   */
+  get protocols() {
+    return this[protocolsValue];
+  }
+
   static get properties() {
     return {
       /**
@@ -311,8 +324,6 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
      * @type {string}
      */
     this.operationId = undefined;
-    /** @type {EndPoint} */
-    this.domainModel = undefined;
     /** @type {boolean} */
     this.tryItButton = undefined;
     /** @type {boolean} */
@@ -340,6 +351,8 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     this[serverValue] = undefined;
     /** @type {Record<string, ApiConsoleRequest>} */
     this[requestValues] = {};
+    /** @type string[] */
+    this[protocolsValue] = undefined;
   }
 
   disconnectedCallback() {
@@ -366,20 +379,9 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel, domainId, amf } = this;
-    this[requestValues] = /** @type {Record<string, ApiConsoleRequest>} */ ({});
-    if (domainModel) {
-      this[endpointValue] = this[serializerValue].endPoint(domainModel);
-    } else if (domainId && amf) {
-      if (!this[endpointValue] || this[endpointValue].id !== domainId) {
-        const webApi = this._computeApi(amf);
-        const model = this._computeEndpointModel(webApi, domainId);
-        if (model) {
-          this[endpointValue] = this[serializerValue].endPoint(model);
-        }
-      }
-    }
+    await this[queryEndpoint]();
     await this[queryServers]();
+    await this[queryProtocols]();
     this[computeUrlValue]();
     await this.requestUpdate();
     if (this[processSelectionTimeout]) {
@@ -397,6 +399,43 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
   }
 
   /**
+   * Queries the API store for the API summary object.
+   */
+  async [queryProtocols]() {
+    this[protocolsValue] = undefined;
+    try {
+      const info = await ApiEvents.protocols(this);
+      this[protocolsValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API protocols list: ${e.message}`, this.localName);
+    }
+  }
+
+  /**
+   * Queries the store for the endpoint data.
+   * @returns {Promise<void>}
+   */
+  async [queryEndpoint]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[endpointValue] = undefined;
+      return;
+    }
+    if (this[endpointValue] && this[endpointValue].id === domainId) {
+      // in case the endpoint model was provided via property setter.
+      return;
+    }
+    try {
+      const info = await EndpointEvents.get(this, domainId);
+      this[endpointValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API endpoint data: ${e.message}`, this.localName);
+    }
+  }
+
+  /**
    * Scrolls to the selected operation after view update.
    */
   async [operationIdChanged]() {
@@ -410,18 +449,22 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
   }
 
   /**
-   * Queries for the current servers value.
+   * Queries the store for the current servers value.
+   * @returns {Promise<void>}
    */
   async [queryServers]() {
     this[serversValue] = undefined;
     const { domainId } = this;
     const endpointId = this[endpointValue] && this[endpointValue].id;
-    const servers = this._getServers({
-      endpointId,
-      methodId: domainId,
-    });
-    if (Array.isArray(servers) && servers.length) {
-      this[serversValue] = servers.map(server => this[serializerValue].server(server));
+    try {
+      const info = await ServerEvents.query(this, {
+        endpointId,
+        methodId: domainId,
+      });
+      this[serversValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API servers: ${e.message}`, this.localName);
     }
   }
 
@@ -452,9 +495,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
    */
   [computeUrlValue]() {
     const endpoint = this[endpointValue];
-    const { baseUri, server } = this;
-    const wa = this._computeWebApi(this.amf);
-    const protocols = /** @type string[] */ (this._getValueArray(wa, this.ns.aml.vocabularies.apiContract.scheme));
+    const { baseUri, server, protocols } = this;
     const url = UrlLib.computeEndpointUri({ baseUri, server, endpoint, protocols, });
     this[urlValue] = url;
   }
@@ -560,7 +601,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
    * @returns {TemplateResult} The template for the API operation.
    */
   [operationTemplate](operation) {
-    const { serverId, baseUri, tryItPanel, tryItButton } = this;
+    const { endpoint, serverId, baseUri, tryItPanel, tryItButton } = this;
     const renderTryIt = !tryItPanel && !!tryItButton;
     const classes = {
       'operation-container': true,
@@ -568,9 +609,11 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     };
     return html`
     <div class="${classMap(classes)}">
-      <api-operation-document 
-        .amf="${this.amf}"
+      <api-operation-document
         .domainId="${operation.id}"
+        .operation="${operation}"
+        .endpoint="${endpoint}"
+        .endpointId="${endpoint.id}"
         .serverId="${serverId}" 
         .baseUri="${baseUri}" 
         ?anypoint="${this.anypoint}"
@@ -612,7 +655,6 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
   [httpRequestTemplate](operation) {
     const content = html`
     <api-request
-      .amf="${this.amf}"
       .domainId="${operation.id}"
       .serverValue="${this.serverValue}"
       .serverType="${this.serverType}"
@@ -666,7 +708,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
    * @return {TemplateResult|string} The template for the endpoint's extensions.
    */
   [extensionsTemplate]() {
-    const { endpoint, ns } = this;
+    const { endpoint } = this;
     const { extends: extensions } = endpoint;
 
     if (!extensions || !extensions.length) {

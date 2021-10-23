@@ -1,21 +1,23 @@
 import { fixture, assert, nextFrame, html } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
 import '../../define/api-annotation-document.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 
 /** @typedef {import('../../').ApiAnnotationDocumentElement} ApiAnnotationDocumentElement */
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
-/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/api').ApiCustomDomainProperty} ApiCustomDomainProperty */
 
 describe('ApiAnnotationDocumentElement', () => {
   const loader = new AmfLoader();
+  const store = new DomEventsAmfStore(window);
+  store.listen();
   const apiFile = 'annotated-api';
   /**
-   * @param {AmfDocument} amf
-   * @param {DomainElement=} shape
+   * @param {ApiCustomDomainProperty[]=} properties
    * @returns {Promise<ApiAnnotationDocumentElement>}
    */
-  async function basicFixture(amf, shape) {
-    return fixture(html`<api-annotation-document .amf="${amf}" .shape="${shape}"></api-annotation-document>`);
+  async function basicFixture(properties) {
+    return fixture(html`<api-annotation-document .customProperties="${properties}"></api-annotation-document>`);
   }
 
   describe('a11y', () => {
@@ -25,11 +27,12 @@ describe('ApiAnnotationDocumentElement', () => {
     let model;
     before(async () => {
       model = await loader.getGraph(true, apiFile);
+      store.amf = model;
     });
 
     beforeEach(async () => {
-      const shape = loader.lookupShape(model, 'ComplexAnnotations');
-      element = await basicFixture(model, shape);
+      const shape = loader.getShape(model, 'ComplexAnnotations');
+      element = await basicFixture(shape.customDomainProperties);
       await nextFrame();
     });
 
@@ -45,36 +48,37 @@ describe('ApiAnnotationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, apiFile);
+          store.amf = model;
         });
 
         /** @type ApiAnnotationDocumentElement */
         let element;
         beforeEach(async () => {
-          element = await basicFixture(model);
+          element = await basicFixture();
         });
 
         it('computes hasCustomProperties when no annotations', () => {
-          const shape = loader.lookupShape(model, 'NoAnnotations');
-          element.shape = shape;
+          const shape = loader.getShape(model, 'NoAnnotations');
+          element.customProperties = shape.customDomainProperties;
           assert.isFalse(element.hasCustomProperties);
         });
 
         it('computes hasCustomProperties when has the annotations', () => {
-          const shape = loader.lookupShape(model, 'ComboType');
-          element.shape = shape;
+          const shape = loader.getShape(model, 'ComboType');
+          element.customProperties = shape.customDomainProperties;
           assert.isTrue(element.hasCustomProperties);
         });
 
         it('computes the list of annotations', () => {
-          const shape = loader.lookupShape(model, 'ComboType');
-          element.shape = shape;
+          const shape = loader.getShape(model, 'ComboType');
+          element.customProperties = shape.customDomainProperties;
           assert.typeOf(element.customProperties, 'array');
           assert.lengthOf(element.customProperties, 3);
         });
 
         it('renders a nil annotation', async () => {
-          const shape = loader.lookupShape(model, 'notRequiredRepeatable');
-          element.shape = shape;
+          const shape = loader.getShape(model, 'notRequiredRepeatable');
+          element.customProperties = shape.customDomainProperties;
           await nextFrame();
           const node = element.shadowRoot.querySelectorAll('.custom-property')[0];
           assert.ok(node, 'Annotation container is rendered');
@@ -85,19 +89,19 @@ describe('ApiAnnotationDocumentElement', () => {
         });
 
         // APIMF-1710
-        it.skip('does not render a value for a nil annotation', async () => {
-          const shape = loader.lookupShape(model, 'notRequiredRepeatable');
-          element.shape = shape;
+        it('does not render a value for a nil annotation', async () => {
+          const shape = loader.getShape(model, 'notRequiredRepeatable');
+          element.customProperties = shape.customDomainProperties;
           await nextFrame();
           const node = element.shadowRoot.querySelector('.custom-property');
           assert.ok(node, 'Annotation container is rendered');
           const value = node.querySelector('.scalar-value');
-          assert.notOk(value, 'Annotation value is not rendered');
+          assert.isEmpty(value.textContent.trim(), 'Annotation value is not rendered');
         });
 
         it('renders a scalar annotation', async () => {
-          const shape = loader.lookupShape(model, 'ErrorResource');
-          element.shape = shape;
+          const shape = loader.getShape(model, 'ErrorResource');
+          element.customProperties = shape.customDomainProperties;
           await nextFrame();
           const node = element.shadowRoot.querySelector('.custom-property');
           assert.ok(node, 'Annotation container is rendered');
@@ -112,8 +116,8 @@ describe('ApiAnnotationDocumentElement', () => {
         });
 
         it('renders a complex annotation', async () => {
-          const shape = loader.lookupShape(model, 'ComplexAnnotations');
-          element.shape = shape;
+          const shape = loader.getShape(model, 'ComplexAnnotations');
+          element.customProperties = shape.customDomainProperties;
           await nextFrame();
           const node = element.shadowRoot.querySelector('.custom-property');
           assert.ok(node, 'Annotation container is rendered');

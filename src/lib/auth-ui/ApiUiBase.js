@@ -39,34 +39,8 @@ export default class ApiUiBase extends AmfParameterMixin(AuthUiBase) {
   }
 
   /**
-   * @returns {DomainElement}
-   */
-  get amf() {
-    return this[apiValue];
-  }
-
-  /**
-   * @param {DomainElement} value
-   */
-  set amf(value) {
-    const old = this[apiValue];
-    if (old === value) {
-      return;
-    }
-    this[apiValue] = value;
-    this.initializeApiModel();
-  }
-
-  // /**
-  //  * @param {AuthUiInit=} init
-  //  */
-  // constructor(init) {
-  //   super(init);
-  // }
-
-  /**
    * To be implemented by the child classes.
-   * Called when `amf` or `security` value change. Should be used
+   * Called when the `security` value change. Should be used
    * to initialize the UI after setting AMF models.
    */
   initializeApiModel() {

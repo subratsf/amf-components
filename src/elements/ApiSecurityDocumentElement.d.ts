@@ -1,7 +1,6 @@
 import { TemplateResult } from 'lit-element';
 import { ApiDocumentationBase } from './ApiDocumentationBase.js';
-import { ApiSecurityScope, ApiSecurityOAuth2Flow, ApiSecurityOAuth1Settings, ApiSecurityOAuth2Settings, ApiSecurityScheme, ApiSecurityRequirement, ApiSecurityApiKeySettings, ApiSecurityOpenIdConnectSettings, ApiResponse } from '../helpers/api';
-import { DomainElement, SecurityScheme, SecurityRequirement } from '../helpers/amf';
+import { ApiSecurityScope, ApiSecurityOAuth2Flow, ApiSecurityOAuth1Settings, ApiSecurityOAuth2Settings, ApiSecurityScheme, ApiSecurityApiKeySettings, ApiSecurityOpenIdConnectSettings, ApiResponse } from '../helpers/api';
 
 export const querySecurity: unique symbol;
 export const processSecurity: unique symbol;
@@ -33,8 +32,6 @@ export const refreshUriTemplate: unique symbol;
 export const scopesTemplate: unique symbol;
 export const scopeTemplate: unique symbol;
 export const grantTitleTemplate: unique symbol;
-export const setModel: unique symbol;
-export const computeReferenceSecurity: unique symbol;
 export const oAuth1SettingsTemplate: unique symbol;
 export const tokenCredentialsUriTemplate: unique symbol;
 export const signaturesTemplate: unique symbol;
@@ -73,19 +70,12 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
   set securityScheme(value: ApiSecurityScheme);
   [securityValue]: ApiSecurityScheme;
   [responsesValue]: ApiResponse[];
-  domainModel: SecurityScheme;
   constructor();
   processGraph(): Promise<void>;
-
   /**
-   * Computes a security model from a reference (library for example).
-   * @param reference AMF model for a reference to extract the data from
-   * @param selected Node ID to look for
-   * @returns Type definition or undefined if not found.
+   * Queries for the security requirements object.
    */
-  [computeReferenceSecurity](reference: DomainElement, selected: string): SecurityRequirement;
-
-  [setModel](model: SecurityScheme): void;
+  [querySecurity](): Promise<void>;
 
   [processSecurity](): Promise<void>;
   /**

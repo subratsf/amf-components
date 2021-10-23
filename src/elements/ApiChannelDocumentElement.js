@@ -78,15 +78,20 @@ export default class ApiChannelDocumentElement extends ApiResourceDocumentElemen
    * @returns {TemplateResult} The template for the API operation.
    */
   [operationTemplate](operation) {
-    const { serverId } = this;
+    const { serverId, endpoint, baseUri } = this;
     return html`<api-operation-document 
-      .amf="${this.amf}"
       .domainId="${operation.id}"
+      .operation="${operation}"
+      .endpoint="${endpoint}"
+      .endpointId="${endpoint.id}"
       .serverId="${serverId}"
+      .baseUri="${baseUri}" 
+      ?anypoint="${this.anypoint}"
       data-domain-id="${operation.id}"
       responsesOpened
+      renderSecurity
       asyncApi
-      ?anypoint="${this.anypoint}"
-      class="operation"></api-operation-document>`;
+      class="operation"
+    ></api-operation-document>`;
   }
 }

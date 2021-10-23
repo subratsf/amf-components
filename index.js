@@ -22,8 +22,8 @@ export { default as ApiSecurityDocumentElement } from './src/elements/ApiSecurit
 export { default as ApiParametrizedSecuritySchemeElement } from './src/elements/ApiParametrizedSecuritySchemeElement.js';
 export { default as ApiSecurityRequirementDocumentElement } from './src/elements/ApiSecurityRequirementDocumentElement.js';
 export { default as ApiDocumentationElement } from './src/elements/ApiDocumentationElement.js';
-export * from './src/events/EventTypes.js';
-export * from './src/events/Events.js';
+export { EventTypes as ApiEventTypes } from './src/events/EventTypes.js';
+export { Events as ApiEvents } from './src/events/Events.js';
 export * as InputCache from './src/lib/InputCache.js';
 export * as UrlLib from './src/lib/UrlUtils.js';
 export * as Utils from './src/lib/Utils.js';
@@ -35,3 +35,5 @@ export { ApiExampleGenerator } from './src/schema/ApiExampleGenerator.js';
 export { ApiMonacoSchemaGenerator } from './src/schema/ApiMonacoSchemaGenerator.js';
 export { ApiSchemaValues } from './src/schema/ApiSchemaValues.js';
 export { ApiSchemaGenerator } from './src/schema/ApiSchemaGenerator.js';
+export { DomEventsAmfStore } from './src/store/DomEventsAmfStore.js';
+export { AmfStore } from './src/store/AmfStore.js';

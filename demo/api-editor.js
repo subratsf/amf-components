@@ -10,7 +10,6 @@ import { MonacoTheme, MonacoStyles, MonacoLoader } from '@advanced-rest-client/m
 import { DomEventsAmfStore } from "../src/store/DomEventsAmfStore.js";
 import { ApplicationPage } from "./lib/ApplicationPage.js";
 import { EventTypes } from '../src/events/EventTypes.js';
-// import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 import "../define/api-navigation.js";
 import '../define/api-documentation.js';
 import '../define/xhr-simple-request.js';
@@ -48,7 +47,7 @@ export class ApiTextEditor extends ApplicationPage {
       'initializing', 'apiFormat', 'apiMedia',
       'editorOpened', 'editorOperation',
     );
-    this.store = new DomEventsAmfStore(undefined, window);
+    this.store = new DomEventsAmfStore(window);
     this.store.listen();
     /**
      * When set the application is initializing its environment.
@@ -759,7 +758,6 @@ export class ApiTextEditor extends ApplicationPage {
     </div>
     <api-documentation
       slot="content"
-      .amf="${this.model}"
       .domainId="${this.domainId}"
       .operationId="${this.operationId}"
       .domainType="${this.domainType}"
@@ -789,7 +787,6 @@ export class ApiTextEditor extends ApplicationPage {
       <h2>API request</h2>
       <anypoint-dialog-scrollable>
         <api-request
-          .amf="${this.model}"
           .domainId="${this.editorOperation}"
           urlLabel
           applyAuthorization

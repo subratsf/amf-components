@@ -1,7 +1,7 @@
 export default {
   files: 'test/**/*.test.js',
   // files: 'test/navigation/*.test.js',
-  // files: 'test/elements/ApiDocumentationElement.test.js',
+  // files: 'test/http-request/ApiRequestEditorElement.test.js',
   // files: [
   //   'test/elements/ApiSecurityRequirementDocumentElement.test.js',
   //   'test/elements/ApiOperationDocumentElement.test.js',

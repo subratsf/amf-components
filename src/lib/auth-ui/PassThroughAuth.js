@@ -39,12 +39,12 @@ export default class PassThroughAuth extends ApiUiBase {
   }
 
   initializeApiModel() {
-    const { amf, security } = this;
+    const { security } = this;
     this.reset();
     const source = 'settings';
     const list = /** @type OperationParameter[] */ (this.parametersValue);
     this.parametersValue = list.filter(item => item.source !== source);
-    if (!amf || !security) {
+    if (!security) {
       return;
     }
     if (!security.types.includes(ns.aml.vocabularies.security.ParametrizedSecurityScheme)) {

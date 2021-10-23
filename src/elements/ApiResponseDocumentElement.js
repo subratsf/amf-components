@@ -16,14 +16,13 @@ import {
   paramsSectionTemplate, 
   schemaItemTemplate,
   descriptionTemplate,
-  serializerValue,
   customDomainPropertiesTemplate,
 } from './ApiDocumentationBase.js';
+import { Events } from '../events/Events.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiResponse} ApiResponse */
 /** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
-/** @typedef {import('../helpers/amf').Response} Response */
 /** @typedef {import('../helpers/api').ApiTemplatedLink} ApiTemplatedLink */
 /** @typedef {import('../helpers/api').ApiIriTemplateMapping} ApiIriTemplateMapping */
 /** @typedef {import('@anypoint-web-components/awc').AnypointRadioGroupElement} AnypointRadioGroupElement */
@@ -130,8 +129,6 @@ export default class ApiResponseDocumentElement extends ApiDocumentationBase {
 
     this.headersOpened = false;
     this.payloadOpened = false;
-    /** @type Response */
-    this.domainModel = undefined;
   }
 
   /**
@@ -139,12 +136,33 @@ export default class ApiResponseDocumentElement extends ApiDocumentationBase {
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel } = this;
-    if (domainModel) {
-      this[responseValue] = this[serializerValue].response(domainModel);
-    }
+    await this[queryResponse]();
     await this[queryPayloads]();
     await this.requestUpdate();
+  }
+
+  /**
+   * Queries the store for the response data, when needed.
+   * @returns {Promise<void>}
+   */
+  async [queryResponse]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[responseValue] = undefined;
+      return;
+    }
+    if (this[responseValue] && this[responseValue].id === domainId) {
+      // in case the response model was provided via the property setter.
+      return;
+    }
+    try {
+      const info = await Events.Response.get(this, domainId);
+      this[responseValue] = info;
+    } catch (e) {
+      this[responseValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API response data: ${e.message}`, this.localName);
+    }
   }
 
   async [queryPayloads]() {
@@ -205,7 +223,7 @@ export default class ApiResponseDocumentElement extends ApiDocumentationBase {
     }
     const content = html`
     ${this[payloadSelectorTemplate]()}
-    <api-payload-document .amf="${this.amf}" .payload="${payload}" ?anypoint="${this.anypoint}"></api-payload-document>
+    <api-payload-document .domainId="${payload.id}" .payload="${payload}" ?anypoint="${this.anypoint}"></api-payload-document>
     `;
     return this[paramsSectionTemplate]('Response body', 'payloadOpened', content);
   }

@@ -25,6 +25,8 @@ import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 /** @typedef {import('../src/helpers/api').ApiDocumentation} ApiDocumentation */
 /** @typedef {import('../src/helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../src/helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../src/helpers/api').ApiRequest} ApiRequest */
+/** @typedef {import('../src/helpers/api').ApiResponse} ApiResponse */
 
 /**
  * @typedef EndpointOperation
@@ -350,6 +352,18 @@ export class AmfLoader extends AmfHelperMixin(Object) {
   }
 
   /**
+   * @param {AmfDocument} model
+   * @param {string} endpoint
+   * @param {string} operation
+   * @return {ApiResponse[]}
+   */
+  getResponses(model, endpoint, operation) {
+    const responses = this.lookupResponses(model, endpoint, operation);
+    const serializer = new AmfSerializer(model);
+    return responses.map(i => serializer.response(i));
+  }
+
+  /**
    * @param {AmfDocument} model 
    * @param {string} path The endpoint path
    * @param {string} operation The operation path
@@ -377,6 +391,19 @@ export class AmfLoader extends AmfHelperMixin(Object) {
    * @param {AmfDocument} model
    * @param {string} endpoint
    * @param {string} operation
+   * @param {string} code The response's status code
+   * @return {ApiResponse}
+   */
+  getResponse(model, endpoint, operation, code) {
+    const response = this.lookupResponse(model, endpoint, operation, code);
+    const serializer = new AmfSerializer(model);
+    return serializer.response(response);
+  }
+
+  /**
+   * @param {AmfDocument} model
+   * @param {string} endpoint
+   * @param {string} operation
    * @return {Request}
    */
   lookupRequest(model, endpoint, operation) {
@@ -389,6 +416,21 @@ export class AmfLoader extends AmfHelperMixin(Object) {
       throw new Error(`No request found in operation ${operation} and path ${endpoint}`);
     }
     return requests;
+  }
+
+  /**
+   * @param {AmfDocument} model
+   * @param {string} endpoint
+   * @param {string} operation
+   * @return {ApiRequest}
+   */
+  getRequest(model, endpoint, operation) {
+    const request = this.lookupRequest(model, endpoint, operation);
+    if (!request) {
+      throw new Error(`No request found in operation ${operation} and path ${endpoint}`);
+    }
+    const serializer = new AmfSerializer(model);
+    return serializer.request(request);
   }
 
   /**

@@ -8,18 +8,15 @@ import {
   ApiDocumentationBase, 
   paramsSectionTemplate, 
   schemaItemTemplate,
-  // descriptionTemplate,
-  // customDomainPropertiesTemplate,
-  serializerValue,
 } from './ApiDocumentationBase.js';
 import { QueryParameterProcessor } from '../lib/QueryParameterProcessor.js';
+import { Events } from '../events/Events.js';
 import '../../define/api-payload-document.js';
 import '../../define/api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('../helpers/api').ApiRequest} ApiRequest */
 /** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
-/** @typedef {import('../helpers/amf').Request} Request */
 /** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
 /** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
 /** @typedef {import('../helpers/api').ApiServer} ApiServer */
@@ -204,8 +201,6 @@ export default class ApiRequestDocumentElement extends ApiDocumentationBase {
     this.cookiesOpened = undefined;
     /** @type {boolean} */
     this.parametersOpened = undefined;
-    /** @type {Request} */
-    this.domainModel = undefined;
     /** @type {ApiServer} */
     this.server = undefined;
     /** @type {ApiEndPoint} */
@@ -218,15 +213,36 @@ export default class ApiRequestDocumentElement extends ApiDocumentationBase {
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel } = this;
-    if (domainModel) {
-      this[requestValue] = this[serializerValue].request(domainModel);
-    }
     this.mimeType = undefined;
+    await this[queryRequest]();
     await this[queryPayloads]();
     await this[processQueryParameters]();
     this[preselectMime]();
     await this.requestUpdate();
+  }
+
+  /**
+   * Queries the store for the request data, when needed.
+   * @returns {Promise<void>}
+   */
+  async [queryRequest]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[requestValue] = undefined;
+      return;
+    }
+    if (this[requestValue] && this[requestValue].id === domainId) {
+      // in case the request model was provided via the property setter.
+      return;
+    }
+    try {
+      const info = await Events.Request.get(this, domainId);
+      this[requestValue] = info;
+    } catch (e) {
+      this[requestValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API request data: ${e.message}`, this.localName);
+    }
   }
 
   async [queryPayloads]() {
@@ -378,7 +394,7 @@ export default class ApiRequestDocumentElement extends ApiDocumentationBase {
     }
     const content = html`
     ${this[payloadSelectorTemplate]()}
-    <api-payload-document .amf="${this.amf}" .payload="${payload}" ?anypoint="${this.anypoint}"></api-payload-document>
+    <api-payload-document .domainId="${payload.id}" .payload="${payload}" ?anypoint="${this.anypoint}"></api-payload-document>
     `;
     return this[paramsSectionTemplate]('Request body', 'payloadOpened', content);
   }

@@ -18,8 +18,8 @@ class ComponentDemo extends AmfDemoBase {
       "allowCustom",
       "serversCount",
       "autoSelect",
-      'selectedShape',
-      'selectedShapeType',
+      'domainId',
+      'domainType',
     ]);
     this.componentName = 'api-server-selector';
     this.renderViewControls = true;
@@ -50,8 +50,8 @@ class ComponentDemo extends AmfDemoBase {
       this.servers = null;
       return;
     }
-    this.selectedShape = domainId;
-    this.selectedShapeType = domainType;
+    this.domainId = domainId;
+    this.domainType = domainType;
   }
 
   /**
@@ -110,7 +110,6 @@ class ComponentDemo extends AmfDemoBase {
 
   componentTemplate() {
     const {
-      amf,
       demoStates,
       darkThemeActive,
       anypoint,
@@ -120,8 +119,8 @@ class ComponentDemo extends AmfDemoBase {
       selectedServer,
       serversCount,
       autoSelect,
-      selectedShape,
-      selectedShapeType,
+      domainId,
+      domainType,
     } = this;
     return html`
     <arc-interactive-demo
@@ -132,13 +131,12 @@ class ComponentDemo extends AmfDemoBase {
     >
       <div class="selector-container" slot="content">
         <api-server-selector
-          .amf="${amf}"
           ?anypoint="${anypoint}"
           ?allowCustom="${allowCustom}"
           ?outlined="${outlined}"
           ?autoSelect="${autoSelect}"
-          .selectedShape="${selectedShape}"
-          .selectedShapeType="${selectedShapeType}"
+          .domainId="${domainId}"
+          .domainType="${domainType}"
           @apiserverchanged="${this._apiSrvHandler}"
           @serverscountchanged="${this._countHandler}"
         >

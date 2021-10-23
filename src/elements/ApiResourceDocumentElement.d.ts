@@ -1,7 +1,6 @@
 import { TemplateResult } from 'lit-element';
 import { Oauth2Credentials } from '@advanced-rest-client/app';
-import { ApiDocumentationBase } from './ApiDocumentationBase.js';
-import { EndPoint } from '../helpers/amf';
+import { ApiDocumentationBase } from './ApiDocumentationBase';
 import { ApiOperation, ApiServer, ApiEndPoint } from '../helpers/api';
 import { ApiConsoleRequest, ServerType } from '../types';
 
@@ -168,7 +167,6 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
   * @attribute
   */
   serverType: ServerType;
-  domainModel: EndPoint;
   [requestValues]: Record<string, ApiConsoleRequest>;
 
   [processSelectionTimeout]: any;

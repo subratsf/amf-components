@@ -13,7 +13,7 @@ import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 
 describe('ApiSummaryElement', () => {
   const loader = new AmfLoader();
-  const store = new DomEventsAmfStore(undefined, window);
+  const store = new DomEventsAmfStore(window);
   store.listen();
 
   /**
@@ -490,8 +490,8 @@ describe('ApiSummaryElement', () => {
 
         it('clears everything when changing to RAML library', async () => {
           store.amf = libraryModel;
-          await aTimeout(0);
-          assert.isUndefined(element.summary);
+          await aTimeout(2);
+          assert.notOk(element.summary);
           assert.deepEqual(element.servers, []);
           assert.deepEqual(element[endpointsValue], []);
         });

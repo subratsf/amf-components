@@ -1,5 +1,6 @@
 import { fixture, assert, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 import '../../define/api-request-editor.js';
 
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
@@ -7,32 +8,36 @@ import '../../define/api-request-editor.js';
 
 describe('ApiRequestEditorElement', () => {
   describe('APIC-289', () => {
+    const store = new DomEventsAmfStore(window);
+    store.listen();
+
     /**
-     * @param {AmfDocument} amf
      * @param {string} selected
      * @returns {Promise<ApiRequestEditorElement>}
      */
-    async function modelFixture(amf, selected) {
-      return (fixture(html`<api-request-editor
-        .amf="${amf}"
+    async function modelFixture(selected) {
+      const element = /** @type ApiRequestEditorElement */ (await fixture(html`<api-request-editor
         .domainId="${selected}"></api-request-editor>`));
+      await aTimeout(2);
+      return element;
     }
 
     const apiFile = 'APIC-289';
     [true, false].forEach((compact) => {
       describe(compact ? 'Compact model' : 'Full model', () => {
         /** @type AmfLoader */
-        let store;
+        let loader;
         /** @type AmfDocument */
         let amf;
         before(async () => {
-          store = new AmfLoader();
-          amf = await store.getGraph(compact, apiFile);
+          loader = new AmfLoader();
+          amf = await loader.getGraph(compact, apiFile);
+          store.amf = amf;
         });
 
         it('generates query parameters model', async () => {
-          const method = store.lookupOperation(amf, '/organization', 'get');
-          const element = await modelFixture(amf, method['@id']);
+          const method = loader.lookupOperation(amf, '/organization', 'get');
+          const element = await modelFixture(method['@id']);
           await aTimeout(0);
           await aTimeout(0);
           const model = element.parametersValue;
@@ -40,8 +45,8 @@ describe('ApiRequestEditorElement', () => {
         });
 
         it('has OAS name on a parameter', async () => {
-          const method = store.lookupOperation(amf, '/organization', 'get');
-          const element = await modelFixture(amf, method['@id']);
+          const method = loader.lookupOperation(amf, '/organization', 'get');
+          const element = await modelFixture(method['@id']);
           await aTimeout(0);
           await aTimeout(0);
           const model = element.parametersValue.find(p => p.parameter.name === 'foo_bar');
@@ -49,8 +54,8 @@ describe('ApiRequestEditorElement', () => {
         });
 
         it('render parameter name with the input', async () => {
-          const method = store.lookupOperation(amf, '/organization', 'get');
-          const element = await modelFixture(amf, method['@id']);
+          const method = loader.lookupOperation(amf, '/organization', 'get');
+          const element = await modelFixture(method['@id']);
           await aTimeout(0);
           await aTimeout(0);
           const node = element.shadowRoot.querySelector('.form-input label');

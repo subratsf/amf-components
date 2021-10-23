@@ -18,10 +18,10 @@ import {
   ApiDocumentationBase, 
   paramsSectionTemplate,
   descriptionTemplate,
-  serializerValue,
   customDomainPropertiesTemplate,
   evaluateExample,
 } from './ApiDocumentationBase.js';
+import { Events } from '../events/Events.js';
 import { joinTraitNames } from '../lib/Utils.js';
 import * as UrlLib from '../lib/UrlUtils.js';
 import { tablePropertyTemplate } from './SchemaCommonTemplates.js';
@@ -35,7 +35,6 @@ import '../../define/api-security-requirement-document.js';
 /** @typedef {import('../helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
 /** @typedef {import('../helpers/amf').EndPoint} EndPoint */
-/** @typedef {import('../helpers/amf').Operation} Operation */
 /** @typedef {import('../helpers/api').ApiResponse} ApiResponse */
 /** @typedef {import('../helpers/api').ApiCallback} ApiCallback */
 /** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
@@ -46,6 +45,7 @@ import '../../define/api-security-requirement-document.js';
 /** @typedef {import('./ApiRequestDocumentElement').default} ApiRequestDocumentElement */
 
 export const queryEndpoint = Symbol('queryEndpoint');
+export const queryOperation = Symbol('queryOperation');
 export const queryServers = Symbol('queryServers');
 export const queryResponses = Symbol('queryResponses');
 export const operationValue = Symbol('operationValue');
@@ -53,6 +53,10 @@ export const endpointValue = Symbol('endpointValue');
 export const serversValue = Symbol('serversValue');
 export const serverIdValue = Symbol('serverIdValue');
 export const urlValue = Symbol('urlValue');
+export const queryProtocols = Symbol('queryProtocols');
+export const protocolsValue = Symbol('protocolsValue');
+export const queryVersion = Symbol('queryVersion');
+export const versionValue = Symbol('versionValue');
 export const responsesValue = Symbol('responsesValue');
 export const computeUrlValue = Symbol('computeUrlValue');
 export const computeParametersValue = Symbol('computeParametersValue');
@@ -86,7 +90,6 @@ export const snippetsTemplate = Symbol('snippetsTemplate');
 export const securitySelectorTemplate = Symbol('securitySelectorTemplate');
 export const securitySelectionHandler = Symbol('securitySelectionHandler');
 export const securityTabTemplate = Symbol('securityTabTemplate');
-export const computeOperationModel = Symbol('computeOperationModel');
 
 /**
  * A web component that renders the documentation page for an API operation built from 
@@ -228,6 +231,20 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     return this[responsesValue];
   }
 
+  /**
+   * @returns {string[]|undefined} The API's protocols.
+   */
+  get protocols() {
+    return this[protocolsValue];
+  }
+
+  /**
+   * @returns {string|undefined} The API's version.
+   */
+  get version() {
+    return this[versionValue];
+  }
+
   static get properties() {
     return {
       /**
@@ -285,6 +302,13 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
        * The currently rendered request panel mime type.
        */
       requestMimeType: { type: String },
+      /** 
+       * Optional. The parent endpoint id. When set it uses this value to query for the endpoint
+       * instead of querying for a parent through the operation id.
+       * Also, when `endpoint` is set and the `endpointId` match then it ignores querying for 
+       * the endpoint.
+       */
+      endpointId: { type: String },
     };
   }
 
@@ -328,8 +352,6 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     this.renderCodeSnippets = undefined;
     /** @type {boolean} */
     this.renderSecurity = undefined;
-    /** @type {Operation} */
-    this.domainModel = undefined;
     /** @type {string} */
     this.requestMimeType = undefined;
     /** @type {string} */
@@ -338,24 +360,18 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     this[snippetsHeadersValue] = undefined;
     /** @type {string} */
     this.securityId = undefined;
+    /** @type {string} */
+    this.endpointId = undefined;
   }
 
   /**
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel, domainId } = this;
-    this[operationValue] = undefined;
-    if (domainModel) {
-      this[operationValue] = this[serializerValue].operation(domainModel);
-    } else if (domainId) {
-      const model = this[computeOperationModel](domainId);
-      if (model) {
-        this[operationValue] = model;
-      }
-    }
     await this[queryEndpoint]();
+    await this[queryOperation]();
     await this[queryServers]();
+    await this[queryProtocols]();
     await this[queryResponses]();
     this[preselectResponse]();
     this[preselectSecurity]();
@@ -367,75 +383,97 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
   }
 
   /**
-   * Computes an AMF model for the operation from the current AMF model.
-   * THe `amf` can be a partial model which has the operations list directly.
-   * @param {string} domainId The domain id of the operation.
-   * @returns {ApiOperation|undefined} 
+   * Queries the store for the operation data, when needed.
+   * @returns {Promise<void>}
    */
-  [computeOperationModel](domainId) {
-    const { amf } = this;
-    if (!amf) {
-      return undefined;
+  async [queryOperation]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[operationValue] = undefined;
+      return;
     }
-    const type = this[serializerValue].readTypes(amf['@type']);
-    /** @type Operation */
-    let model;
-    if (type.includes(this.ns.aml.vocabularies.apiContract.EndPoint)) {
-      // partial model for an endpoint.
-      const ops = /** @type Operation[] */ (this._computePropertyArray(amf, this.ns.aml.vocabularies.apiContract.supportedOperation));
-      model = ops.find((op) => op['@id'] === domainId);
-    } else {
-      const webApi = this._computeApi(amf);
-      model = this._computeMethodModel(webApi, domainId);
+    if (this[operationValue] && this[operationValue].id === domainId) {
+      // in case the operation model was provided via the property setter.
+      return;
     }
-    if (model) {
-      return this[serializerValue].operation(model);
+    try {
+      const endpointId = this[endpointValue] && this[endpointValue].id;
+      const info = await Events.Operation.get(this, domainId, endpointId);
+      this[operationValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API operation data: ${e.message}`, this.localName);
     }
-    return undefined;
   }
 
   /**
-   * Queries for the API operation's endpoint data.
+   * Queries the store for the endpoint data.
+   * @returns {Promise<void>}
    */
   async [queryEndpoint]() {
-    const { domainId, amf, operation } = this;
+    const { domainId, endpointId } = this;
+    if (!domainId) {
+      // this[endpointValue] = undefined;
+      return;
+    }
+    if (this[endpointValue] && this[endpointValue].id === endpointId) {
+      // in case the endpoint model was provided via the property setter.
+      return;
+    }
     this[endpointValue] = undefined;
-    if (!amf) {
-      return;
+    try {
+      const info = await (endpointId ? Events.Endpoint.get(this, endpointId) : Events.Operation.getParent(this, domainId));
+      this[endpointValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API endpoint data: ${e.message}`, this.localName);
     }
-    const type = this[serializerValue].readTypes(amf['@type']);
-    if (type.includes(this.ns.aml.vocabularies.apiContract.EndPoint)) {
-      this[endpointValue] = this[serializerValue].endPoint(amf);
-      return;
-    }
-    const id = domainId || operation && operation.id;
-    if (!id) {
-      return;
-    }
-    const wa = this._computeApi(amf);
-    if (!wa) {
-      return;
-    }
-    const model = this._computeMethodEndpoint(wa, id);
-    if (!model) {
-      return;
-    }
-    this[endpointValue] = this[serializerValue].endPoint(model);
   }
 
   /**
    * Queries for the current servers value.
    */
   async [queryServers]() {
-    this[serversValue] = undefined;
     const { domainId } = this;
     const endpointId = this[endpointValue] && this[endpointValue].id;
-    const servers = this._getServers({
-      endpointId,
-      methodId: domainId,
-    });
-    if (Array.isArray(servers) && servers.length) {
-      this[serversValue] = servers.map(server => this[serializerValue].server(server));
+    try {
+      const info = await Events.Server.query(this, {
+        endpointId,
+        methodId: domainId,
+      });
+      this[serversValue] = info;
+    } catch (e) {
+      this[serversValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API servers: ${e.message}`, this.localName);
+    }
+  }
+
+  /**
+   * Queries the API store for the API protocols list.
+   */
+  async [queryProtocols]() {
+    this[protocolsValue] = undefined;
+    try {
+      const info = await Events.Api.protocols(this);
+      this[protocolsValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API protocols list: ${e.message}`, this.localName);
+    }
+  }
+
+  /**
+   * Queries the API store for the API version value.
+   */
+  async [queryVersion]() {
+    this[versionValue] = undefined;
+    try {
+      const info = await Events.Api.version(this);
+      this[versionValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API version value: ${e.message}`, this.localName);
     }
   }
 
@@ -509,11 +547,8 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     if (this.asyncApi) {
       return;
     }
+    const { protocols, version, server, baseUri } = this;
     const endpoint = this[endpointValue];
-    const version = this._computeApiVersion(this.amf);
-    const { baseUri, server } = this;
-    const wa = this._computeWebApi(this.amf);
-    const protocols = /** @type string[] */ (this._getValueArray(wa, this.ns.aml.vocabularies.apiContract.scheme));
     const url = UrlLib.computeEndpointUri({ baseUri, server, endpoint, protocols, version, });
     this[urlValue] = url;
   }
@@ -858,14 +893,14 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string} The template for the operation's request documentation element.
    */
   [requestTemplate]() {
-    const operation = this[operationValue];
+    const { operation } = this;
     if (!operation) {
       return '';
     }
     const { server, endpoint } = this;
     return html`
     <api-request-document 
-      .amf="${this.amf}"
+      .domainId="${operation.request && operation.request.id}" 
       .request="${operation.request}" 
       .server=${server} 
       .endpoint=${endpoint}
@@ -906,7 +941,6 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     <div class="callback-section">
       <div class="heading4 table-title">${name}</div>
       <api-operation-document 
-        .amf="${this.amf}"
         .domainId="${operation.id}"
         .operation="${operation}"
         .serverId="${this.serverId}" 
@@ -969,7 +1003,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     }
     return html`
     <api-response-document 
-      .amf="${this.amf}" 
+      .domainId="${response.id}" 
       .response="${response}" 
       headersOpened 
       payloadOpened
@@ -1007,9 +1041,8 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
    * @returns {TemplateResult} 
    */
   [securityTemplate](security) {
-    // .domainId="${security.id}" 
-    return html`<api-security-requirement-document 
-      .amf="${this.amf}" 
+    return html`<api-security-requirement-document
+      .domainId="${security.id}" 
       .securityRequirement="${security}"
       ?anypoint="${this.anypoint}"
     ></api-security-requirement-document>`

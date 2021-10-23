@@ -3,8 +3,6 @@
 import { LitElement, html } from 'lit-element';
 import '@advanced-rest-client/icons/arc-icon.js';
 import elementStyles from './styles/ApiAnnotation.js';
-import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
-import { AmfSerializer } from '../helpers/AmfSerializer.js';
 import { ns } from '../helpers/Namespace.js';
 
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */
@@ -32,28 +30,9 @@ export const objectScalarPropertyTemplate = Symbol('objectScalarPropertyTemplate
  * Annotations are part of RAML language and API console supports it.
  * The element looks for annotations in model and renders them.
  */
-export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElement) {
+export default class ApiAnnotationDocumentElement extends LitElement {
   get styles() {
     return elementStyles;
-  }
-
-  /**
-   * @returns {DomainElement|undefined}
-   */
-  get shape() {
-    return this[shapeValue];
-  }
-
-  /**
-   * @param {DomainElement} value
-   */
-  set shape(value) {
-    const oldValue = this[shapeValue];
-    if (oldValue === value) {
-      return;
-    }
-    this[shapeValue] = value;
-    this[processShape]();
   }
 
   /**
@@ -113,20 +92,14 @@ export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElem
 
   /**
    * Called when the shape property change.
-   * Sets `hasCustomProperties` and `customList` properties.
-   *
-   * Note that for performance reasons, if the element determine that there's
-   * no custom properties wit will not clear `customList`.
-   * It will be updated only if the value actually change.
    */
   [processShape]() {
-    const shape = /** @type DomainElement */ (this[shapeValue]);
+    const shape = /** @type ApiDomainProperty */ (this[shapeValue]);
     this[propertiesValue] = undefined;
     if (!shape) {
       return;
     }
-    const serializer = new AmfSerializer(this.amf);
-    const result = serializer.customDomainProperties(shape);
+    const result = shape.customDomainProperties;
     if (Array.isArray(result) && result.length) {
       this[propertiesValue] = result;
     }

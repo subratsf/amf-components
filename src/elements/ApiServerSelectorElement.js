@@ -2,6 +2,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import { html, LitElement } from 'lit-element';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import '@anypoint-web-components/awc/anypoint-input.js';
 import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/awc/anypoint-listbox.js';
@@ -9,35 +10,32 @@ import '@anypoint-web-components/awc/anypoint-item.js';
 import '@anypoint-web-components/awc/anypoint-icon-button.js';
 import { close } from '@advanced-rest-client/icons/ArcIcons.js';
 import elementStyles from './styles/ServerSelector.js';
-import { ServerEvents } from '../events/ServerEvents.js';
+import { Events } from '../events/Events.js';
 import { EventTypes } from '../events/EventTypes.js';
-import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
-import { AmfSerializer } from '../helpers/AmfSerializer.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 /** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListboxElement */
 /** @typedef {import('@anypoint-web-components/awc').AnypointDropdownElement} AnypointDropdownElement */
-/** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../helpers/api').ApiServer} ApiServer */
 /** @typedef {import('../types').SelectionInfo} SelectionInfo */
 /** @typedef {import('../types').UpdateServersOptions} UpdateServersOptions */
+/** @typedef {import('../types').SelectionType} SelectionType */
 
+export const domainIdValue = Symbol('domainIdValue');
+export const domainTypeValue = Symbol('domainTypeValue');
+export const debounceValue = Symbol('debounceValue');
+export const processDebounce = Symbol('processDebounce');
 export const customNodesCount = Symbol('customNodesCount');
 export const allowCustomValue = Symbol('allowCustomValue');
 export const baseUriValue = Symbol('baseUriValue');
 export const valueValue = Symbol('valueValue');
 export const customItems = Symbol('customItems');
-export const serializerValue = Symbol('serializerValue');
 export const serversValue = Symbol('serversValue');
 export const onServersCountChangeValue = Symbol('onServersCountChangeValue');
 export const onApiServerChange = Symbol('onApiServerChange');
-export const selectedShapeValue = Symbol('selectedShapeValue');
-export const selectedShapeTypeValue = Symbol('selectedShapeTypeValue');
 export const getServerIndexByUri = Symbol('getServerIndexByUri');
 export const getSelectionInfo = Symbol('getSelectionInfo');
-export const getEndpointIdForMethod = Symbol('getEndpointIdForMethod');
 export const getExtraServers = Symbol('getExtraServers');
-export const processShapeChange = Symbol('processShapeChange');
 export const resetSelection = Symbol('resetSelection');
 export const updateServerSelection = Symbol('updateServerSelection');
 export const notifyServersCount = Symbol('notifyServersCount');
@@ -54,6 +52,8 @@ export const serverListTemplate = Symbol('serverListTemplate');
 export const serverListItemTemplate = Symbol('serverListItemTemplate');
 export const customUriTemplate = Symbol('customUriTemplate');
 export const customUriInputTemplate = Symbol('customUriInputTemplate');
+export const graphChangeHandler = Symbol('graphChangeHandler');
+export const queryServers = Symbol('queryServers');
 
 /**
  * An element that renders a selection of servers defined in AMF graph model for an API.
@@ -79,7 +79,7 @@ export const customUriInputTemplate = Symbol('customUriInputTemplate');
  * `value` attribute. This is the value that will be dispatched in the `api-server-changed`
  * event.
  */
-export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement) {
+export default class ApiServerSelectorElement extends EventsTargetMixin(LitElement) {
   static get properties() {
     return {
       /**
@@ -131,16 +131,58 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
       opened: { type: Boolean },
 
       /**
-       * An `@id` of selected AMF shape.
-       * When changed, it computes servers for the selection
+       * The graph domain id of the selected domain object.
        */
-      selectedShape: { type: String },
+      domainId: { type: String },
       /**
-       * The type of the selected AMF shape.
-       * When changed, it computes servers for the selection
+       * The selected domain type.
+       * This is an abstract name from the api navigation.
        */
-      selectedShapeType: { type: String },
+      domainType: { type: String },
     };
+  }
+  
+  /**
+   * @returns {string} The domain id (AMF id) of the rendered operation.
+   */
+  get domainId() {
+    return this[domainIdValue];
+  }
+
+  /**
+   * @param {string} value The domain id (AMF id) of the rendered operation.
+   */
+  set domainId(value) {
+    const old = this[domainIdValue];
+    /* istanbul ignore if */
+    if (old === value) {
+      return;
+    }
+    this[domainIdValue] = value;
+    this.requestUpdate('domainId', old);
+    this[processDebounce]();
+  }
+
+  /** 
+   * @returns {SelectionType|undefined} The domain id of the object to render.
+   */
+  get domainType() {
+    return this[domainTypeValue];
+  }
+
+  /** 
+   * @returns {SelectionType|undefined} The domain id of the object to render.
+   */
+  set domainType(value) {
+    const old = this[domainTypeValue];
+    if (old === value) {
+      return;
+    }
+    this[domainTypeValue] = value;
+    this.requestUpdate('domainType', old);
+    if (value) {
+      this[processDebounce]();
+    }
   }
 
   get styles() {
@@ -262,15 +304,11 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
    * servers.
    */
   get isValueCustom() {
-    const { servers = [], value } = this;
+    const { value } = this;
     if (!value) {
       return false;
     }
-    const hasServer = servers.some(s => s.url === value);
-    if (hasServer) {
-      return false;
-    }
-    return this.serverValues.indexOf(value) === -1;
+    return !this.serverValues.includes(value);
   }
 
   /**
@@ -335,42 +373,6 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
     return serversCount;
   }
 
-  /**
-   * Sets new selectedShape, then tries to update servers
-   * @param {String} value AMF shape id
-   */
-  set selectedShape(value) {
-    const old = this[selectedShapeValue];
-    if (old === value) {
-      return;
-    }
-    this[selectedShapeValue] = value;
-    this[processShapeChange](value, this.selectedShapeType);
-    this.requestUpdate('selectedShape', old);
-  }
-
-  get selectedShape() {
-    return this[selectedShapeValue];
-  }
-
-  /**
-   * Sets new selectedShapeType, then tries to update servers
-   * @param {string} value AMF shape type
-   */
-  set selectedShapeType(value) {
-    const old = this[selectedShapeTypeValue];
-    if (old === value) {
-      return;
-    }
-    this[selectedShapeTypeValue] = value;
-    this[processShapeChange](this.selectedShape, value);
-    this.requestUpdate('selectedShapeType', old);
-  }
-
-  get selectedShapeType() {
-    return this[selectedShapeTypeValue];
-  }
-
   constructor() {
     super();
     /**
@@ -378,6 +380,11 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
      * @type number
      */
     this[customNodesCount] = 0;
+    /** 
+     * The timeout after which the `queryGraph()` function is called 
+     * in the debouncer.
+     */
+    this.queryDebouncerTimeout = 1;
     this.opened = false;
     this.autoSelect = false;
     this.anypoint = false;
@@ -390,14 +397,99 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
      * @type {string[]}
      */
     this[customItems] = [];
-    /** @type AmfSerializer */
-    this[serializerValue] = new AmfSerializer();
     /** @type EventListener */
     this[onServersCountChangeValue] = undefined;
+    this[graphChangeHandler] = this[graphChangeHandler].bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this[processDebounce]();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this[debounceValue]) {
+      clearTimeout(this[debounceValue]);
+      this[debounceValue] = undefined;
+    }
+  }
+
+  /**
+   * @param {EventTarget} node
+   */
+  _attachListeners(node) {
+    node.addEventListener(EventTypes.Store.graphChange, this[graphChangeHandler]);
+    super._attachListeners(node);
+  }
+
+  /**
+   * @param {EventTarget} node
+   */
+  _detachListeners(node) {
+    node.removeEventListener(EventTypes.Store.graphChange, this[graphChangeHandler]);
+    super._detachListeners(node);
+  }
+
+  /**
+   * Handler for the event dispatched by the store when the graph model change.
+   */
+  [graphChangeHandler]() {
+    this[processDebounce]()
+  }
+
+  /**
+   * Calls the `queryGraph()` function in a debouncer.
+   */
+  [processDebounce]() {
+    if (this[debounceValue]) {
+      clearTimeout(this[debounceValue]);
+    }
+    this[debounceValue] = setTimeout(() => {
+      this[debounceValue] = undefined;
+      this.processGraph();
+    }, this.queryDebouncerTimeout);
   }
 
   firstUpdated() {
     this[notifyServersCount]();
+  }
+
+  /**
+   * Queries for the current API server data from the store.
+   */
+  async processGraph() {
+    const oldValue = this.value;
+    await this[queryServers]();
+    // await this.requestUpdate();
+    this.value = '';
+    this.selectIfNeeded(oldValue);
+    this[notifyServersCount]();
+  }
+
+  /**
+   * Queries for the current servers value.
+   */
+  async [queryServers]() {
+    const { domainId, domainType } = this;
+    let endpointId;
+    let methodId;
+    if (domainType === 'operation') {
+      methodId = domainId;
+    } else if (domainType === 'resource') {
+      endpointId = domainId;
+    }
+    try {
+      const info = await Events.Server.query(this, {
+        endpointId,
+        methodId,
+      });
+      this[serversValue] = info;
+    } catch (e) {
+      this[serversValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API servers: ${e.message}`, this.localName);
+    }
   }
 
   /**
@@ -415,44 +507,14 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
     if (this.type !== type) {
       this.type = type;
     }
-    ServerEvents.serverChange(this, effectiveValue, this.type);
-  }
-
-  /**
-   * Receives shape id and shape type, and looks for endpointId
-   * if the type is 'endpoint'
-   * @param {string} id AMF shape id
-   * @param {string} type AMF shape type
-   * @private
-   */
-  [processShapeChange](id, type) {
-    let endpointId;
-    if (type === 'endpoint') {
-      endpointId = this[getEndpointIdForMethod](id);
-    }
-    this.updateServers({ id, type, endpointId });
-  }
-
-  /**
-   * Computes the endpoint id based on a given method id
-   * Returns undefined is endpoint is not found
-   * @param {string} methodId The AMF id of the method
-   * @returns {string|undefined}
-   */
-  [getEndpointIdForMethod](methodId) {
-    const webApi = this._computeApi(this.amf)
-    let endpoint = this._computeMethodEndpoint(webApi, methodId);
-    if (Array.isArray(endpoint)) {
-      [endpoint] = endpoint;
-    }
-    return endpoint ? /** @type string */ (this._getValue(endpoint, '@id')) : undefined;
+    Events.Server.serverChange(this, effectiveValue, this.type);
   }
 
   /**
    * Dispatches the `servers-count-changed` event with the current number of rendered servers.
    */
   [notifyServersCount]() {
-    ServerEvents.serverCountChange(this, this.serversCount);
+    Events.Server.serverCountChange(this, this.serversCount);
   }
 
   /**
@@ -467,31 +529,29 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
   }
 
   /**
-   * @param {AmfDocument} amf
-   * @override callback function when AMF change.
-   * This is asynchronous operation.
-   */
-  async __amfChanged(amf) {
-    this[serializerValue].amf = amf;
-    const { selectedShape, selectedShapeType } = this;
-    this[processShapeChange](selectedShape, selectedShapeType);
-    await this.updateComplete;
-    this.selectIfNeeded();
-  }
-
-  /**
    * Executes auto selection logic.
-   * It selects a fist available sever from the serves list when AMF or operation
-   * selection changed.
-   * If there are no servers, but there are custom slots available, then select
-   * first custom slot
-   * When there's already valid selection then it does nothing.
+   * 
+   * @param {string=} preferred The value that should be selected when possible.
    */
-  selectIfNeeded() {
-    if (!this.autoSelect || this.isValueCustom) {
+  selectIfNeeded(preferred) {
+    if (!this.autoSelect) {
+      if (preferred) {
+        this.value = preferred;
+      }
       return;
     }
+    if (preferred && this.servers) {
+      const has = this.servers.some(i => i.url === preferred) || this[customItems].includes(preferred);
+      if (has) {
+        this.value = preferred;
+        return;
+      }
+    }
     if (this.value) {
+      return;
+    }
+    if (!this.value && preferred && this.type === 'custom') {
+      this.value = preferred;
       return;
     }
     const [first] = this.servers;
@@ -499,7 +559,7 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
       this.value = first.url;
     } else {
       const [extra] = this[getExtraServers]();
-      if (extra && this.amf) {
+      if (extra) {
         this.type = 'extra';
         this.value = extra.getAttribute('data-value') || extra.getAttribute('value');
       }
@@ -575,28 +635,6 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
    */
   [getServerIndexByUri](servers, value) {
     return servers.findIndex(s => s.url === value);
-  }
-
-  /**
-   * Update component's servers.
-   *
-   * @param {UpdateServersOptions=} selectedNodeParams The currently selected node parameters to set the servers for
-   */
-  updateServers({ id, type, endpointId } = {}) {
-    let methodId;
-    if (type === 'method') {
-      methodId = id;
-    }
-    if (type === 'endpoint') {
-      // eslint-disable-next-line no-param-reassign
-      endpointId = id;
-    }
-    const servers = this._getServers({ endpointId, methodId });
-    if (Array.isArray(servers)) {
-      this.servers = servers.map(s => this[serializerValue].server(s));
-    } else {
-      this.servers = undefined;
-    }
   }
 
   /**
@@ -731,12 +769,12 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
       <label slot="label">Select server</label>
       <anypoint-listbox
         .selected="${value}"
-        @selectedchange="${this[selectionChangeHandler]}"
         slot="dropdown-content"
         tabindex="-1"
-        ?anypoint="${anypoint}"
         attrforselected="data-value"
         selectable="[value],[data-value]"
+        ?anypoint="${anypoint}"
+        @selectedchange="${this[selectionChangeHandler]}"
         @itemschange="${this[listboxItemsHandler]}"
       >
         ${this[selectorListTemplate]()}
