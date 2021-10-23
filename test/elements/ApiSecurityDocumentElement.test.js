@@ -21,7 +21,7 @@ describe('ApiSecurityDocumentElement', () => {
    */
   async function amfModelFixture(shape) {
     const element = await fixture(html`<api-security-document 
-      .queryDebouncerTimeout="${0}"
+      .queryDebouncerTimeout="${1}"
       .securityScheme="${shape}"
     ></api-security-document>`);
     await aTimeout(2);

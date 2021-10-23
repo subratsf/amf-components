@@ -103,7 +103,7 @@ class ComponentPage extends AmfDemoBase {
       ['oauth-pkce', 'OAuth 2 PKCE'],
       ['secured-unions', 'Secured unions'],
       ['secured-api', 'Secured API'],
-      ['security-api', 'api-security-documentation API'],
+      ['security-api', 'security-api API'],
     ].forEach(([file, label]) => {
       result[result.length] = html`
       <anypoint-item data-src="models/${file}-compact.json">${label}</anypoint-item>`;

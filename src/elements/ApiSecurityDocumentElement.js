@@ -122,6 +122,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     }
     this[securityValue] = value;
     this[processSecurity]();
+    this[processQueryParameters]();
     this.requestUpdate();
   }
 
@@ -151,7 +152,8 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
   async processGraph() {
     await this[querySecurity]();
     await this[processQueryParameters]();
-    this.requestUpdate();
+    this.dispatchEvent(new Event('graphload'));
+    await this.requestUpdate();
   }
 
   /**
