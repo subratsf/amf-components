@@ -19,13 +19,13 @@ import { NavigationEvents } from '../events/NavigationEvents.js';
 
 /** @typedef {import('@anypoint-web-components/awc').AnypointCollapseElement} AnypointCollapseElement */
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('../types').MethodItem} MethodItem */
-/** @typedef {import('../types').EndpointItem} EndpointItem */
-/** @typedef {import('../types').SecurityItem} SecurityItem */
-/** @typedef {import('../types').TypeItem} TypeItem */
-/** @typedef {import('../types').DocumentationItem} DocumentationItem */
-/** @typedef {import('../types').TargetModel} TargetModel */
-/** @typedef {import('../types').NavigationItem} NavigationItem */
+/** @typedef {import('./ApiNavigationLegacyElement').MethodItem} MethodItem */
+/** @typedef {import('./ApiNavigationLegacyElement').EndpointItem} EndpointItem */
+/** @typedef {import('./ApiNavigationLegacyElement').SecurityItem} SecurityItem */
+/** @typedef {import('./ApiNavigationLegacyElement').TypeItem} TypeItem */
+/** @typedef {import('./ApiNavigationLegacyElement').DocumentationItem} DocumentationItem */
+/** @typedef {import('./ApiNavigationLegacyElement').TargetModel} TargetModel */
+/** @typedef {import('./ApiNavigationLegacyElement').NavigationItem} NavigationItem */
 /** @typedef {import('../types').SelectionType} SelectionType */
 /** @typedef {import('../helpers/amf').EndPoint} EndPoint */
 /** @typedef {import('../helpers/amf').AmfDocument} AmfDocument */

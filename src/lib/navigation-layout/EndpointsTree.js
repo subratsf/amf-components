@@ -2,8 +2,8 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
-/** @typedef {import('../types').ApiEndPointListItem} ApiEndPointListItem */
-/** @typedef {import('../types').ApiEndpointsTreeItem} ApiEndpointsTreeItem */
+/** @typedef {import('../../types').ApiEndPointListItem} ApiEndPointListItem */
+/** @typedef {import('../../types').ApiEndpointsTreeItem} ApiEndpointsTreeItem */
 /** @typedef {import('./EndpointsTree').CommonRootInfo} CommonRootInfo */
 
 /**

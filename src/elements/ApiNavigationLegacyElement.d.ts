@@ -1,7 +1,48 @@
 import {LitElement, TemplateResult} from 'lit-element';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
 import { EndPoint } from '../helpers/amf';
-import { MethodItem, EndpointItem, SecurityItem, TypeItem, DocumentationItem, TargetModel, NavigationItem, SelectionType } from '../types';
+import { SelectionType } from '../types';
+
+export declare interface NavigationItem {
+  label: string;
+  id: string;
+}
+
+export declare interface MethodItem extends NavigationItem {
+  method: string;
+}
+
+export declare interface EndpointItem extends NavigationItem {
+  path: string;
+  renderPath: boolean;
+  indent: number;
+  methods: MethodItem[];
+}
+
+export declare interface SecurityItem extends NavigationItem {}
+
+export declare interface TypeItem extends NavigationItem {}
+
+export declare interface DocumentationItem extends NavigationItem {
+  /**
+   * When set the documentation item refers to an external document
+   */
+  isExternal: boolean;
+  /**
+   * Only set when `isExternal` equals `true`.
+   * An URL for the external documentation.
+   */
+  url?: string;
+}
+
+export declare interface TargetModel {
+  documentation?: DocumentationItem[];
+  types?: TypeItem[];
+  securitySchemes?: SecurityItem[];
+  endpoints?: EndpointItem[];
+  _typeIds?: string[];
+  _basePaths?: string[];
+}
 
 export const collectData: unique symbol;
 export const queryValue: unique symbol;

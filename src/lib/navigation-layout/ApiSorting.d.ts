@@ -1,4 +1,4 @@
-import { ApiEndPointListItem } from "../types";
+import { ApiEndPointListItem } from "../../types";
 
 export declare class ApiSorting {
   /**

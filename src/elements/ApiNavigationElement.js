@@ -13,8 +13,9 @@ import '@anypoint-web-components/awc/anypoint-collapse.js';
 import '@advanced-rest-client/icons/arc-icon.js';
 import navStyles from './styles/NavStyles.js';
 import { ns } from '../helpers/Namespace.js';
-import { ApiSorting } from '../lib/ApiSorting.js';
-import { EndpointsTree } from '../lib/EndpointsTree.js';
+import { ApiSorting } from '../lib/navigation-layout/ApiSorting.js';
+import { EndpointsTree } from '../lib/navigation-layout/EndpointsTree.js';
+import { NaturalTree } from '../lib/navigation-layout/NaturalTree.js';
 import { EventTypes } from '../events/EventTypes.js';
 import { Events } from '../events/Events.js';
 import { cancelEvent } from '../lib/Utils.js'
@@ -37,6 +38,7 @@ import { cancelEvent } from '../lib/Utils.js'
 /** @typedef {import('../types').SchemaAddType} SchemaAddType */
 /** @typedef {import('../types').SelectionType} SelectionType */
 /** @typedef {import('../types').DocumentMeta} DocumentMeta */
+/** @typedef {import('../types').NavigationLayout} NavigationLayout */
 
 export const queryingValue = Symbol('queryingValue');
 export const abortControllerValue = Symbol('abortControllerValue');
@@ -44,11 +46,14 @@ export const selectedValue = Symbol('selectedValue');
 export const documentationsValue = Symbol('documentationsValue');
 export const schemasValue = Symbol('schemasValue');
 export const securityValue = Symbol('securityValue');
+export const sourceEndpointsValue = Symbol('sourceEndpointsValue');
 export const endpointsValue = Symbol('endpointsValue');
-export const queryValue = Symbol('queryValue');
 export const openedEndpointsValue = Symbol('openedEndpointsValue');
+export const layoutValue = Symbol('layoutValue');
+export const queryValue = Symbol('queryValue');
 export const queryApi = Symbol('queryApi');
 export const queryEndpoints = Symbol('queryEndpoints');
+export const layoutEndpoints = Symbol('processEndpoints');
 export const queryDocumentations = Symbol('queryDocumentations');
 export const querySchemas = Symbol('querySchemas');
 export const querySecurity = Symbol('querySecurity');
@@ -233,6 +238,22 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
     return this[documentMetaValue];
   }
 
+  /** @returns {NavigationLayout} */
+  get layout() {
+    return this[layoutValue];
+  }
+
+  /** @param {NavigationLayout} value */
+  set layout(value) {
+    const old = this[layoutValue];
+    if (old === value) {
+      return;
+    }
+    this[layoutValue] = value;
+    this[layoutEndpoints]();
+    this.requestUpdate('layout', old);
+  }
+
   static get properties() {
     return {
       /** 
@@ -301,10 +322,16 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
        * By default the endpoints are rendered one-by-one as defined in the API spec file
        * without any tree structure. When this option is set it sorts the endpoints 
        * alphabetically and creates a tree structure for the endpoints.
+       * 
+       * - tree - creates a tree structure from the endpoints list
+       * - natural - behavior consistent with the previous version of the navigation. Creates a tree structure based on the previous endpoints.
+       * - natural-sort - as `natural` but endpoints are sorted by name.
+       * - off (or none) - just like in the API spec.
+       * 
        * Note, the resulted tree structure will likely be different to the one encoded 
        * in the API spec file.
        */
-      sort: { type: Boolean, reflect: true, },
+      layout: { type: String, reflect: true, },
       /** 
        * When set it renders an input to filter the menu items.
        */
@@ -324,17 +351,14 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
 
   constructor() {
     super();
-
     this.summaryLabel = 'Summary';
     this.summary = false;
     this.anypoint = false;
-    this.sort = false;
     this.indentSize = 8;
     this.endpointsOpened = false;
     this.documentationsOpened = false;
     this.schemasOpened = false;
     this.securityOpened = false;
-    this.customPropertiesOpened = false;
     this.filter = false;
     this.edit = false;
     this.manualQuery = false;
@@ -443,6 +467,9 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
     await this[queryDocumentations](ctrl.signal);
     await this[querySchemas](ctrl.signal);
     await this[querySecurity](ctrl.signal);
+    if (!ctrl.signal.aborted) {
+      this[layoutEndpoints]();
+    }
     this[queryingValue] = false;
     this[abortControllerValue] = undefined;
     this[openedEndpointsValue] = [];
@@ -477,8 +504,6 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
     if (signal.aborted) {
       return;
     }
-    const { sort } = this;
-    this[endpointsValue] = undefined;
     try {
       const result = await Events.Endpoint.list(this);
       if (signal.aborted) {
@@ -487,14 +512,9 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
       if (!result) {
         return;
       }
-      if (sort) {
-        const sorted = ApiSorting.sortEndpointsByPath(result);
-        const items = new EndpointsTree().create(sorted);
-        this[endpointsValue] = items;
-      } else {
-        this[endpointsValue] = this[createFlatTreeItems](result);
-      }
+      this[sourceEndpointsValue] = result;
     } catch (e) {
+      this[sourceEndpointsValue] = undefined;
       Events.Telemetry.exception(this, e.message, false);
       Events.Reporting.error(this, e, `Enable to query for Endpoints data: ${e.message}`, this.localName);
     }
@@ -578,6 +598,37 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
       selected: false,
       secondarySelected: false,
     }));
+  }
+
+  /**
+   * Processes endpoints layout for the given configuration.
+   */
+  [layoutEndpoints]() {
+    const { layout } = this;
+    const endpoints = this[sourceEndpointsValue];
+    if (!endpoints) {
+      this[endpointsValue] = undefined;
+      return;
+    }
+    if (layout === 'tree') {
+      const sorted = ApiSorting.sortEndpointsByPath([...endpoints]);
+      const items = new EndpointsTree().create(sorted);
+      this[endpointsValue] = items;
+      return;
+    }
+    if (layout === 'natural') {
+      this[endpointsValue] = new NaturalTree().create(endpoints);
+      return;
+    }
+    if (layout === 'natural-sort') {
+      const sorted = /** @type ApiEndPointWithOperationsListItem[] */ (ApiSorting.sortEndpointsByPath([...endpoints]));
+      this[endpointsValue] = new NaturalTree().create(sorted);
+      return;
+    }
+    //
+    // Default layout
+    //
+    this[endpointsValue] = this[createFlatTreeItems](endpoints);
   }
 
   /**

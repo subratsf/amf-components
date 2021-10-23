@@ -1,4 +1,4 @@
-/** @typedef {import('../types').ApiEndPointListItem} ApiEndPointListItem */
+/** @typedef {import('../../types').ApiEndPointListItem} ApiEndPointListItem */
 
 export class ApiSorting {
   /**

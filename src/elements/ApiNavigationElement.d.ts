@@ -1,7 +1,18 @@
 import { LitElement, TemplateResult, CSSResult } from 'lit-element';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
-import { ApiEndPointWithOperationsListItem, } from '../types';
-import { EndpointItem, OperationItem, DocumentationItem, NodeShapeItem, SecurityItem, SelectableMenuItem, EditableMenuItem, EditableMenuType, SchemaAddType } from '../types';
+import { 
+  ApiEndPointWithOperationsListItem,
+  EndpointItem, 
+  OperationItem, 
+  DocumentationItem, 
+  NodeShapeItem, 
+  SecurityItem, 
+  SelectableMenuItem, 
+  EditableMenuItem, 
+  SelectionType, 
+  SchemaAddType,
+  NavigationLayout,
+} from '../types';
 
 export declare const apiIdValue: unique symbol;
 export declare const isAsyncValue: unique symbol;
@@ -11,11 +22,14 @@ export declare const selectedValue: unique symbol;
 export declare const documentationsValue: unique symbol;
 export declare const schemasValue: unique symbol;
 export declare const securityValue: unique symbol;
+export declare const sourceEndpointsValue: unique symbol;
 export declare const endpointsValue: unique symbol;
+export declare const layoutValue: unique symbol;
 export declare const queryValue: unique symbol;
 export declare const openedEndpointsValue: unique symbol;
 export declare const queryApi: unique symbol;
 export declare const queryEndpoints: unique symbol;
+export declare const layoutEndpoints: unique symbol;
 export declare const queryDocumentations: unique symbol;
 export declare const querySchemas: unique symbol;
 export declare const querySecurity: unique symbol;
@@ -104,6 +118,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
   [queryingValue]: boolean;
   [abortControllerValue]?: AbortController;
   [endpointsValue]: EndpointItem[];
+  [sourceEndpointsValue]: ApiEndPointWithOperationsListItem[];
   [documentationsValue]: DocumentationItem[];
   [schemasValue]: NodeShapeItem[];
   [securityValue]: SecurityItem[];
@@ -247,13 +262,19 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
   indentSize: number;
   /** 
   * By default the endpoints are rendered one-by-one as defined in the API spec file
-  * without any tree structure. When this option is set it sorts the endpoints 
-  * alphabetically and creates a tree structure for the endpoints.
+  * without any transformation. Set this option to sort the 
+  * When this option is set it re-arrange the endpoints to the one of specified layout options.
+  * 
+  * - tree - creates a tree structure from the endpoints list
+  * - natural - behavior consistent with the previous version of the navigation. Creates a tree structure based on the previous endpoints.
+  * - natural-sort - as `natural` but endpoints are sorted by name.
+  * - off (or none) - just like in the API spec.
+  * 
   * Note, the resulted tree structure will likely be different to the one encoded 
   * in the API spec file.
   * @attribute
   */
-  sort: boolean;
+  layout: NavigationLayout;
   /** 
   * When set it renders an input to filter the menu items.
   * @attribute
@@ -313,6 +334,10 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
   [querySecurity](signal: AbortSignal): Promise<void>;
 
   [createFlatTreeItems](items: ApiEndPointWithOperationsListItem[]): EndpointItem[];
+  /**
+   * Processes endpoints layout for the given configuration.
+   */
+  [layoutEndpoints](): void;
 
   /**
    * Filters the current endpoints by the current query value.
@@ -617,7 +642,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
    * @param type The object type
    * @returns A promise when the update operation finish.
    */
-  [updateNameHandler](id: string, value: string, type: EditableMenuType): Promise<void>;
+  [updateNameHandler](id: string, value: string, type: SelectionType): Promise<void>;
 
   /**
    * Click handler for the external navigation item.
@@ -712,5 +737,5 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
    * @param type
    * @returns The template for the rename input. 
    */
-  [renameInputTemplate](id: string, label: string, type: EditableMenuType): TemplateResult;
+  [renameInputTemplate](id: string, label: string, type: SelectionType): TemplateResult;
 }

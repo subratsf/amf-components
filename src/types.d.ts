@@ -198,6 +198,15 @@ export declare interface UpdateServersOptions {
  */
 export type ServerType = 'server' | 'custom' | 'extra';
 export type SelectionType = 'summary' | 'resource' | 'operation' | 'schema' | 'security' | 'documentation';
+/**
+ * API navigation layout options.
+ * 
+ * - tree - creates a tree structure from the endpoints list
+ * - natural - behavior consistent with the previous version of the navigation. Creates a tree structure based on the previous endpoints.
+ * - natural-sort - as `natural` but endpoints are sorted by name.
+ * - off (or none) - just like in the API spec.
+ */
+export type NavigationLayout = 'tree' | 'natural' | 'natural-sort' | 'off';
 
 interface SelectableMenuItem {
   /**

@@ -1,4 +1,4 @@
-import { ApiEndPointListItem, ApiEndpointsTreeItem } from "../types";
+import { ApiEndPointListItem, ApiEndpointsTreeItem } from "../../types";
 
 export interface CommonRootInfo {
   index: number;

@@ -117,6 +117,7 @@ config.set('rearrange-api/rearrange-api.raml', { type: 'RAML 1.0' });
 config.set('simple-api/simple-api.raml', { type: 'RAML 1.0' });
 config.set('example-generator-api/example-generator-api.raml', { type: "RAML 1.0" });
 config.set('tracked-examples/tracked-to-linked.raml', { type: 'RAML 1.0' });
+config.set('types-list/types-list.raml', { type: 'RAML 1.0' });
 
 generator.generate(config, {
   dest: 'demo/models/',
