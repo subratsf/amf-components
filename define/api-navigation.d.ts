@@ -1,4 +1,4 @@
-import Element from '../src/elements/ApiNavigationElement.js';
+import Element from '../src/elements/ApiNavigationElement';
 
 declare global {
   interface HTMLElementTagNameMap {

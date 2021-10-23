@@ -336,7 +336,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     const { name='', email, url } = summary.provider;
     const link = url ? sanitizeHTML(
       `<a href="${url}" target="_blank" class="app-link provider-url text-selectable">${url}</a>`,
-    ) : 'undefined';
+    ) : '';
     return html`
     <section role="contentinfo" class="docs-section" part="info-section">
       <label class="section">Contact information</label>

@@ -159,6 +159,7 @@ interface ApiContract {
 interface Shapes {
   toString(): string;
   key: string;
+  Shape: string;
   ScalarShape: string;
   ArrayShape: string;
   UnionShape: string;

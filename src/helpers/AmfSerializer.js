@@ -117,6 +117,7 @@ import { AmfHelperMixin, expandKey, findAmfType, getArrayItems } from "./AmfHelp
 /** @typedef {import('./amf').License} License */
 /** @typedef {import('../types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
 /** @typedef {import('../types').ApiOperationListItem} ApiOperationListItem */
+/** @typedef {import('../types').ApiSecuritySchemeListItem} ApiSecuritySchemeListItem */
 
 /**
  * A class that takes AMF's ld+json model and outputs JavaScript interface of it.
@@ -1854,6 +1855,35 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
         [settings] = settings;
       }
       result.settings = this.securitySettings(settings, objectContext);
+    }
+    return result;
+  }
+
+  /**
+   * @param {SecurityScheme} object The SecurityScheme to serialize as a list item.
+   * @param {Record<string, string>=} context
+   * @returns {ApiSecuritySchemeListItem} Serialized SecurityScheme
+   */
+  securitySchemeListItem(object, context) {
+    const objectContext = context || object['@context'];
+    
+    const result = /** @type ApiSecuritySchemeListItem */ ({
+      id: object['@id'],
+      types: this.readTypes(object['@type'], objectContext),
+      type: '',
+    });
+    const { ns } = this;
+    const type = this._getValue(object, ns.aml.vocabularies.security.type, objectContext);
+    if (type && typeof type === 'string') {
+      result.type = type;
+    }
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
+    if (name && typeof name === 'string') {
+      result.name = name;
+    }
+    const displayName = this._getValue(object, ns.aml.vocabularies.core.displayName, objectContext);
+    if (displayName && typeof displayName === 'string') {
+      result.displayName = displayName;
     }
     return result;
   }

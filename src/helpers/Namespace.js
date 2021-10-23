@@ -170,6 +170,7 @@ ns.aml.vocabularies.shapes = {};
 ns.aml.vocabularies.shapes.key = `${ns.aml.vocabularies.key}shapes#`;
 const shapesKey = ns.aml.vocabularies.shapes.key;
 ns.aml.vocabularies.shapes.toString = () => shapesKey;
+ns.aml.vocabularies.shapes.Shape = `${shapesKey}Shape`;
 ns.aml.vocabularies.shapes.ScalarShape = `${shapesKey}ScalarShape`;
 ns.aml.vocabularies.shapes.ArrayShape = `${shapesKey}ArrayShape`;
 ns.aml.vocabularies.shapes.UnionShape = `${shapesKey}UnionShape`;

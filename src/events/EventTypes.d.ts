@@ -36,6 +36,7 @@ declare interface ApiEvents {
 }
 declare interface Navigation {
   apiNavigate: string;
+  navigateExternal: string;
 }
 
 declare interface EndpointEvents {

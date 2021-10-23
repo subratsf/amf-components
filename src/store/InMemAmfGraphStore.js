@@ -200,11 +200,11 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
   async getEndpointByPath(path) {
     const { amf } = this;
     if (!amf) {
-      return null;
+      return undefined;
     }
     const api = this._computeApi(amf);
     if (!api) {
-      return null;
+      return undefined;
     }
     const endpoints = this._computeEndpoints(api);
     if (!Array.isArray(endpoints) || !endpoints.length) {
@@ -225,7 +225,7 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
   async listEndpointsWithOperations() {
     const { amf } = this;
     if (!amf) {
-      return null;
+      return [];
     }
     const api = this._computeApi(amf);
     if (!api) {
@@ -246,7 +246,7 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
   async queryServers(query) {
     const { amf } = this;
     if (!amf) {
-      return null;
+      return undefined;
     }
     const servers = this._getServers(query);
     if (!Array.isArray(servers)) {
@@ -271,11 +271,11 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
     }
     const { amf } = this;
     if (!amf) {
-      return null;
+      return undefined;
     }
     const api = this._computeApi(amf);
     if (!api) {
-      return null;
+      return undefined;
     }
     const endpoints = this._computeEndpoints(api);
     if (!endpoints) {
@@ -322,11 +322,11 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
   async getOperationParent(id) {
     const { amf } = this;
     if (!amf) {
-      return null;
+      return undefined;
     }
     const api = this._computeApi(amf);
     if (!api) {
-      return null;
+      return undefined;
     }
     const endpoint = this._computeMethodEndpoint(api, id);
     if (!endpoint) {
@@ -343,15 +343,25 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
   async listDocumentations() {
     const { amf } = this;
     if (!amf) {
-      return null;
+      return undefined;
+    }
+    if (this._hasType(amf, this.ns.aml.vocabularies.apiContract.UserDocumentationFragment)) {
+      const model = this._computeEncodes(amf);
+      if (!model) {
+        return undefined;
+      }
+      return [this.serializer.documentation(model)];
     }
     const api = this._computeApi(amf);
     if (!api) {
-      return null;
+      return undefined;
     }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.core.CreativeWork);
+    const key = this._getAmfKey(this.ns.aml.vocabularies.core.documentation);
     const docs = this._ensureArray(api[key]);
-    return docs.map((doc) => this.serializer.documentation(doc));
+    if (docs) {
+      return docs.map((doc) => this.serializer.documentation(doc));
+    }
+    return undefined;
   }
 
   /**
@@ -362,7 +372,7 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
   async getDocumentation(id) {
     const { amf } = this;
     if (!amf) {
-      return null;
+      return undefined;
     }
     const types = this.getDocumentTypes();
     // when we have loaded Documentation fragment then the id doesn't matter.
@@ -446,7 +456,19 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
    * @returns {Promise<ApiSecuritySchemeListItem[]>}
    */
   async listSecurity() {
-    throw new Error(`Not implemented`);
+    const { amf } = this;
+    if (!amf) {
+      return undefined;
+    }
+    if (this._hasType(amf, this.ns.aml.vocabularies.security.SecuritySchemeFragment)) {
+      const model = this._computeEncodes(amf);
+      if (!model) {
+        return undefined;
+      }
+      return [this.serializer.securitySchemeListItem(model)];
+    }
+    const items = this.getByType(amf, this.ns.aml.vocabularies.security.SecurityScheme);
+    return items.map(item => this.serializer.securitySchemeListItem(item));
   }
 
   /**
@@ -590,7 +612,19 @@ export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
    * @returns {Promise<ApiNodeShapeListItem[]>}
    */
   async listTypes() {
-    throw new Error(`Not implemented`);
+    const { amf } = this;
+    if (!amf) {
+      return undefined;
+    }
+    if (this._hasType(amf, this.ns.aml.vocabularies.shapes.DataTypeFragment)) {
+      const model = this._computeEncodes(amf);
+      if (!model) {
+        return undefined;
+      }
+      return [this.serializer.unknownShape(model)];
+    }
+    const items = this.getByType(amf, this.ns.aml.vocabularies.shapes.Shape);
+    return items.map(item => this.serializer.unknownShape(item));
   }
 
   /**

@@ -779,7 +779,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(EventsTar
    */
   async [queryOperation]() {
     const { domainId } = this;
-    if (!domainId) {
+    if (!domainId || domainId === 'undefined') {
       // this[operationValue] = undefined;
       return;
     }
@@ -803,7 +803,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(EventsTar
    */
   async [queryEndpoint]() {
     const { domainId, endpointId } = this;
-    if (!domainId) {
+    if (!domainId || domainId === 'undefined') {
       // this[endpointValue] = undefined;
       return;
     }

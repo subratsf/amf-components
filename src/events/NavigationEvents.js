@@ -36,5 +36,26 @@ export const NavigationEvents = {
     const e = new ApiNavigationEvent(domainId, domainType, parentId, passive);
     target.dispatchEvent(e);
   },
+  /**
+   * Dispatches an event to inform the application to open a browser window.
+   * This is a general purpose action. It has the `detail` object with optional
+   * `purpose` property which can be used to support different kind of external navigation.
+   * 
+   * @param {EventTarget} target A node on which to dispatch the event.
+   * @param {string} url The URL to open
+   * @returns {boolean} True when the event was cancelled meaning the navigation was handled.
+   */
+  navigateExternal: (target, url) => {
+    const e = new CustomEvent(EventTypes.Navigation.navigateExternal, {
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+      detail: {
+        url,
+      },
+    });
+    target.dispatchEvent(e);
+    return e.defaultPrevented;
+  },
 }
 Object.freeze(NavigationEvents);

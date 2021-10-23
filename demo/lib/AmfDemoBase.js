@@ -218,14 +218,13 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
     if (this.noApiNavigation) {
       return '';
     }
+    // sort, filter
     return html`
     <api-navigation
       summary
-      noOverview
-      .amf="${this.amf}"
       ?endpointsOpened="${this.endpointsOpened}"
-      ?docsOpened="${this.docsOpened}"
-      ?typesOpened="${this.typesOpened}"
+      ?documentationsOpened="${this.docsOpened}"
+      ?schemasOpened="${this.typesOpened}"
       ?securityOpened="${this.securityOpened}"
     ></api-navigation>`;
   }

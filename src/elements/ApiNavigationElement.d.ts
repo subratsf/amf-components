@@ -1,586 +1,448 @@
-import {LitElement, TemplateResult} from 'lit-element';
-import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
-import { EndPoint } from '../helpers/amf';
-import { MethodItem, EndpointItem, SecurityItem, TypeItem, DocumentationItem, TargetModel, NavigationItem, SelectionType } from '../types';
+import { LitElement, TemplateResult, CSSResult } from 'lit-element';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
+import { ApiEndPointWithOperationsListItem, } from '../types';
+import { EndpointItem, OperationItem, DocumentationItem, NodeShapeItem, SecurityItem, SelectableMenuItem, EditableMenuItem, EditableMenuType, SchemaAddType } from '../types';
 
-export const collectData: unique symbol;
-export const queryValue: unique symbol;
-export const queryDebouncer: unique symbol;
-export const hasPassiveSelection: unique symbol;
-export const getFilteredType: unique symbol;
-export const docsValue: unique symbol;
-export const typesValue: unique symbol;
-export const securityValue: unique symbol;
-export const endpointsValue: unique symbol;
-export const endpointsTemplate: unique symbol;
-export const documentationTemplate: unique symbol;
-export const typesTemplate: unique symbol;
-export const securityTemplate: unique symbol;
-export const overviewTemplate: unique symbol;
-export const endpointPathTemplate: unique symbol;
-export const endpointTemplate: unique symbol;
-export const methodTemplate: unique symbol;
-export const documentationItemTemplate: unique symbol;
-export const isFragmentValue: unique symbol;
-export const selectedItemValue: unique symbol;
-export const updatedOpenedOperations: unique symbol;
-export const domainIdValue: unique symbol;
-export const domainTypeValue: unique symbol;
-export const selectedChanged: unique symbol;
-export const selectionChanged: unique symbol;
-export const operationsOpened: unique symbol;
-export const shiftTabPressed: unique symbol;
-export const focusedItemPrivate: unique symbol;
-export const focusedItemValue: unique symbol;
-export const summaryTemplate: unique symbol;
-export const itemClickHandler: unique symbol;
-export const queryChanged: unique symbol;
-export const flushQuery: unique symbol;
-export const rearrangeEndpointsValue: unique symbol;
-export const renderFullPathsValue: unique symbol;
-export const itemsValue: unique symbol;
-export const resetTabindices: unique symbol;
-export const navigationHandler: unique symbol;
-export const focusHandler: unique symbol;
-export const keydownHandler: unique symbol;
-export const collectSecurityData: unique symbol;
-export const collectDocumentationData: unique symbol;
-export const collectTypeData: unique symbol;
-export const traverseDeclarations: unique symbol;
-export const traverseReferences: unique symbol;
-export const traverseEncodes: unique symbol;
-export const rearrangeEndpoints: unique symbol;
-export const closeCollapses: unique symbol;
-export const appendSecurityItem: unique symbol;
-export const appendTypeItem: unique symbol;
-export const validUrl: unique symbol;
-export const appendDocumentationItem: unique symbol;
-export const appendEndpointItem: unique symbol;
-export const appendModelItem: unique symbol;
-export const createOperationModel: unique symbol;
-export const toggleSectionHandler: unique symbol;
-export const toggleSection: unique symbol;
-export const selectItem: unique symbol;
-export const addSelection: unique symbol;
-export const clearSelection: unique symbol;
-export const cleanPassiveSelection: unique symbol;
-export const handlePassiveNavigation: unique symbol;
-export const selectMethodPassive: unique symbol;
-export const toggleEndpoint: unique symbol;
-export const toggleEndpointDocumentation: unique symbol;
-export const toggleEndpointButton: unique symbol;
-export const computeEndpointPadding: unique symbol;
-export const computeEndpointPaddingLeft: unique symbol;
-export const computeMethodPadding: unique symbol;
-export const computeOperationPaddingLeft: unique symbol;
-export const getFilteredEndpoints: unique symbol;
-export const listActiveItems: unique symbol;
-export const listSectionActiveNodes: unique symbol;
-export const onUpKey: unique symbol;
-export const onDownKey: unique symbol;
-export const onEscKey: unique symbol;
-export const onSpace: unique symbol;
-export const onShiftTabDown: unique symbol;
-
-/**
- * Computes label for an endpoint when name is missing and the endpoint
- * is indented, hence name should be truncated.
- *
- * @param currentPath Endpoint's path
- * @param parts Path parts
- * @param indent Endpoint indentation
- * @param basePaths List of base paths already used.
- * @returns Name of the path to render.
- */
-export declare function computePathName(currentPath: string, parts: string[], indent: number, basePaths: Array<string>): string;
-
-
-/**
- * Computes condition value to render path label.
- *
- * @param allowPaths Component configuration property.
- * @param renderPath Endpoint property
- * @returns True if both arguments are truly.
- */
-export declare function computeRenderPath(allowPaths: boolean, renderPath: boolean): boolean;
+export declare const apiIdValue: unique symbol;
+export declare const isAsyncValue: unique symbol;
+export declare const queryingValue: unique symbol;
+export declare const abortControllerValue: unique symbol;
+export declare const selectedValue: unique symbol;
+export declare const documentationsValue: unique symbol;
+export declare const schemasValue: unique symbol;
+export declare const securityValue: unique symbol;
+export declare const endpointsValue: unique symbol;
+export declare const queryValue: unique symbol;
+export declare const openedEndpointsValue: unique symbol;
+export declare const queryApi: unique symbol;
+export declare const queryEndpoints: unique symbol;
+export declare const queryDocumentations: unique symbol;
+export declare const querySchemas: unique symbol;
+export declare const querySecurity: unique symbol;
+export declare const createFlatTreeItems: unique symbol;
+export declare const getFilteredEndpoints: unique symbol;
+export declare const getFilteredDocumentations: unique symbol;
+export declare const getFilteredSchemas: unique symbol;
+export declare const getFilteredSecurity: unique symbol;
+export declare const computeEndpointPaddingValue: unique symbol;
+export declare const computeEndpointPaddingLeft: unique symbol;
+export declare const computeOperationPaddingValue: unique symbol;
+export declare const computeOperationPaddingLeft: unique symbol;
+export declare const itemClickHandler: unique symbol;
+export declare const itemKeydownHandler: unique symbol;
+export declare const toggleSectionClickHandler: unique symbol;
+export declare const toggleSectionKeydownHandler: unique symbol;
+export declare const endpointToggleClickHandler: unique symbol;
+export declare const focusHandler: unique symbol;
+export declare const keydownHandler: unique symbol;
+export declare const summaryTemplate: unique symbol;
+export declare const endpointsTemplate: unique symbol;
+export declare const endpointTemplate: unique symbol;
+export declare const endpointToggleTemplate: unique symbol;
+export declare const operationItemTemplate: unique symbol;
+export declare const documentationsTemplate: unique symbol;
+export declare const documentationTemplate: unique symbol;
+export declare const externalDocumentationTemplate: unique symbol;
+export declare const schemasTemplate: unique symbol;
+export declare const schemaTemplate: unique symbol;
+export declare const securitiesTemplate: unique symbol;
+export declare const securityTemplate: unique symbol;
+export declare const keyDownAction: unique symbol;
+export declare const keyUpAction: unique symbol;
+export declare const keyShiftTabAction: unique symbol;
+export declare const keyEscAction: unique symbol;
+export declare const keySpaceAction: unique symbol;
+export declare const shiftTabPressedValue: unique symbol;
+export declare const focusedItemValue: unique symbol;
+export declare const selectedItemValue: unique symbol;
+export declare const focusItem: unique symbol;
+export declare const listActiveItems: unique symbol;
+export declare const itemsValue: unique symbol;
+export declare const listSectionActiveNodes: unique symbol;
+export declare const keyArrowRightAction: unique symbol;
+export declare const keyArrowLeftAction: unique symbol;
+export declare const makeSelection: unique symbol;
+export declare const selectItem: unique symbol;
+export declare const deselectItem: unique symbol;
+export declare const findSelectable: unique symbol;
+export declare const toggleSectionElement: unique symbol;
+export declare const summarySelected: unique symbol;
+export declare const filterTemplate: unique symbol;
+export declare const processQuery: unique symbol;
+export declare const searchHandler: unique symbol;
+export declare const resetTabindices: unique symbol;
+export declare const notifyNavigation: unique symbol;
+export declare const addingEndpointValue: unique symbol;
+export declare const addEndpointInputTemplate: unique symbol;
+export declare const addEndpointKeydownHandler: unique symbol;
+export declare const commitNewEndpoint: unique symbol;
+export declare const cancelNewEndpoint: unique symbol;
+export declare const findViewModelItem: unique symbol;
+export declare const renameInputTemplate: unique symbol;
+export declare const renameKeydownHandler: unique symbol;
+export declare const renameBlurHandler: unique symbol;
+export declare const updateNameHandler: unique symbol;
+export declare const addDocumentationInputTemplate: unique symbol;
+export declare const addDocumentationKeydownHandler: unique symbol;
+export declare const addingDocumentationValue: unique symbol;
+export declare const addingExternalValue: unique symbol;
+export declare const commitNewDocumentation: unique symbol;
+export declare const externalDocumentationHandler: unique symbol;
+export declare const addingSchemaValue: unique symbol;
+export declare const addSchemaInputTemplate: unique symbol;
+export declare const addSchemaKeydownHandler: unique symbol;
+export declare const commitNewSchema: unique symbol;
+export declare const addingSchemaTypeValue: unique symbol;
 
 /**
- * `api-navigation`
- * A navigation for an API spec using AMF model.
- *
- * This element is to replace deprecated `raml-path-selector`.
- * It is lightweight and much less complex in comparison.
- *
- * The element works with [AMF](https://github.com/mulesoft/amf)
- * json/ld model. When the model is set it computes list of documentation
- * nodes, types, endpoints, methods and security schemas.
- * As a result user can select any of the items in the UI and the application
- * is informed about user choice via custom event.
- *
- * The selection is a selected API shape `@id`. The application is responsible
- * for computing the model selected by the user.
- *
- * Note, this element does not contain polyfills for Array platform features.
- * Use `arc-polyfills` to add support for IE and Safari 9.
- *
- * ## Passive navigation
- *
- * Passive navigation means that a navigation event occurred but it wasn't
- * invoked by intentional user interaction. For example
- * `api-endpoint-documentation` component renders list of documentations for
- * HTTP methods. While scrolling through the list navigation context
- * changes (user reads documentation of a method) but the navigation never
- * was caused by user intentional interaction.
- * This event, annotated with `passive: true` property in the detail object
- * prohibits other element from taking a navigation action but some
- * may reflect the change in the UI.
- * 
- * @fires apinavigate
+ * @fires graphload
  */
-export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
-  [queryValue]: string;
-  [queryDebouncer]: boolean;
-  [hasPassiveSelection]: boolean;
-  [selectedItemValue]: HTMLElement;
-  [domainIdValue]: string;
-  [domainTypeValue]: string;
-  [operationsOpened]: boolean;
-  [shiftTabPressed]: boolean;
-  [rearrangeEndpointsValue]: boolean;
-  [renderFullPathsValue]: boolean;
-  [focusedItemPrivate]: HTMLElement;
-  [focusedItemValue]: HTMLElement;
-  [itemsValue]: Element[];
-  /**
-   * A model `@id` of selected documentation part.
-   * Special case is for `summary` view. It's not part of an API
-   * but most applications has some kins of summary view for the
-   * API.
-   * @attribute
-   */
-  domainId: string;
+export default class ApiNavigationElement extends EventsTargetMixin(LitElement) {
+  static get styles(): CSSResult;
 
-  /**
-   * Type of the selected item.
-   * One of `documentation`, `type`, `security`, `endpoint`, `method`
-   * or `summary`.
-   *
-   * This property is set after `domainId` property.
-   * @attribute
-   */
-  domainType: SelectionType;
-
-  /**
-   * If set it renders `API summary` menu option.
-   * It will allow to set `domainId` and `domainType` to `summary`
-   * when this option is set.
-   * @attribute
-   */
-  summary: boolean;
-
-  /**
-   * A label for the `summary` section.
-   * @default "Summary"
-   * @attribute
-   */
-  summaryLabel: string;
-
-  /**
-   * Computed list of documentation items in the API.
-   */
-  [docsValue]: DocumentationItem[];
-
-  /**
-   * Determines and changes state of documentation panel.
-   * @attribute
-   */
-  docsOpened: boolean;
-
-  /**
-   * Computed list of "type" items in the API.
-   */
-  [typesValue]: TypeItem[];
-
-  /**
-   * Determines and changes state of types panel.
-   * @attribute
-   */
-  typesOpened: boolean;
-
-  /**
-   * Computed list of Security schemes items in the API.
-   */
-  [securityValue]: SecurityItem[];
-
-  /**
-   * Determines and changes state of security panel.
-   * @attribute
-   */
-  securityOpened: boolean;
-
-  /**
-   * Computed list of endpoint items in the API.
-   */
+  [apiIdValue]: string;
+  [queryingValue]: boolean;
+  [abortControllerValue]?: AbortController;
   [endpointsValue]: EndpointItem[];
+  [documentationsValue]: DocumentationItem[];
+  [schemasValue]: NodeShapeItem[];
+  [securityValue]: SecurityItem[];
+  /** 
+  * The processed and final query term for the list items.
+  */
+  [queryValue]: string;
+  /** 
+  * Information read from the AMF store indicating that the currently loaded API
+  * is an API.
+  */
+  [isAsyncValue]: boolean;
+  /** 
+  * Holds a list of ids of currently opened endpoints.
+  */
+  [openedEndpointsValue]: string[];
+  /** 
+  * Cached list of all list elements
+  */
+  [itemsValue]: HTMLElement[];
+  [addingEndpointValue]?: boolean;
+  [addingDocumentationValue]?: boolean;
+  [addingExternalValue]?: boolean;
+  [addingSchemaValue]?: boolean;
+  [addingSchemaTypeValue]?: string;
 
-  /**
-   * Determines and changes state of endpoints panel.
-   * @attribute
+  /** 
+   * When true then the element is currently querying for the graph data.
    */
-  endpointsOpened: boolean;
+  get querying(): boolean;
 
   /**
-   * If true, the element will not produce a ripple effect when interacted with via the pointer.
-   * @attribute
+   * Set only when `querying`. Use to abort the query operation.
+   * When calling `abort` on the controller the element stops querying and processing the graph data.
+   * All data that already has been processed are not cleared.
    */
-  noink: boolean;
+  get abortController(): AbortController | undefined;
 
   /**
-   * Filters list elements by this value when set.
-   * Clear the value to reset the search.
-   *
-   * This is not currently exposed in element's UI due
-   * to complexity of search and performance.
-   * @attribute
-   */
-  query: string;
-
-  /**
-   * Size of endpoint indentation for nested resources.
-   * In pixels.
-   *
-   * The attribute name for this property is `indent-size`. Note, that this
-   * will change to web consistent name `indentSize` in the future.
-   * @attribute
-   */
-  indentSize: number;
-
-  /**
-   * Flag set when passed AMF model is a RAML fragment.
-   */
-  [isFragmentValue]: boolean;
-
-  /**
-   * When set it renders full path below endpoint name if the endpoint has
-   * a name (different than the path).
-   * This is not always recommended to use this option as some complex APIs
-   * may render this component difficult to understand.
-   * @attribute
-   */
-  allowPaths: boolean;
-
-  /**
-   * If this value is set, then the navigation component will sort the list
-   * of endpoints based on the `path` value of the endpoint, keeping the order
-   * of which endpoint was first in the list, relative to each other
-   * @attribute
-   */
-  rearrangeEndpoints: boolean;
-
-  /**
-   * Enables Anypoint platform styles.
-   * @attribute
-   */
-  anypoint: boolean;
-
-  /**
-   * Determines and changes state of endpoints.
-   * @attribute
-   */
-  operationsOpened: boolean;
-
-  /**
-   * No overview as a separated element. Overview can be seen by clicking the endpoint label.
-   * @attribute
-   */
-  noOverview: boolean;
-
-  /**
-   * When set, avoids truncating and indentation of endpoint paths.
-   * Instead, the full path for each endpoint will be rendered.
-   * @attribute
-   */
-  renderFullPaths: boolean;
-
-  /**
-   * true when `[docsValue]` property is set with values
+   * @returns true when `_docs` property is set with values
    */
   get hasDocs(): boolean;
 
   /**
-   * true when `[typesValue]` property is set with values
+   * @returns true when has schemas definitions
    */
-  get hasTypes(): boolean;
+  get hasSchemas(): boolean;
 
   /**
-   * true when `[securityValue]` property is set with values
+   * @returns true when `_security` property is set with values
    */
   get hasSecurity(): boolean;
 
   /**
-   * true when `[endpointsValue]` property is set with values
+   * @returns true when `_endpoints` property is set with values
    */
   get hasEndpoints(): boolean;
-  /**
-   * True when summary should be rendered.
-   * Summary should be rendered only when `summary` is set and
-   * current model is not a RAML fragment.
-   */
-  get summaryRendered(): boolean;
 
   /**
-   * The currently selected item.
+   * A reference to currently selected element.
    */
-  get selectedItem(): HTMLElement;
+  get selectedItem(): HTMLElement | undefined;
+
   /**
    * The currently focused item.
    */
-  get focusedItem(): HTMLElement;
+  get focusedItem(): HTMLElement | undefined;
+
+  /** 
+   * When this property change the element queries the graph store for the data model.
+   * It can be skipped when the application calls the `queryGraph()` method imperatively.
+   * @attribute
+   */
+  apiId: string;
+  /**
+  * A model `@id` of selected documentation part.
+  * Special case is for `summary` view. It's not part of an API
+  * but most applications has some kins of summary view for the
+  * API.
+  * @attribute
+  */
+  selected: string;
+  /**
+   * Type of the selected item.
+   * One of `documentation`, `type`, `security`, `endpoint`, `operation`
+   * or `summary`.
+   *
+   * This property is set after `selected` property.
+   * @attribute
+   */
+  selectedType: string;
+  /**
+   * If set it renders `API summary` menu option.
+   * It will allow to set `selected` and `selectedType` to `summary`
+   * when this option is set.
+   * @attribute
+   */
+  summary: boolean;
+  /**
+   * A label for the `summary` section.
+   * @attribute
+   */
+  summaryLabel: string;
+  /**
+  * Determines and changes state of documentation panel.
+  * @attribute
+  */
+  documentationsOpened: boolean;
+  /**
+  * Determines and changes state of schemas (types) panel.
+  * @attribute
+  */
+  schemasOpened: boolean;
+  /**
+  * Determines and changes state of security panel.
+  * @attribute
+  */
+  securityOpened: boolean;
+  /**
+  * Determines and changes state of endpoints panel.
+  * @attribute
+  */
+  endpointsOpened: boolean;
+  /**
+  * Filters list elements by this value when set.
+  * Clear the value to reset the search.
+  *
+  * This is not currently exposed in element's UI due
+  * to complexity of search and performance.
+  * @attribute
+  */
+  query: string;
+  /**
+  * Size of endpoint indentation for nested resources.
+  * In pixels.
+  *
+  * The attribute name for this property is `indent-size`. Note, that this
+  * will change to web consistent name `indentSize` in the future.
+  * @attribute
+  */
+  indentSize: number;
+  /** 
+  * By default the endpoints are rendered one-by-one as defined in the API spec file
+  * without any tree structure. When this option is set it sorts the endpoints 
+  * alphabetically and creates a tree structure for the endpoints.
+  * Note, the resulted tree structure will likely be different to the one encoded 
+  * in the API spec file.
+  * @attribute
+  */
+  sort: boolean;
+  /** 
+  * When set it renders an input to filter the menu items.
+  * @attribute
+  */
+  filter: boolean;
+  /** 
+   * When set the element won't query the store when attached to the DOM.
+   * Instead set the `apiId` property or directly call the `queryGraph()` function.
+   * @attribute
+   */
+  manualQuery: boolean;
+  /** 
+  * When set it enables graph items editing functionality.
+  * The user can double-click on a menu item and edit its name.
+  * @attribute
+  */
+  edit: boolean;
+
+  constructor();
 
   /**
    * Ensures aria role attribute is in place.
    * Attaches element's listeners.
    */
   connectedCallback(): void;
+
   disconnectedCallback(): void;
 
   /**
-   * Collects the information about the API and creates data model
-   * for the navigation element
-   *
-   * @returns Data model for the API navigation
+   * Queries for the API data from the graph store.
    */
-  [collectData](model: object): TargetModel;
+  queryGraph(): Promise<void>;
 
   /**
-   * Collects the data from the security fragment
-   *
-   * @param model Security fragment model
+   * Queries for the current API base info.
    */
-  [collectSecurityData](model: object): TargetModel|undefined;
+  [queryApi](signal: AbortSignal): Promise<void>;
 
   /**
-   * Collects the data from the documentation fragment
-   *
-   * @param model Documentation fragment model
+   * Queries and sets endpoints data
    */
-  [collectDocumentationData](model: object): TargetModel|undefined;
+  [queryEndpoints](signal: AbortSignal): Promise<void>;
 
   /**
-   * Collects the data from the type fragment
-   *
-   * @param model Type fragment model
+   * Queries and sets documentations data
    */
-  [collectTypeData](model: object): TargetModel|undefined;
+  [queryDocumentations](signal: AbortSignal): Promise<void>;
 
   /**
-   * Traverses the `http://raml.org/vocabularies/document#declares`
-   * node to find types and security schemes.
-   *
-   * @param target Target object where to put data.
+   * Queries and sets types (schemas) data
    */
-  [traverseDeclarations](model: object, target: TargetModel): void;
+  [querySchemas](signal: AbortSignal): Promise<void>;
 
   /**
-   * Traverses the `http://raml.org/vocabularies/document#references`
-   *
-   * @param model AMF model
-   * @param target Target object where to put data.
+   * Queries and sets security data
    */
-  [traverseReferences](model: object, target: TargetModel): void;
+  [querySecurity](signal: AbortSignal): Promise<void>;
+
+  [createFlatTreeItems](items: ApiEndPointWithOperationsListItem[]): EndpointItem[];
 
   /**
-   * Traverses the `http://raml.org/vocabularies/document#encodes`
-   * node to find documentation and endpoints.
-   *
-   * @param target Target object where to put data.
+   * Filters the current endpoints by the current query value.
    */
-  [traverseEncodes](model: object, target: TargetModel): void;
-
-  /**
-   * Sort endpoints alphabetically based on path
-   */
-  [rearrangeEndpoints](endpoints: EndPoint[]): EndPoint[];
-
-  /**
-   * Appends declaration of navigation data model to the target if
-   * it matches documentation or security types.
-   */
-  [appendModelItem](item: object, target: TargetModel): void;
-
-  /**
-   * Appends "type" item to the results.
-   *
-   * @param item Type item declaration
-   */
-  [appendTypeItem](item: object, target: TargetModel): void;
-
-  /**
-   * Appends "security" item to the results.
-   *
-   * @param item Type item declaration
-   */
-  [appendSecurityItem](item: object, target: TargetModel): void;
-
-  /**
-   * Appends "documentation" item to the results.
-   *
-   * @param item Type item declaration
-   */
-  [appendDocumentationItem](item: object, target: TargetModel): void;
-
-  /**
-   * Appends "endpoint" item to the results.
-   * This also iterates over methods to extract method data.
-   *
-   * @param item Endpoint item declaration
-   */
-  [appendEndpointItem](item: object, target: TargetModel): void;
-
-  /**
-   * Creates the view model for an operation.
-   *
-   * @param item Operation AMF model
-   * @returns Method view model
-   */
-  [createOperationModel](item: object): MethodItem;
-
-  /**
-   * Click handler for section name item.
-   * Toggles the view.
-   */
-  [toggleSectionHandler](e: MouseEvent): void;
-  [toggleSection](node: HTMLElement): void;
-
-  /**
-   * Selects new item in the menu.
-   */
-  [selectItem](node: HTMLElement): void;
-
-  /**
-   * Toggles selection state of a node that has `data-api-id` set to
-   * `id`.
-   *
-   * @param id Selected node id.
-   * @returns Type of selected node.
-   */
-  [addSelection](id: string): string|undefined;
-
-  /**
-   * Removes any current selection that may exist.
-   */
-  [clearSelection](): void;
-
-  /**
-   * Toggles endpoint operations list.
-   *
-   * @param id ID of the endpoint.
-   */
-  toggleOperations(id: string): void;
-
-  /**
-   * Updates the state of selected element when `domainId` changes.
-   *
-   * @param current New selection
-   */
-  [selectedChanged](current: string): void;
-
-  /**
-   * When `query` property change it runs the filter function
-   * in a debouncer set for ~50 ms.
-   */
-  [queryChanged](): void;
-
-  /**
-   * Calls `render()` function on each data repeater that have filterable
-   * items.
-   * It set's `__effectiveQuery` property on the element that is beyond
-   * Polymer's data binding system so it skips 2 function calls each time
-   * it is read. In a repeater filter function that can be a lot.
-   *
-   * Also the `__effectiveQuery` is transformed to perform text search.
-   */
-  [flushQuery](): void;
-
-  /**
-   * Dispatches the navigation event on selection change.
-   *
-   * @param selected Selected id
-   * @param selectedType Type of AMF shape
-   */
-  [selectionChanged](selected: string, selectedType: string): void;
-
-  /**
-   * Navigation item click handler.
-   * It used to be common function for all clicks inside the element
-   * but in tests not all events were handled.
-   */
-  [itemClickHandler](e: MouseEvent): void;
-
-  /**
-   * Handler for the navigation event. Updates the selection
-   * if dispatched from other element.
-   */
-  [navigationHandler](e: CustomEvent): void;
-  [handlePassiveNavigation](detail: object): void;
-  [cleanPassiveSelection](): void;
-  [selectMethodPassive](id: string): void;
-
-  /**
-   * Endpoint label click handler.
-   * Toggles endpoint's methods list.
-   */
-  [toggleEndpoint](e: MouseEvent): void;
+  [getFilteredEndpoints](): EndpointItem[] | undefined;
 
   /**
    * Computes `style` attribute value for endpoint item.
    * It sets padding-left property to indent resources.
    * See https://github.com/mulesoft/api-console/issues/571.
    *
-   * @param factor Computed indent factor for the resource
-   * @param size The size of indentation in pixels.
-   * @returns Style attribute value for the item.
+   * @param indent The computed indentation of the item.
+   * @returns The value for the left padding of the endpoint menu item.
    */
-  [computeEndpointPadding](factor: Number, size: Number): String;
-  [computeMethodPadding](factor: Number, size: Number): string;
-
-  /**
-   * Computes operation list item left padding from CSS variables.
-   */
-  [computeOperationPaddingLeft](): Number;
+  [computeEndpointPaddingValue](indent?: number): string;
 
   /**
    * Computes endpoint list item left padding from CSS variables.
    */
-  [computeEndpointPaddingLeft](): Number;
+  [computeEndpointPaddingLeft](): number
 
   /**
-   * Returns filtered list of items to render in the menu list.
-   * When `query` is set it tests `label` property of each item if it contains
-   * the query. Otherwise it returns all items.
+   * Computes `style` attribute value for an operation item.
+   * It sets padding-left property to indent operations relative to a resource.
    *
-   * @param prop Name of the source property keeping array values to render.
+   * @param indent The computed indentation of the parent resource.
+   * @returns The value for the left padding of the endpoint menu item.
    */
-  [getFilteredType](prop: NavigationItem[]): NavigationItem[]|undefined;
+  [computeOperationPaddingValue](indent?: number): string;
 
   /**
-   * Returns a list of endpoints to render.
-   * When `query` is set it returns filtered list of endpoints for given query.
-   * Otherwise it returns all endpoints.
-   *
-   * @returns Filtered list of endpoints
+   * Computes operation list item left padding from CSS variables.
    */
-  [getFilteredEndpoints](): EndpointItem[]|undefined;
+  [computeOperationPaddingLeft](): number;
 
   /**
-   * Closes all `iron-collapse` elements
+   * A handler for the click event on a menu list item.
+   * Makes a selection from the target.
    */
-  [closeCollapses](): void;
+  [itemClickHandler](e: MouseEvent): void;
+
+  /**
+   * A handler for the click event on endpoints toggle button.
+   */
+  [endpointToggleClickHandler](e: MouseEvent): void;
+
+  /**
+   * Toggles operations visibility for an endpoint.
+   * @param graphId The Endpoint graph id.
+   */
+  toggleEndpoint(graphId: string): void;
+
+  /**
+   * A handler for the click event on a section item. Toggles the clicked section.
+   */
+  [toggleSectionClickHandler](e: MouseEvent): void;
+
+  /**
+   * Toggles a section of the menu represented by the element (section list item).
+   */
+  [toggleSectionElement](element: HTMLElement): void;
+
+  /**
+   * @returns List of documentation items filtered by the current query.
+   */
+  [getFilteredDocumentations](): DocumentationItem[];
+
+  /**
+   * @returns List of schemas items filtered by the current query.
+   */
+  [getFilteredSchemas](): NodeShapeItem[];
+
+  /**
+   * @returns List of security items filtered by the current query.
+   */
+  [getFilteredSecurity](): SecurityItem[];
 
   /**
    * A handler for the focus event on this element.
    */
   [focusHandler](e: FocusEvent): void;
+
+  /**
+   * Sets a list item focused
+   */
+  [focusItem](item: HTMLElement): void;
+
+  /**
+   * Handler for the keydown event.
+   */
+  [keydownHandler](e: KeyboardEvent): void;
+
+  /**
+   * Handler that is called when the down key is pressed.
+   *
+   * @param e A key combination event.
+   */
+  [keyDownAction](e: KeyboardEvent): void;
+
+  /**
+   * Handler that is called when the up key is pressed.
+   *
+   * @param e A key combination event.
+   */
+  [keyUpAction](e: KeyboardEvent): void;
+
+  /**
+   * Handles shift+tab keypress on the menu.
+   */
+  [keyShiftTabAction](): void;
+
+  /**
+   * Handler that is called when the esc key is pressed.
+   */
+  [keyEscAction](): void;
+
+  /**
+   * A handler for the space bar key down.
+   */
+  [keySpaceAction](e: KeyboardEvent): void;
+
+  /**
+   * A handler for the key right down. Opens operations when needed.
+   */
+  [keyArrowRightAction](e: KeyboardEvent): void;
+
+  /**
+   * A handler for the key left down. Closes operations when needed.
+   */
+  [keyArrowLeftAction](e: KeyboardEvent): void;
 
   /**
    * Focuses on the previous item in the navigation.
@@ -593,6 +455,101 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
   focusNext(): void;
 
   /**
+   * Selects an item in the navigation.
+   * Note, this dispatches the navigation action event.
+   */
+  select(id: string): void;
+
+  /**
+   * Lists all HTML elements that are currently rendered in the view.
+   * @returns Currently rendered items.
+   */
+  [listActiveItems](): HTMLElement[];
+
+  /**
+   * @param selector The prefix for the query selector
+   * @returns Nodes returned from query function.
+   */
+  [listSectionActiveNodes](selector: string): HTMLElement[];
+
+  /**
+   * Selects an item in the menu.
+   *
+   * @param id The domain id of the node to be selected
+   * @param type The selected type of the item.
+   */
+  [makeSelection](id: string, type: string): void;
+
+  /**
+   * Selects an item.
+   * @param id The domain id of the menu item.
+   * @param type The type of the data.
+   */
+  [selectItem](id: string, type: string): void;
+
+  /**
+   * Removes all selections from an item.
+   * @param id The domain id of the menu item.
+   * @param type The type of the data.
+   */
+  [deselectItem](id: string, type: string): void;
+
+  /**
+   * Finds a selectable item by its id and type.
+   * @param id The domain id of the menu item.
+   * @param type The type of the data.
+   */
+  [findSelectable](id: string, type: string): SelectableMenuItem | null;
+
+  /**
+   * @param value The new query. Empty or null to clear the query
+   */
+  [processQuery](value: string): void;
+
+  /**
+   * A handler for the search event from the filter input.
+   */
+  [searchHandler](e: Event): void;
+
+  /**
+   * Opens all sections of the menu and all endpoints.
+   */
+  expandAll(): void;
+
+  /**
+   * Closes all sections of the menu and all endpoints.
+   */
+  collapseAll(): void;
+
+  /**
+   * Opens all endpoints exposing all operations
+   */
+  expandAllEndpoints(): void;
+
+  /**
+   * Hides all operations and collapses all endpoints.
+   */
+  collapseAllEndpoints(): void;
+
+  /**
+   * Triggers a flow when the user can define a new endpoint in the navigation.
+   * This renders an input in the view (in the endpoints list) where the user can enter the path name.
+   */
+  addEndpoint(): Promise<void>;
+
+  /**
+   * Triggers a flow when the user can define a new documentation document.
+   * This renders an input in the view (in the documentation list) where the user can enter the name.
+   * @param isExternal Whether the documentation is a link to a www document.
+   */
+  addDocumentation(isExternal?: boolean): Promise<void>;
+  /**
+   * Triggers a flow when the user can define a new schema in the navigation.
+   * This renders an input in the view (in the schema list) where the user can enter the schema name.
+   * @param type The type of the schema to add. Default to `object`.
+   */
+  addSchema(type?: SchemaAddType): Promise<void>;
+  /**
    * Resets all tabindex attributes to the appropriate value based on the
    * current selection state. The appropriate value is `0` (focusable) for
    * the default selected item, and `-1` (not keyboard focusable) for all
@@ -602,76 +559,158 @@ export default class ApiNavigationElement extends AmfHelperMixin(LitElement) {
   [resetTabindices](): void;
 
   /**
-   * Lists all HTML elements that are currently rendered in the view.
-   * @returns Currently rendered items.
+   * Dispatches the navigation event.
+   * @param id The domain id of the selected node
+   * @param type The domain type.
    */
-  [listActiveItems](): Element[];
+  [notifyNavigation](id: string, type: string): void;
 
   /**
-   * @param selector The prefix for the query selector
-   * @returns Nodes returned from query function.
+   * Event handler for the keydown event of the add endpoint input.
    */
-  [listSectionActiveNodes](selector: string): Element[];
+  [addEndpointKeydownHandler](e: KeyboardEvent): void;
 
   /**
-   * Handler for the keydown event.
+   * Event handler for the keydown event of the add documentation input.
    */
-  [keydownHandler](e: KeyboardEvent): void;
+  [addDocumentationKeydownHandler](e: KeyboardEvent): void;
+  /**
+   * Event handler for the keydown event of the add schema input.
+   */
+  [addSchemaKeydownHandler](e: KeyboardEvent): void;
+  [commitNewEndpoint](): Promise<void>;
+  [cancelNewEndpoint](): Promise<void>;
+  /**
+   * @param value The title of the documentation.
+   */
+  [commitNewDocumentation](value?: string): Promise<void>;
+  /**
+   * @param value The name of the schema.
+   */
+  [commitNewSchema](value?: string): Promise<void>;
 
   /**
-   * Handler that is called when the up key is pressed.
-   *
-   * @param e A key combination event.
+   * Triggers a rename action for the menu item identified by the `id`.
+   * @param id The domain id of the item to edit.
    */
-  [onUpKey](e: KeyboardEvent): void;
+  renameAction(id: string): Promise<void>;
 
   /**
-   * Handler that is called when the down key is pressed.
-   *
-   * @param e A key combination event.
+   * @param {string} id The domain id of the item to find.
    */
-  [onDownKey](e: KeyboardEvent): void;
+  [findViewModelItem](id: string): SelectableMenuItem & EditableMenuItem | null;
 
   /**
-   * Handler that is called when the esc key is pressed.
+   * A key down event handler on the rename input
    */
-  [onEscKey](): void;
+  [renameKeydownHandler](e: KeyboardEvent): Promise<void>;
 
   /**
-   * A handler for the space bar key down.
+   * A blur event handler on the rename input
    */
-  [onSpace](e: KeyboardEvent): void;
+  [renameBlurHandler](e: Event): Promise<void>;
 
   /**
-   * Handler that is called when a shift+tab keypress is detected by the menu.
+   * Updates the name or the display name of the menu object
+   * @param id The id of the domain object to update
+   * @param value The new value.
+   * @param type The object type
+   * @returns A promise when the update operation finish.
    */
-  [onShiftTabDown](): void;
+  [updateNameHandler](id: string, value: string, type: EditableMenuType): Promise<void>;
 
   /**
-   * Renders a template for endpoints and methods list.
+   * Click handler for the external navigation item.
+   * Dispatches the external navigation event. When this event is handled (cancelled)
+   * the original event is cancelled to prevent default behavior.
    */
-  [endpointsTemplate](): TemplateResult|string;
-  [endpointTemplate](item: EndpointItem): TemplateResult;
-  [methodTemplate](endpointItem: EndpointItem, methodItem: MethodItem): TemplateResult;
+  [externalDocumentationHandler](e: Event): void;
 
-  /**
-   * Renders a template for documentation list.
-   */
-  [documentationTemplate](): TemplateResult|string;
-
-  /**
-   * @returns Template for an docs item
-   */
-  [documentationItemTemplate](item: DocumentationItem): TemplateResult;
-
-  /**
-   * Renders a template for types list.
-   */
-  [typesTemplate](): TemplateResult|string;
-
-  /**
-   * Renders a template for security schemes list.
-   */
-  [securityTemplate](): TemplateResult|string;
   render(): TemplateResult;
+
+  /**
+   * @returns The template for the summary filed.
+   */
+  [summaryTemplate](): TemplateResult | string;
+
+  /**
+   * @returns The template for the list of endpoints.
+   */
+  [endpointsTemplate](): TemplateResult | string;
+
+  /**
+   * @returns The template for an endpoint.
+   */
+  [endpointTemplate](item: EndpointItem): TemplateResult;
+
+  /**
+   * @param id The domain id of the endpoint.
+   * @returns The template for endpoint's toggle button.
+   */
+  [endpointToggleTemplate](id: string): TemplateResult;
+
+  /**
+   * @param item The endpoint definition 
+   * @param op The operation definition.
+   * @returns The template for an operation list item.
+   */
+  [operationItemTemplate](item: EndpointItem, op: OperationItem): TemplateResult;
+
+  /**
+   * @returns The template for the documentations section.
+   */
+  [documentationsTemplate](): TemplateResult | string;
+
+  /**
+   * @returns The template for the documentation list item.
+   */
+  [documentationTemplate](item: DocumentationItem): TemplateResult;
+
+  /**
+   * @returns The template for the external documentation list item.
+   */
+  [externalDocumentationTemplate](item: DocumentationItem): TemplateResult;
+
+  /**
+   * @returns The template for the types (schemas) section.
+   */
+  [schemasTemplate](): TemplateResult | string;
+
+  /**
+   * @returns The template for the documentation list item.
+   */
+  [schemaTemplate](item: NodeShapeItem): TemplateResult;
+
+  /**
+   * @returns The template for the security section.
+   */
+  [securitiesTemplate](): TemplateResult | string;
+
+  /**
+   * @returns The template for the security list item.
+   */
+  [securityTemplate](item: SecurityItem): TemplateResult;
+  /**
+   * @returns The template for the filter input.
+   */
+  [filterTemplate](): TemplateResult | string;
+  /**
+   * @return The template for the new endpoint input.
+   */
+  [addEndpointInputTemplate](): TemplateResult;
+  /**
+   * @return The template for the new documentation input.
+   */
+  [addDocumentationInputTemplate](): TemplateResult;
+  /**
+   * @return The template for the new schema input.
+   */
+  [addSchemaInputTemplate](): TemplateResult;
+  /**
+   * @param id The domain id of the item being edited
+   * @param label The current name to render.
+   * @param type
+   * @returns The template for the rename input. 
+   */
+  [renameInputTemplate](id: string, label: string, type: EditableMenuType): TemplateResult;
 }

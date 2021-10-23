@@ -435,4 +435,11 @@ interface AmfHelperMixin {
    * @returns Type definition or undefined if not found.
    */
   [computeReferenceSecurity](reference: DomainElement, selected: string, context?: Record<string, string>): SecurityScheme|undefined;
+  /**
+   * Collects domain objects by a domain type.
+   * @param source The element to search for declare/encoded objects.
+   * @param type The domain type
+   * @param context A context to use. If not set, it looks for the context of the passed model
+   */
+  getByType(source: DomainElement, type: string, context?: Record<string, string>): DomainElement[];
 }

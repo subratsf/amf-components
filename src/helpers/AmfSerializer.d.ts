@@ -25,6 +25,7 @@ import {
 import {
   ApiEndPointWithOperationsListItem,
   ApiOperationListItem,
+  ApiSecuritySchemeListItem,
 } from '../types'
 
 /**
@@ -159,7 +160,11 @@ export declare class AmfSerializer extends AmfHelperMixin(Object) {
    * @returns Serialized ParametrizedSecurityScheme
    */
   parametrizedSecurityScheme(object: ParametrizedSecurityScheme, context?: Record<string, string>): ApiParametrizedSecurityScheme;
-
+  /**
+   * @param object The SecurityScheme to serialize as a list item.
+   * @returns Serialized SecurityScheme
+   */
+  securitySchemeListItem(object: SecurityScheme, context?: Record<string, string>): ApiSecuritySchemeListItem;
   /**
    * @param object The SecurityScheme to serialize.
    * @returns Serialized SecurityScheme

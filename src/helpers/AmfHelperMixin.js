@@ -1204,4 +1204,39 @@ export const AmfHelperMixin = (base) => class extends base {
     }
     return this._resolve(result);
   }
+
+  /**
+   * Collects domain objects by a domain type.
+   * @param {DomainElement} source The element to search for declare/encoded objects.
+   * @param {string} type The domain type
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
+   * @returns {DomainElement[]}
+   */
+  getByType(source, type, context) {
+    if (!source) {
+      return [];
+    }
+    let result = [];
+    const declares = this._computeDeclares(source);
+    const key = this._getAmfKey(type, context);
+    if (declares && declares.length) {
+      declares.forEach((declared) => {
+        if (this._hasType(declared, key)) {
+          result.push(declared);
+        }
+      });
+    }
+    const references = this._computeReferences(source);
+    if (Array.isArray(references) && references.length) {
+      for (const ref of references) {
+        if (this._hasType(ref, this.ns.aml.vocabularies.document.Module)) {
+          const items = this.getByType(ref, type, context);
+          if (items.length) {
+            result = result.concat(items);
+          }
+        }
+      }
+    }
+    return result;
+  }
 };

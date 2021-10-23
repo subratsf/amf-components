@@ -37,6 +37,7 @@ export const EventTypes = Object.freeze({
   }),
   Navigation: Object.freeze({
     apiNavigate: 'apinavigate',
+    navigateExternal: 'apinavigateexternal',
   }),
   Endpoint: Object.freeze({
     get: 'amfstoreendpointget',
@@ -66,6 +67,6 @@ export const EventTypes = Object.freeze({
   }),
   Type: Object.freeze({
     get: 'amfstoretypeget',
-    list: 'amfstoretypeget',
+    list: 'amfstoretypelist',
   }),
 });

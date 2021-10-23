@@ -16,6 +16,16 @@ import { ns } from '../helpers/Namespace.js';
 /** @typedef {import('../types').OperationParameter} OperationParameter */
 
 /**
+ * Stops an event and cancels it.
+ * @param {Event} e The event to stop
+ */
+export function cancelEvent(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+}
+
+/**
  * @param {string[]} types Shape's types
  */
 export function isScalarType(types=[]) {

@@ -1,5 +1,5 @@
 import { HTTPRequest, RequestAuthorization } from '@advanced-rest-client/events/src/request/ArcRequest';
-import { ApiParameter, ApiShapeUnion, ApiSecurityRequirement, ApiServer, ApiEndPoint, ApiExample } from './helpers/api';
+import { ApiParameter, ApiShapeUnion, ApiSecurityRequirement, ApiServer, ApiEndPoint, ApiExample, ApiDocumentation } from './helpers/api';
 import { default as XhrSimpleRequestTransportElement } from './elements/XhrSimpleRequestTransportElement';
 
 export declare interface ApiConsoleRequest extends HTTPRequest {
@@ -199,41 +199,79 @@ export declare interface UpdateServersOptions {
 export type ServerType = 'server' | 'custom' | 'extra';
 export type SelectionType = 'summary' | 'resource' | 'operation' | 'schema' | 'security' | 'documentation';
 
-export declare interface NavigationItem {
-  label: string;
-  id: string;
+interface SelectableMenuItem {
+  /**
+   * Whether the item is a selected menu item.
+   */
+  selected?: boolean;
+  /**
+   * Whether the item has secondary selection.
+   * This happens when a "passive" selection has been applied to the item.
+   */
+  secondarySelected?: boolean;
 }
 
-export declare interface MethodItem extends NavigationItem {
-  method: string;
+interface EditableMenuItem {
+  /**
+   * When set the name editor for the item is enabled.
+   */
+  nameEditor?: boolean;
 }
 
-export declare interface EndpointItem extends NavigationItem {
+
+export interface ApiEndPointListItem {
+  /**
+   * The domain id of the endpoint.
+   * It may be undefined when the endpoint is created "abstract" endpoint vor the visualization.
+   */
+  id?: string;
   path: string;
-  renderPath: boolean;
+  name?: string;
+}
+
+export interface ApiEndPointWithOperationsListItem extends ApiEndPointListItem {
+  operations: ApiOperationListItem[];
+}
+
+export interface ApiOperationListItem {
+  id: string;
+  method: string;
+  name?: string;
+}
+
+export interface ApiEndpointsTreeItem extends ApiEndPointWithOperationsListItem {
+  label: string;
   indent: number;
-  methods: MethodItem[];
+  hasShortPath?: boolean;
+  hasChildren?: boolean;
 }
 
-export declare interface SecurityItem extends NavigationItem {}
-
-export declare interface TypeItem extends NavigationItem {}
-
-export declare interface DocumentationItem extends NavigationItem {
-  /**
-   * When set the documentation item refers to an external document
-   */
-  isExternal: boolean;
-  /**
-   * Only set when `isExternal` equals `true`.
-   * An URL for the external documentation.
-   */
-  url?: string;
+export interface ApiSecuritySchemeListItem {
+  id: string;
+  type: string;
+  name?: string;
+  displayName?: string;
 }
+
+export declare interface ApiNodeShapeListItem {
+  id: string;
+  name?: string;
+  displayName?: string;
+}
+
+export declare interface EndpointItem extends ApiEndpointsTreeItem, SelectableMenuItem, EditableMenuItem {
+  operations: OperationItem[];
+}
+
+export declare interface OperationItem extends ApiOperationListItem, SelectableMenuItem, EditableMenuItem {}
+export declare interface NodeShapeItem extends ApiNodeShapeListItem, SelectableMenuItem, EditableMenuItem {}
+export declare interface SecurityItem extends ApiSecuritySchemeListItem, SelectableMenuItem {}
+export declare interface DocumentationItem extends ApiDocumentation, SelectableMenuItem, EditableMenuItem {}
+export declare type SchemaAddType = 'scalar'|'object'|'file'|'array'|'union';
 
 export declare interface TargetModel {
   documentation?: DocumentationItem[];
-  types?: TypeItem[];
+  types?: NodeShapeItem[];
   securitySchemes?: SecurityItem[];
   endpoints?: EndpointItem[];
   _typeIds?: string[];
@@ -332,46 +370,6 @@ export interface ApiSchemaReadOptions {
    * Whether to read the examples to generate the value.
    */
   fromExamples?: boolean;
-}
-
-export interface ApiEndPointListItem {
-  /**
-   * The domain id of the endpoint.
-   * It may be undefined when the endpoint is created "abstract" endpoint vor the visualization.
-   */
-  id?: string;
-  path: string;
-  name?: string;
-}
-
-export interface ApiEndPointWithOperationsListItem extends ApiEndPointListItem {
-  operations: ApiOperationListItem[];
-}
-
-export interface ApiOperationListItem {
-  id: string;
-  method: string;
-  name?: string;
-}
-
-export interface ApiEndpointsTreeItem extends ApiEndPointWithOperationsListItem {
-  label: string;
-  indent: number;
-  hasShortPath?: boolean;
-  hasChildren?: boolean;
-}
-
-export interface ApiSecuritySchemeListItem {
-  id: string;
-  type: string;
-  name?: string;
-  displayName?: string;
-}
-
-export declare interface ApiNodeShapeListItem {
-  id: string;
-  name?: string;
-  displayName?: string;
 }
 
 export interface DocumentMeta {

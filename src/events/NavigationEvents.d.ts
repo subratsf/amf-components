@@ -39,6 +39,16 @@ export declare interface INavigationEvents {
    * @param passive Whether the selection came from the system processing rather than user interaction.
    */
   apiNavigate(target: EventTarget, domainId: string, domainType: SelectionType, parentId?: string, passive?: boolean): void;
+  /**
+   * Dispatches an event to inform the application to open a browser window.
+   * This is a general purpose action. It has the `detail` object with optional
+   * `purpose` property which can be used to support different kind of external navigation.
+   * 
+   * @param target A node on which to dispatch the event.
+   * @param url The URL to open
+   * @returns True when the event was cancelled meaning the navigation handled.
+   */
+  navigateExternal(target: EventTarget, url: string): boolean;
 }
 
 export declare const NavigationEvents: Readonly<INavigationEvents>;
