@@ -5,6 +5,7 @@ import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import '@advanced-rest-client/highlight/arc-marked.js';
 import '@anypoint-web-components/awc/anypoint-tab.js';
 import '@anypoint-web-components/awc/anypoint-tabs.js';
+import { QueryParameterProcessor } from '../lib/QueryParameterProcessor.js';
 import { ns } from '../helpers/Namespace.js';
 import { 
   ApiDocumentationBase, 
@@ -29,6 +30,8 @@ import '../../define/api-response-document.js'
 /** @typedef {import('../helpers/api').ApiSecurityOAuth2Flow} ApiSecurityOAuth2Flow */
 /** @typedef {import('../helpers/api').ApiSecurityScope} ApiSecurityScope */
 /** @typedef {import('../helpers/api').ApiResponse} ApiResponse */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
 /** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../helpers/amf').SecurityRequirement} SecurityRequirement */
 /** @typedef {import('@anypoint-web-components/awc').AnypointTabsElement} AnypointTabs */
@@ -40,6 +43,8 @@ export const titleTemplate = Symbol('titleTemplate');
 export const queryParamsTemplate = Symbol('queryParamsTemplate');
 export const headersTemplate = Symbol('headersTemplate');
 export const responsesValue = Symbol('responsesValue');
+export const queryParametersValue = Symbol('queryParametersValue');
+export const processQueryParameters = Symbol('processQueryParameters');
 export const preselectResponse = Symbol('preselectResponse');
 export const responseContentTemplate = Symbol('responseContentTemplate');
 export const responseTabsTemplate = Symbol('responseTabsTemplate');
@@ -145,6 +150,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
    */
   async processGraph() {
     await this[querySecurity]();
+    await this[processQueryParameters]();
     this.requestUpdate();
   }
 
@@ -172,7 +178,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
   }
 
   async [processSecurity]() {
-    const scheme = this[securityValue];
+    const scheme = /** @type ApiSecurityScheme */ (this[securityValue]);
     if (!scheme) {
       this[responsesValue] = undefined;
       return;
@@ -180,6 +186,28 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
     const { responses=[] } = scheme;
     this[responsesValue] = responses;
     this[preselectResponse]();
+  }
+
+  /**
+   * Creates a parameter 
+   */
+  async [processQueryParameters]() {
+    this[queryParametersValue] = undefined;
+    const scheme = /** @type ApiSecurityScheme */ (this[securityValue]);
+    if (!scheme) {
+      return;
+    }
+    if (Array.isArray(scheme.queryParameters) && scheme.queryParameters.length) {
+      this[queryParametersValue] = scheme.queryParameters;
+      return;
+    }
+    const nodeShape = /** @type ApiNodeShape */ (scheme.queryString);
+    if (!nodeShape) {
+      return;
+    }
+    const factory = new QueryParameterProcessor();
+    const params = factory.collectOperationParameters(scheme.queryString, 'query');
+    this[queryParametersValue] = params.map(p => p.parameter);
   }
 
   /**
@@ -234,7 +262,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
   }
 
   render() {
-    const scheme = this[securityValue];
+    const scheme = /** @type ApiSecurityScheme */ (this[securityValue]);
     if (!scheme) {
       return html``;
     }
@@ -250,7 +278,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
   }
 
   [titleTemplate]() {
-    const scheme = this[securityValue];
+    const scheme = /** @type ApiSecurityScheme */ (this[securityValue]);
     const { name, type, displayName } = scheme;
     const title = displayName || name;
     return html`
@@ -267,11 +295,11 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
    * @return {TemplateResult|string} The template for the query parameters
    */
   [queryParamsTemplate]() {
-    const scheme = this[securityValue];
-    if (!Array.isArray(scheme.queryParameters) || !scheme.queryParameters.length) {
+    const params = /** @type ApiParameter[] */ (this[queryParametersValue]);
+    if (!Array.isArray(params) || !params.length) {
       return '';
     }
-    const content = scheme.queryParameters.map((param) => this[schemaItemTemplate](param, 'query'));
+    const content = params.map((param) => this[schemaItemTemplate](param, 'query'));
     return this[paramsSectionTemplate]('Parameters', 'parametersOpened', content);
   }
 
@@ -279,7 +307,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
    * @return {TemplateResult|string} The template for the headers
    */
   [headersTemplate]() {
-    const scheme = this[securityValue];
+    const scheme = /** @type ApiSecurityScheme */ (this[securityValue]);
     if (!Array.isArray(scheme.headers) || !scheme.headers.length) {
       return '';
     }
@@ -341,7 +369,7 @@ export default class ApiSecurityDocumentElement extends ApiDocumentationBase {
    * @returns {TemplateResult|string} The template for the security settings, when required.
    */
   [settingsTemplate]() {
-    const scheme = this[securityValue];
+    const scheme = /** @type ApiSecurityScheme */ (this[securityValue]);
     const { settings } = scheme;
     if (!settings) {
       return '';
