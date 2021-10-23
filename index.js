@@ -37,3 +37,4 @@ export { ApiSchemaValues } from './src/schema/ApiSchemaValues.js';
 export { ApiSchemaGenerator } from './src/schema/ApiSchemaGenerator.js';
 export { DomEventsAmfStore } from './src/store/DomEventsAmfStore.js';
 export { AmfStore } from './src/store/AmfStore.js';
+export { AmfStoreDomEventsMixin } from './src/store/mixins/AmfStoreDomEventsMixin.js';

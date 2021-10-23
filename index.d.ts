@@ -44,3 +44,4 @@ export { ServerChangeEvent, ServerChangeEventDetail, ServerCountChangeEvent, Ser
 export { TelemetryCustomMetric, TelemetryCustomValue, TelemetryDetail, TelemetryEventDetail, TelemetryExceptionDetail, TelemetryScreenViewDetail, TelemetrySocialDetail, TelemetryTimingDetail } from './src/events/TelemetryEvents';
 export { DomEventsAmfStore } from './src/store/DomEventsAmfStore';
 export { AmfStore } from './src/store/AmfStore';
+export { AmfStoreDomEventsMixin } from './src/store/mixins/AmfStoreDomEventsMixin';

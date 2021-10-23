@@ -36,7 +36,9 @@ class ComponentDemo extends AmfDemoBase {
       'renderCustomServer',
       'summaryModel', 'partialModelDocs'
     ]);
+    this.store.unlisten();
     this.partialStore = new AmfPartialGraphStore();
+    this.partialStore.listen();
     this.componentName = 'api-documentation';
     this.editorOpened = false;
     this.editorOperation = undefined;
@@ -74,11 +76,18 @@ class ComponentDemo extends AmfDemoBase {
   
   async loadSummary() {
     // debugger
-    const model = this.partialStore.summary();
+    const model = await this.partialStore.apiSummary();
     this.summaryModel = model;
     this.partialModelDocs = model;
     console.log(model);
     this.render();
+  }
+
+  /** @param {Event} e */
+  _apiChanged(e) {
+    this.domainId = 'summary';
+    this.domainType = 'summary';
+    super._apiChanged(e);
   }
 
   /**
@@ -89,41 +98,49 @@ class ComponentDemo extends AmfDemoBase {
     if (passive === true) {
       return;
     }
-    this.operationId = undefined;
-    if (domainType === 'schema') {
-      this.partialModelDocs = this.partialStore.schema(domainId, this.context);
-      this.domainId = domainId;
-      this.domainType = domainType;
-      return;
-    }
-    if (domainType === 'security') {
-      this.partialModelDocs = this.partialStore.securityRequirement(domainId, this.context);
-      this.domainId = domainId;
-      this.domainType = domainType;
-      return;
-    }
-    if (domainType === 'resource') {
-      this.partialModelDocs = this.partialStore.endpoint(domainId, this.context);
-      this.domainId = domainId;
-      this.domainType = domainType;
-      return
-    }
+    this.domainType = domainType;
     if (domainType === 'operation') {
-      if (!this.partialModelDocs || this.partialModelDocs['@id'] !== parentId) {
-        this.partialModelDocs = this.partialStore.endpoint(parentId, this.context);
-      }
-      this.domainId = parentId;
       this.operationId = domainId;
-      this.domainType = domainType;
-      return
-    }
-    if (domainType === 'summary') {
-      this.partialModelDocs = this.summaryModel;
+      this.domainId = parentId;  
+    } else {
+      this.operationId = undefined;
       this.domainId = domainId;
-      this.domainType = domainType;
-      return;
     }
-    console.log(domainId, domainType, parentId, passive);
+    // this.operationId = undefined;
+    // if (domainType === 'schema') {
+    //   this.partialModelDocs = this.partialStore.schema(domainId, this.context);
+    //   this.domainId = domainId;
+    //   this.domainType = domainType;
+    //   return;
+    // }
+    // if (domainType === 'security') {
+    //   this.partialModelDocs = this.partialStore.securityRequirement(domainId, this.context);
+    //   this.domainId = domainId;
+    //   this.domainType = domainType;
+    //   return;
+    // }
+    // if (domainType === 'resource') {
+    //   this.partialModelDocs = this.partialStore.endpoint(domainId, this.context);
+    //   this.domainId = domainId;
+    //   this.domainType = domainType;
+    //   return
+    // }
+    // if (domainType === 'operation') {
+    //   if (!this.partialModelDocs || this.partialModelDocs['@id'] !== parentId) {
+    //     this.partialModelDocs = this.partialStore.endpoint(parentId, this.context);
+    //   }
+    //   this.domainId = parentId;
+    //   this.operationId = domainId;
+    //   this.domainType = domainType;
+    //   return
+    // }
+    // if (domainType === 'summary') {
+    //   this.partialModelDocs = this.summaryModel;
+    //   this.domainId = domainId;
+    //   this.domainType = domainType;
+    //   return;
+    // }
+    // console.log(domainId, domainType, parentId, passive);
     // this.domainType = type;
     // if (type === 'method') {
     //   this.operationId = selected;
@@ -193,7 +210,6 @@ class ComponentDemo extends AmfDemoBase {
     >
       <api-documentation
         slot="content"
-        .amf="${this.partialModelDocs}"
         .domainId="${this.domainId}"
         .operationId="${this.operationId}"
         .domainType="${this.domainType}"
@@ -314,7 +330,6 @@ class ComponentDemo extends AmfDemoBase {
       <h2>API request</h2>
       <anypoint-dialog-scrollable>
         <api-request
-          .amf="${this.summaryModel}"
           .domainId="${this.editorOperation}"
           ?anypoint="${this.anypoint}"
           urlLabel
@@ -342,7 +357,7 @@ class ComponentDemo extends AmfDemoBase {
     return html`
     <api-navigation
       summary
-      .amf="${this.summaryModel}"
+      .amf="${this.amf}"
       endpointsOpened
     ></api-navigation>`;
   }
