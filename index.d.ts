@@ -45,3 +45,4 @@ export { TelemetryCustomMetric, TelemetryCustomValue, TelemetryDetail, Telemetry
 export { DomEventsAmfStore } from './src/store/DomEventsAmfStore';
 export { AmfStore } from './src/store/AmfStore';
 export { AmfStoreDomEventsMixin } from './src/store/mixins/AmfStoreDomEventsMixin';
+export { InMemAmfGraphStore } from './src/store/InMemAmfGraphStore';

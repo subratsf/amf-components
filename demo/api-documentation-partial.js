@@ -37,8 +37,8 @@ class ComponentDemo extends AmfDemoBase {
       'summaryModel', 'partialModelDocs'
     ]);
     this.store.unlisten();
-    this.partialStore = new AmfPartialGraphStore();
-    this.partialStore.listen();
+    this.store = new AmfPartialGraphStore();
+    this.store.listen();
     this.componentName = 'api-documentation';
     this.editorOpened = false;
     this.editorOperation = undefined;
@@ -69,14 +69,14 @@ class ComponentDemo extends AmfDemoBase {
     if (Array.isArray(amf)) {
       [amf] = amf;
     }
-    this.partialStore.amf = amf;
+    /** @type AmfPartialGraphStore */ (this.store).amf = amf;
     this.context = amf['@context'];
     await this.loadSummary();
   }
   
   async loadSummary() {
     // debugger
-    const model = await this.partialStore.apiSummary();
+    const model = await this.store.apiSummary();
     this.summaryModel = model;
     this.partialModelDocs = model;
     console.log(model);

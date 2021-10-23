@@ -1,13 +1,21 @@
 /* eslint-disable no-param-reassign */
 import { AmfHelperMixin } from '../../index.js';
+import { expandKey } from '../../src/helpers/AmfHelperMixin.js';
 
 /** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../../src/helpers/amf').Api} Api */
 /** @typedef {import('../../src/helpers/amf').EndPoint} EndPoint */
 /** @typedef {import('../../src/helpers/amf').Operation} Operation */
-/** @typedef {import('../../src/helpers/api').ApiSummary} ApiSummary */
+/** @typedef {import('../../src/helpers/amf').CreativeWork} CreativeWork */
+/** @typedef {import('../../src/helpers/amf').SecurityScheme} SecurityScheme */
+/** @typedef {import('../../src/types').DocumentMeta} DocumentMeta */
 
+/**
+ * A demo class that pretends to be a server for a partial model.
+ * Instead, it takes the AMF graph model and on demand splits it into 
+ * parts, like the AMF service do.
+ */
 export class AmfPartialModel extends AmfHelperMixin(Object) {
   /**
    * @param {AmfDocument} amf
@@ -15,6 +23,59 @@ export class AmfPartialModel extends AmfHelperMixin(Object) {
   __amfChanged(amf) {
     this.context = amf['@context'];
     super.__amfChanged(amf);
+  }
+
+  /**
+   * @param {string[]} types The list of graph object types. When not defined it returns an empty array.
+   * @returns {string[]} The expanded types.
+   */
+  readTypes(types) {
+    let target = types;
+    if (typeof target === 'string') {
+      target = [target];
+    }
+    if (!Array.isArray(target)) {
+      return [];
+    }
+    return target.map(this[expandKey].bind(this));
+  }
+
+  /**
+   * Gathers information about the loaded document.
+   * This is mainly used by the `api-documentation` element to decide which documentation to render.
+   * 
+   * @returns {DocumentMeta}
+   */
+  documentMeta() {
+    const summary = this.summaryPartial();
+    const result = /** @type DocumentMeta */ ({
+      isApi: false,
+      isAsync: false,
+      isFragment: false,
+      isLibrary: false,
+      types: this.readTypes(summary['@type']),
+      encodesId: undefined,
+    });
+    if (!summary) {
+      return result;
+    }
+    const api = this._computeApi(summary, summary['@context']);
+    const isApi = !!api;
+    result.isApi = isApi;
+    const { ns } = this;
+    if (isApi) {
+      result.isAsync = this._isAsyncAPI(summary);
+    } else if (result.types[0] === ns.aml.vocabularies.document.Module) {
+      result.isLibrary = true;
+    } else {
+      const fragmentTypes = [
+        ns.aml.vocabularies.security.SecuritySchemeFragment,
+        ns.aml.vocabularies.apiContract.UserDocumentationFragment,
+        ns.aml.vocabularies.shapes.DataTypeFragment,
+      ];
+      result.isFragment = fragmentTypes.some(type => result.types.includes(type));
+    }
+    return result;
   }
 
   /** @returns AmfDocument */
@@ -339,20 +400,20 @@ export class AmfPartialModel extends AmfHelperMixin(Object) {
    */
   endpoint(domainId) {
     const { context } = this;
-    const webApi = this._computeApi(this.amf);
-    const ep = this._computeEndpointModel(webApi, domainId);
+    const webApi = this._computeApi(this.amf, context);
+    const ep = this._computeEndpointModel(webApi, domainId, context);
     if (!ep) {
       return undefined;
     }
     const result = { ...ep };
     const { ns } = this;
-    const smKey = this._getAmfKey(ns.aml.vocabularies.docSourceMaps.sources);
-    const operationsKey = this._getAmfKey(ns.aml.vocabularies.apiContract.supportedOperation);
+    const smKey = this._getAmfKey(ns.aml.vocabularies.docSourceMaps.sources, context);
+    const operationsKey = this._getAmfKey(ns.aml.vocabularies.apiContract.supportedOperation, context);
     const sm = this.sourceMap(result[smKey]);
     if (sm) {
       result[smKey] = sm;
     }
-    const srvKey = this._getAmfKey(ns.aml.vocabularies.apiContract.server);
+    const srvKey = this._getAmfKey(ns.aml.vocabularies.apiContract.server, context);
     const servers = webApi[srvKey];
     if (!Array.isArray(result[srvKey]) || !result[srvKey].length && servers) {
       result[srvKey] = [...servers];
@@ -531,11 +592,54 @@ export class AmfPartialModel extends AmfHelperMixin(Object) {
    * @returns {DomainElement|undefined} Model definition for a type.
    */
   partialOperationEndpoint(domainId) {
-    const api = this._computeApi(this.amf);
-    const endpoint = this._computeMethodEndpoint(api, domainId);
+    const { context } = this;
+    const api = this._computeApi(this.amf, context);
+    const endpoint = this._computeMethodEndpoint(api, domainId, context);
     if (!endpoint) {
       return undefined;
     }
     return this.endpoint(endpoint['@id']);
+  }
+
+  /**
+   * Reads the documentation object from the store.
+   * @param {string} id The domain id of the documentation object
+   * @returns {CreativeWork|undefined} The read documentation.
+   */
+  partialDocumentation(id) {
+    const { context } = this;
+    const { amf } = this;
+    if (!amf) {
+      return undefined;
+    }
+    const api = this._computeApi(amf, context);
+    if (!api) {
+      return undefined;
+    }
+    const creative = this._computeDocument(api, id, context);
+    if (!creative) {
+      throw new Error(`Documentation ${id} does not exist.`);
+    }
+    if (context) {
+      creative['@context'] = context;
+    }
+    return creative;
+  }
+
+  /**
+   * Reads the SecurityScheme object from the graph.
+   * @param {string} id The domain id of the SecurityScheme
+   * @returns {SecurityScheme}
+   */
+  partialSecurityScheme(id) {
+    const object = this.findSecurityScheme(id);
+    if (!object) {
+      throw new Error(`No SecurityRequirement for ${id}`);
+    }
+    const { context } = this;
+    if (context) {
+      object['@context'] = context;
+    }
+    return object;
   }
 }

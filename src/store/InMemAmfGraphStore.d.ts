@@ -1,15 +1,40 @@
+import { AmfHelperMixin } from '../helpers/AmfHelperMixin';
+import { AmfSerializer } from '../helpers/AmfSerializer';
+import { AmfDocument, DomainElement } from '../helpers/amf';
 import { ApiSummary, ApiEndPoint, ApiOperation, ServersQueryOptions, ApiServer, ApiDocumentation, ApiSecurityScheme, ApiSecurityRequirement, ApiRequest, ApiResponse, ApiPayload, ApiShapeUnion } from '../helpers/api';
 import { DocumentMeta, ApiEndPointWithOperationsListItem, ApiSecuritySchemeListItem, ApiNodeShapeListItem } from '../types';
+import { AmfStore } from './AmfStore.js';
 
 /**
  * The store that provides an API to read data from the AMF graph model.
+ * The graph model is kept in memory in a form of a Raw ld+json graph representation of the 
+ * AMF's domain model.
  */
-export class AmfStore {
+export class InMemAmfGraphStore extends AmfHelperMixin(AmfStore) {
+  /**
+   * The event target to dispatch the events on.
+   */
+  target: EventTarget;
+  /**
+   * The full API model.
+   */
+  amf: AmfDocument;
+  /** 
+   * The API serializer
+   */
+  serializer: AmfSerializer;
   /** 
    * For future use.
    * Indicates that this store is read only.
    */
   readonly?: boolean;
+  /**
+   * @param eventsTarget The event target to dispatch the events on.
+   * @param graph The full API model.
+   */
+  constructor(eventsTarget?: EventTarget, graph?: AmfDocument);
+
+  __amfChanged(amf: AmfDocument): void;
 
   /**
    * @returns The list of domain types for the currently loaded document.
@@ -36,6 +61,12 @@ export class AmfStore {
    * @returns Currently loaded API's version
    */
   apiVersion(): Promise<string|null>;
+
+  /**
+   * Finds an endpoint in the graph.
+   * @param id The domain id of the endpoint.
+   */
+  private findEndpoint(id: string): ApiEndPoint|null;
   
   /**
    * Reads an endpoint by its id.
@@ -60,6 +91,13 @@ export class AmfStore {
    * @returns The list of servers for given query.
    */
   queryServers(query?: ServersQueryOptions): Promise<ApiServer[]>;
+
+  /**
+   * Searches for an operation in the API.
+   * @param operationId The domain id of the operation to read.
+   * @param endpointId Optional endpoint id. When not set it searches through all endpoints.
+   */
+  private findOperation(operationId: string, endpointId?: string): ApiOperation|undefined;
 
   /**
    * Reads the operation model.
@@ -114,6 +152,11 @@ export class AmfStore {
    * @param id The domain id of the response.
    */
   getResponse(id: string): Promise<ApiResponse>;
+
+  /**
+   * Finds a payload in a request or a response object.
+   */
+  private findPayload(object: DomainElement, domainId: string): ApiPayload|undefined;
 
   /**
    * Reads Payload data from the graph

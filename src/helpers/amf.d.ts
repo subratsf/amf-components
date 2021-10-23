@@ -1,6 +1,7 @@
 export declare interface DomainElement {
   '@id': string;
   '@type': string[];
+  '@context'?: Record<string, string>;
   'http://a.ml/vocabularies/document#customDomainProperties'?: [];
 }
 

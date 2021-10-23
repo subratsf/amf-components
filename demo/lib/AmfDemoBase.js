@@ -15,6 +15,9 @@ import './ApiStyles.js';
 /** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
 /** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 /** @typedef {import('../../src/events/ReportingEvents').ReportingErrorEventDetail} ReportingErrorEventDetail */
+/** @typedef {import('../../').AmfStore} AmfStore */
+/** @typedef {import('../../').AmfStoreDomEventsMixin} AmfStoreDomEventsMixin */
+/** @typedef {import('../../').InMemAmfGraphStore} InMemAmfGraphStore */
 
 const routes = [
   {
@@ -40,6 +43,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
   constructor() {
     super();
     this.initObservableProperties(["initialized", "loaded", 'selectedFile']);
+    /** @type {AmfStore & AmfStoreDomEventsMixin} */
     this.store = new DomEventsAmfStore(window);
     this.store.listen();
 
@@ -180,7 +184,8 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
       [data] = data;
     }
     this.amf = data;
-    this.store.amf = data;
+    
+    /** @type DomEventsAmfStore */ (this.store).amf = data;
     this.loaded = true;
   }
 

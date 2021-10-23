@@ -134,15 +134,16 @@ export const AmfHelperMixin = (base) => class extends base {
   /**
    * Returns compact model key for given value.
    * @param {string} property AMF original property
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {string} Compact model property name or the same value if
    * value not found in the context.
    */
-  _getAmfKey(property) {
+  _getAmfKey(property, context) {
     if (!property) {
       return undefined;
     }
     let {amf} = this;
-    if (!amf) {
+    if (!amf && !context) {
       return property;
     }
     if (Array.isArray(amf)) {
@@ -151,7 +152,7 @@ export const AmfHelperMixin = (base) => class extends base {
     if (!this.__cachedKeys) {
       this.__cachedKeys = {};
     }
-    const ctx = amf['@context'];
+    const ctx = /** @type Record<string, string> */ (context || amf['@context']);
     if (!ctx || !property) {
       return property;
     }
@@ -170,11 +171,11 @@ export const AmfHelperMixin = (base) => class extends base {
         cache[property] = k;
         return k;
       } if (hashIndex === -1 && property.indexOf(ctx[k]) === 0) {
-        const result = property.replace(ctx[k], `${k  }:`);
+        const result = property.replace(ctx[k], `${k}:`);
         cache[property] = result;
         return result;
       } if (ctx[k] === hashProperty) {
-        const result = `${k  }:${  property.substr(hashIndex + 1)}`;
+        const result = `${k}:${property.substr(hashIndex + 1)}`;
         cache[property] = result;
         return result;
       }
@@ -225,11 +226,12 @@ export const AmfHelperMixin = (base) => class extends base {
    * Gets a single scalar value from a model.
    * @param {DomainElement} model Amf model to extract the value from.
    * @param {string} key Model key to search for the value
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {string|number|boolean|undefined|null} Value for key
    */
-  _getValue(model, key) {
+  _getValue(model, key, context) {
     /* eslint-disable-next-line no-param-reassign */
-    key = this._getAmfKey(key);
+    key = this._getAmfKey(key, context);
     let data = model && model[key];
     if (!data) {
       // This includes "undefined", "false", "null" and "0"
@@ -253,11 +255,12 @@ export const AmfHelperMixin = (base) => class extends base {
    * Gets values from a model as an array of `@value` properties.
    * @param {DomainElement} model Amf model to extract the value from.
    * @param {string} key Model key to search for the value
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Array<string|number|boolean|null>|undefined} Value for key
    */
-  _getValueArray(model, key) {
+  _getValueArray(model, key, context) {
     /* eslint-disable-next-line no-param-reassign */
-    key = this._getAmfKey(key);
+    key = this._getAmfKey(key, context);
     const data = model && this._ensureArray(model[key]);
     if (!Array.isArray(data)) {
       return undefined;
@@ -270,10 +273,11 @@ export const AmfHelperMixin = (base) => class extends base {
    * 
    * @param {DomainElement} model Amf model to extract the value from.
    * @param {string} key Model key to search for the value
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {DomainElement[]|undefined} Value for the key
    */
-  [getArrayItems](model, key) {
-    const k = this._getAmfKey(key);
+  [getArrayItems](model, key, context) {
+    const k = this._getAmfKey(key, context);
     const data = model && this._ensureArray(model[k]);
     if (!Array.isArray(data)) {
       return undefined;
@@ -285,10 +289,11 @@ export const AmfHelperMixin = (base) => class extends base {
    * Reads the value of the `@id` property.
    * @param {DomainElement} model Amf model to extract the value from.
    * @param {string} key Model key to search for the @id
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {string|undefined}
    */
-  _getLinkValue(model, key) {
-    const k = this._getAmfKey(key);
+  _getLinkValue(model, key, context) {
+    const k = this._getAmfKey(key, context);
     let data = model && model[k];
     if (!data) {
       return undefined;
@@ -306,10 +311,11 @@ export const AmfHelperMixin = (base) => class extends base {
    * Reads the list of value for the `@id` property.
    * @param {DomainElement} model Amf model to extract the value from.
    * @param {string} key Model key to search for the @id
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {string[]|undefined}
    */
-  _getLinkValues(model, key) {
-    const k = this._getAmfKey(key);
+  _getLinkValues(model, key, context) {
+    const k = this._getAmfKey(key, context);
     let data = /** @type DomainElement[] */ (model && model[k]);
     if (!data) {
       return undefined;
@@ -324,14 +330,15 @@ export const AmfHelperMixin = (base) => class extends base {
    * Checks if a model has a type.
    * @param {DomainElement} model Model to test
    * @param {string} type Type name
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {boolean} True if model has a type.
    */
-  _hasType(model, type) {
+  _hasType(model, type, context) {
     const types = this._ensureArray(model && model['@type']);
     if (!types || !types.length) {
       return false;
     }
-    const key = this._getAmfKey(type);
+    const key = this._getAmfKey(type, context);
     for (let i = 0; i < types.length; i++) {
       if (types[i] === key) {
         return true;
@@ -344,11 +351,12 @@ export const AmfHelperMixin = (base) => class extends base {
    * Checks if a shape has a property.
    * @param {DomainElement} shape The shape to test
    * @param {string} key Property name to test
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {boolean}
    */
-  _hasProperty(shape, key) {
+  _hasProperty(shape, key, context) {
     /* eslint-disable-next-line no-param-reassign */
-    key = this._getAmfKey(key);
+    key = this._getAmfKey(key, context);
     return !!(shape && key && key in shape);
   }
 
@@ -357,14 +365,15 @@ export const AmfHelperMixin = (base) => class extends base {
    *
    * @param {DomainElement} shape AMF shape object
    * @param {string} key Property name
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Array<string|number|boolean|null|Object>|undefined}
    */
-  _computePropertyArray(shape, key) {
+  _computePropertyArray(shape, key, context) {
     if (!shape) {
       return undefined;
     }
     /* eslint-disable-next-line no-param-reassign */
-    key = this._getAmfKey(key);
+    key = this._getAmfKey(key, context);
     const data = this._ensureArray(shape && shape[key]);
     if (!data || !Array.isArray(data)) {
       return undefined;
@@ -376,23 +385,25 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes API version from the AMF model.
    *
    * @param {AmfDocument} amf
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {string}
    */
-  _computeApiVersion(amf) {
+  _computeApiVersion(amf, context) {
     const api = this._computeApi(amf);
     if (!api) {
       return undefined;
     }
-    return /** @type string */ (this._getValue(api, this.ns.aml.vocabularies.core.version));
+    return /** @type string */ (this._getValue(api, this.ns.aml.vocabularies.core.version, context));
   }
 
   /**
    * Computes model's `encodes` property.
    *
    * @param {AmfDocument} model AMF data model
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {DomainElement|undefined} List of encodes
    */
-  _computeEncodes(model) {
+  _computeEncodes(model, context) {
     if (!model) {
       return undefined;
     }
@@ -400,7 +411,7 @@ export const AmfHelperMixin = (base) => class extends base {
       /* eslint-disable-next-line no-param-reassign */
       [model] = model;
     }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.document.encodes);
+    const key = this._getAmfKey(this.ns.aml.vocabularies.document.encodes, context);
     const data = model[key];
     if (data) {
       return Array.isArray(data) ? data[0] : data;
@@ -412,9 +423,10 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes list of declarations in the AMF api model.
    *
    * @param {AmfDocument} model AMF json/ld model for an API
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {DomainElement[]|undefined} List of declarations
    */
-  _computeDeclares(model) {
+  _computeDeclares(model, context) {
     if (!model) {
       return undefined;
     }
@@ -425,7 +437,7 @@ export const AmfHelperMixin = (base) => class extends base {
     if (!model) {
       return undefined;
     }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.document.declares);
+    const key = this._getAmfKey(this.ns.aml.vocabularies.document.declares, context);
     const data = this._ensureArray(model[key]);
     return Array.isArray(data) ? data : undefined;
   }
@@ -434,9 +446,10 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes list of references in the AMF api model.
    *
    * @param {AmfDocument} model AMF json/ld model for an API
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {DomainElement[]|undefined} List of declarations
    */
-  _computeReferences(model) {
+  _computeReferences(model, context) {
     if (!model) {
       return undefined;
     }
@@ -447,7 +460,7 @@ export const AmfHelperMixin = (base) => class extends base {
     if (!model) {
       return undefined;
     }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.document.references);
+    const key = this._getAmfKey(this.ns.aml.vocabularies.document.references, context);
     const data = this._ensureArray(model[key]);
     return data instanceof Array ? data : undefined;
   }
@@ -456,14 +469,15 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes AMF's `http://schema.org/WebAPI` model
    *
    * @param {AmfDocument} model AMF json/ld model for an API
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {WebApi|undefined} Web API declaration.
    */
-  _computeWebApi(model) {
-    const enc = this._computeEncodes(model);
+  _computeWebApi(model, context) {
+    const enc = this._computeEncodes(model, context);
     if (!enc) {
       return undefined;
     }
-    if (this._hasType(enc, this.ns.schema.webApi)) {
+    if (this._hasType(enc, this.ns.schema.webApi, context)) {
       return enc;
     }
     return undefined;
@@ -473,14 +487,15 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes AMF's `http://schema.org/API` model
    *
    * @param {AmfDocument} model AMF json/ld model for an API
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {AsyncApi|WebApi} API declaration.
    */
-  _computeApi(model) {
-    const enc = this._computeEncodes(model);
+  _computeApi(model, context) {
+    const enc = this._computeEncodes(model, context);
     if (!enc) {
       return undefined;
     }
-    if (this._isAPI(model) || this._isWebAPI(model) || this._isAsyncAPI(model)) {
+    if (this._isAPI(model, context) || this._isWebAPI(model, context) || this._isAsyncAPI(model, context)) {
       return enc;
     }
     return undefined;
@@ -490,42 +505,45 @@ export const AmfHelperMixin = (base) => class extends base {
    * Returns whether an AMF node is a WebAPI node
    * 
    * @param {AmfDocument} model  AMF json/ld model for an API
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {boolean}
    */
-  _isWebAPI(model) {
-    const enc = this._computeEncodes(model);
+  _isWebAPI(model, context) {
+    const enc = this._computeEncodes(model, context);
     if (!enc) {
       return false;
     }
-    return this._hasType(enc, this.ns.aml.vocabularies.apiContract.WebAPI);
+    return this._hasType(enc, this.ns.aml.vocabularies.apiContract.WebAPI, context);
   }
 
   /**
    * Returns whether an AMF node is an AsyncAPI node
    * 
    * @param {AmfDocument} model  AMF json/ld model for an API
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {boolean}
    */
-  _isAsyncAPI(model) {
-    const enc = this._computeEncodes(model);
+  _isAsyncAPI(model, context) {
+    const enc = this._computeEncodes(model, context);
     if (!enc) {
       return false;
     }
-    return this._hasType(enc, this.ns.aml.vocabularies.apiContract.AsyncAPI);
+    return this._hasType(enc, this.ns.aml.vocabularies.apiContract.AsyncAPI, context);
   }
 
   /**
    * Returns whether an AMF node is an API node
    * 
    * @param {AmfDocument} model  AMF json/ld model for an API
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {boolean}
    */
-  _isAPI(model) {
-    const enc = this._computeEncodes(model);
+  _isAPI(model, context) {
+    const enc = this._computeEncodes(model, context);
     if (!enc) {
       return false;
     }
-    return this._hasType(enc, this.ns.aml.vocabularies.apiContract.API);
+    return this._hasType(enc, this.ns.aml.vocabularies.apiContract.API, context);
   }
 
   /**
@@ -533,12 +551,13 @@ export const AmfHelperMixin = (base) => class extends base {
    * Current valid values:
    * - Operation
    * - Endpoint
-   * @param {Object} model The partial model to evaluate
+   * @param {DomainElement} model The partial model to evaluate
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {boolean} Whether the model's type is part of the array of valid node types from which
    * to read servers
    * @private
    */
-  _isValidServerPartial(model) {
+  _isValidServerPartial(model, context) {
     if (Array.isArray(model)) {
       /* eslint-disable-next-line no-param-reassign */
       [model] = model;
@@ -548,7 +567,7 @@ export const AmfHelperMixin = (base) => class extends base {
     }
     const oKey = this.ns.aml.vocabularies.apiContract.Operation;
     const eKey = this.ns.aml.vocabularies.apiContract.EndPoint;
-    const allowedPartialModelTypes = [this._getAmfKey(oKey), this._getAmfKey(eKey)];
+    const allowedPartialModelTypes = [this._getAmfKey(oKey, context), this._getAmfKey(eKey, context)];
     const types = model['@type'];
     for (const type of types) {
       if (allowedPartialModelTypes.indexOf(type) !== -1) {
@@ -560,40 +579,41 @@ export const AmfHelperMixin = (base) => class extends base {
 
   /**
    * @param {ServersQueryOptions=} [options={}] Server query options
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Server[]} List of servers for method, if defined, or endpoint, if defined, or root level
    */
-  _getServers(options = {}) {
+  _getServers(options = {}, context) {
     const { endpointId, methodId } = options;
     const { amf } = this;
     if (!amf) {
       return undefined;
     }
-    let api = this._computeApi(amf);
+    let api = this._computeApi(amf, context);
     if (Array.isArray(api)) {
       [api] = api;
     }
     if (!api) {
-      if (this._isValidServerPartial(amf)) {
+      if (this._isValidServerPartial(amf, context)) {
         api = amf;
       } else {
         return undefined;
       }
     }
 
-    const serverKey = this._getAmfKey(this.ns.aml.vocabularies.apiContract.server);
+    const serverKey = this._getAmfKey(this.ns.aml.vocabularies.apiContract.server, context);
 
-    const getRootServers = () => /** @type Server[] */ (this[getArrayItems](api, serverKey));
+    const getRootServers = () => /** @type Server[] */ (this[getArrayItems](api, serverKey, context));
     const getEndpointServers = () => {
-      const endpoint = this._computeEndpointModel(api, endpointId);
-      const servers = /** @type Server[] */ (this[getArrayItems](endpoint, serverKey));
+      const endpoint = this._computeEndpointModel(api, endpointId, context);
+      const servers = /** @type Server[] */ (this[getArrayItems](endpoint, serverKey, context));
       if (servers) {
         return servers;
       }
       return getRootServers();
     };
     const getMethodServers = () => {
-      const method = this._computeMethodModel(api, methodId);
-      const servers = /** @type Server[] */ (this[getArrayItems](method, serverKey));
+      const method = this._computeMethodModel(api, methodId, context);
+      const servers = /** @type Server[] */ (this[getArrayItems](method, serverKey, context));
       if (servers) {
         return servers;
       }
@@ -612,13 +632,14 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes value for the `expects` property.
    *
    * @param {Operation} method AMF `supportedOperation` model
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Request}
    */
-  _computeExpects(method) {
+  _computeExpects(method, context) {
     const operationKey = this.ns.aml.vocabularies.apiContract.Operation;
     const expectsKey = this.ns.aml.vocabularies.apiContract.expects;
-    if (this._hasType(method, operationKey)) {
-      const key = this._getAmfKey(expectsKey);
+    if (this._hasType(method, operationKey, context)) {
+      const key = this._getAmfKey(expectsKey, context);
       const expects = this._ensureArray(method[key]);
       if (expects) {
         return Array.isArray(expects) ? expects[0] : expects;
@@ -630,14 +651,15 @@ export const AmfHelperMixin = (base) => class extends base {
   /**
    * Computes list of endpoints from a WebApi model.
    * @param {WebApi} webApi
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {EndPoint[]|undefined} An array of endpoints.
    */
-  _computeEndpoints(webApi) {
+  _computeEndpoints(webApi, context) {
     if (!webApi) {
       return [];
     }
     const endpointKey = this.ns.aml.vocabularies.apiContract.endpoint;
-    const key = this._getAmfKey(endpointKey);
+    const key = this._getAmfKey(endpointKey, context);
     return this._ensureArray(webApi[key]);
   }
 
@@ -646,13 +668,14 @@ export const AmfHelperMixin = (base) => class extends base {
    *
    * @param {WebApi} webApi Current value of `webApi` property
    * @param {string} id Selected shape ID
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {EndPoint} An endpoint definition
    */
-  _computeEndpointModel(webApi, id) {
-    if (this._hasType(webApi, this.ns.aml.vocabularies.apiContract.EndPoint)) {
+  _computeEndpointModel(webApi, id, context) {
+    if (this._hasType(webApi, this.ns.aml.vocabularies.apiContract.EndPoint, context)) {
       return webApi;
     }
-    const endpoints = this._computeEndpoints(webApi);
+    const endpoints = this._computeEndpoints(webApi, context);
     if (!endpoints) {
       return undefined;
     }
@@ -664,10 +687,11 @@ export const AmfHelperMixin = (base) => class extends base {
    *
    * @param {WebApi} webApi Current value of `webApi` property
    * @param {string} selected Selected shape
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Operation} A method definition
    */
-  _computeMethodModel(webApi, selected) {
-    const methods = this.__computeMethodsListForMethod(webApi, selected);
+  _computeMethodModel(webApi, selected, context) {
+    const methods = this.__computeMethodsListForMethod(webApi, selected, context);
     if (!methods) {
       return undefined;
     }
@@ -678,20 +702,21 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes an endpoint for a method.
    * @param {WebApi} webApi The WebApi AMF model
    * @param {string} methodId Method id
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {EndPoint|undefined} An endpoint model of undefined.
    */
-  _computeMethodEndpoint(webApi, methodId) {
+  _computeMethodEndpoint(webApi, methodId, context) {
     if (!webApi || !methodId) {
       return undefined;
     }
-    if (this._hasType(webApi, this.ns.aml.vocabularies.apiContract.EndPoint)) {
+    if (this._hasType(webApi, this.ns.aml.vocabularies.apiContract.EndPoint, context)) {
       return webApi;
     }
-    const endpoints = this._computeEndpoints(webApi);
+    const endpoints = this._computeEndpoints(webApi, context);
     if (!endpoints) {
       return undefined;
     }
-    const opKey = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation);
+    const opKey = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation, context);
     for (let i = 0, len = endpoints.length; i < len; i++) {
       const endpoint = endpoints[i];
       let methods = endpoint[opKey];
@@ -716,14 +741,15 @@ export const AmfHelperMixin = (base) => class extends base {
    *
    * @param {WebApi} webApi WebApi model
    * @param {string} methodId Method id.
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Operation[]|undefined} A list of sibling methods or undefined.
    */
-  __computeMethodsListForMethod(webApi, methodId) {
-    const endpoint = this._computeMethodEndpoint(webApi, methodId);
+  __computeMethodsListForMethod(webApi, methodId, context) {
+    const endpoint = this._computeMethodEndpoint(webApi, methodId, context);
     if (!endpoint) {
       return undefined;
     }
-    const opKey = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation);
+    const opKey = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation, context);
     return this._ensureArray(endpoint[opKey]);
   }
 
@@ -733,9 +759,10 @@ export const AmfHelperMixin = (base) => class extends base {
    * @param {DomainElement[]} declares Current value of `declares` property
    * @param {DomainElement[]} references Current value of `references` property
    * @param {string} selected Selected shape
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Shape} A type definition
    */
-  _computeType(declares, references, selected) {
+  _computeType(declares, references, selected, context) {
     if ((!declares && !references) || !selected) {
       return undefined;
     }
@@ -748,7 +775,7 @@ export const AmfHelperMixin = (base) => class extends base {
         if (!this._hasType(references[i], this.ns.aml.vocabularies.document.Module)) {
           continue;
         }
-        type = this._computeReferenceType(references[i], selected);
+        type = this._computeReferenceType(references[i], selected, context);
         if (type) {
           break;
         }
@@ -760,9 +787,10 @@ export const AmfHelperMixin = (base) => class extends base {
   /**
    * Finds a type in the model declares and references.
    * @param {string} domainId The domain id of the type (AMF's shape).
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Shape|undefined} The AMF shape or undefined when not found.
    */
-  [findAmfType](domainId) {
+  [findAmfType](domainId, context) {
     let { amf } = this;
     if (!amf) {
       return undefined;
@@ -770,7 +798,7 @@ export const AmfHelperMixin = (base) => class extends base {
     if (Array.isArray(amf)) {
       [amf] = amf;
     }
-    const declares = this._computeDeclares(amf);
+    const declares = this._computeDeclares(amf, context);
     const compactId = domainId.replace('amf://id', '');
     if (Array.isArray(declares)) {
       const result = declares.find((item) => item['@id'] === domainId || item['@id'] === compactId);
@@ -786,9 +814,10 @@ export const AmfHelperMixin = (base) => class extends base {
    * It does not resolve the object (useful for handling links correctly).
    * 
    * @param {string} domainId The domain of the object to find in the references.
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {DomainElement|undefined} The domain object or undefined.
    */
-  [findReferenceObject](domainId) {
+  [findReferenceObject](domainId, context) {
     let { amf } = this;
     if (!amf) {
       return undefined;
@@ -796,14 +825,14 @@ export const AmfHelperMixin = (base) => class extends base {
     if (Array.isArray(amf)) {
       [amf] = amf;
     }
-    const references = this._computeReferences(amf);
+    const references = this._computeReferences(amf, context);
     if (!Array.isArray(references) || !references.length) {
       return undefined;
     }
     const compactId = domainId.replace('amf://id', '');
     for (let i = 0, len = references.length; i < len; i++) {
       const ref = /** @type AmfDocument */ (references[i]);
-      const declares = this._computeDeclares(ref);
+      const declares = this._computeDeclares(ref, context);
       if (!Array.isArray(declares)) {
         continue;
       }
@@ -824,10 +853,11 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes a type model from a reference (library for example).
    * @param {DomainElement} reference AMF model for a reference to extract the data from
    * @param {string} selected Node ID to look for
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {Shape|undefined} Type definition or undefined if not found.
    */
-  _computeReferenceType(reference, selected) {
-    const declare = this._computeDeclares(reference);
+  _computeReferenceType(reference, selected, context) {
+    const declare = this._computeDeclares(reference, context);
     if (!declare) {
       return undefined;
     }
@@ -852,13 +882,14 @@ export const AmfHelperMixin = (base) => class extends base {
    *
    * @param {WebApi} webApi Current value of `webApi` property
    * @param {string} selected Selected shape
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {DomainElement|undefined}
    */
-  _computeDocument(webApi, selected) {
+  _computeDocument(webApi, selected, context) {
     if (!webApi || !selected) {
       return undefined;
     }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.core.documentation);
+    const key = this._getAmfKey(this.ns.aml.vocabularies.core.documentation, context);
     const docs = this._ensureArray(webApi[key]);
     return docs && docs.find((item) => item['@id'] === selected);
   }
@@ -867,14 +898,15 @@ export const AmfHelperMixin = (base) => class extends base {
    * Resolves a reference to an external fragment.
    *
    * @param {any} shape A shape to resolve
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {any} Resolved shape.
    */
-  _resolve(shape) {
+  _resolve(shape, context) {
     const {amf} = this;
-    if (typeof shape !== 'object' || shape instanceof Array || !amf || shape.__apicResolved) {
+    if (typeof shape !== 'object' || Array.isArray(shape) || !amf || shape.__apicResolved) {
       return shape;
     }
-    let refKey = this._getAmfKey(this.ns.aml.vocabularies.document.linkTarget);
+    let refKey = this._getAmfKey(this.ns.aml.vocabularies.document.linkTarget, context);
     let refValue = this._ensureArray(shape[refKey]);
     let refData;
     if (refValue) {
@@ -885,9 +917,9 @@ export const AmfHelperMixin = (base) => class extends base {
         shape.__apicResolved = true;
         return shape;
       }
-      refData = this._getLinkTarget(amf, rk);
+      refData = this._getLinkTarget(amf, rk, context);
     } else {
-      refKey = this._getAmfKey(this.ns.aml.vocabularies.document.referenceId);
+      refKey = this._getAmfKey(this.ns.aml.vocabularies.document.referenceId, context);
       refValue = this._ensureArray(shape[refKey]);
       if (refValue) {
         const rk = refValue[0]['@id'];
@@ -897,7 +929,7 @@ export const AmfHelperMixin = (base) => class extends base {
           shape.__apicResolved = true;
           return shape;
         }
-        refData = this._getReferenceId(amf, rk);
+        refData = this._getReferenceId(amf, rk, context);
       }
     }
     if (!refData) {
@@ -919,7 +951,7 @@ export const AmfHelperMixin = (base) => class extends base {
       }
       delete copy['@type'];
     }
-    this._mergeShapes(shape, copy);
+    this._mergeShapes(shape, copy, context);
     /* eslint-disable-next-line no-param-reassign */
     shape.__apicResolved = true;
     this._resolveRecursive(shape);
@@ -929,20 +961,21 @@ export const AmfHelperMixin = (base) => class extends base {
   /**
    * @param {AmfDocument} amf References object to search in
    * @param {string} id Id of the shape to resolve
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {DomainElement | undefined} Resolved shape for given reference, undefined otherwise
    */
-  _getLinkTarget(amf, id) {
+  _getLinkTarget(amf, id, context) {
     if (!amf || !id) {
       return undefined;
     }
     let target;
-    const declares = this._computeDeclares(amf);
+    const declares = this._computeDeclares(amf, context);
     if (declares) {
       target = this._findById(declares, id);
     }
     if (!target) {
-      const references = this._computeReferences(amf);
-      target = this._obtainShapeFromReferences(references, id)
+      const references = this._computeReferences(amf, context);
+      target = this._obtainShapeFromReferences(references, id, context);
     }
     if (!target) {
       return undefined;
@@ -957,9 +990,10 @@ export const AmfHelperMixin = (base) => class extends base {
    *
    * @param {DomainElement[]} references References object to search in
    * @param {string} id Id of the shape to resolve
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {DomainElement | undefined} Resolved shape for given reference, undefined otherwise
    */
-  _obtainShapeFromReferences(references, id) {
+  _obtainShapeFromReferences(references, id, context) {
     if (!Array.isArray(references) || !references.length) {
       return undefined;
     }
@@ -967,14 +1001,14 @@ export const AmfHelperMixin = (base) => class extends base {
     for (let i = 0; i < references.length; i++) {
       const _ref = references[i];
       // case of fragment that encodes the shape
-      const encoded = this._computeEncodes(_ref);
+      const encoded = this._computeEncodes(_ref, context);
       if (encoded && encoded['@id'] === id) {
         target = encoded;
         break;
       }
       // case of a library which declares types
       if (!encoded) {
-        target = this._findById(this._computeDeclares(_ref), id);
+        target = this._findById(this._computeDeclares(_ref, context), id);
         if (target) break;
       }
     }
@@ -1001,17 +1035,17 @@ export const AmfHelperMixin = (base) => class extends base {
     return target;
   }
 
-  _getReferenceId(amf, id) {
+  _getReferenceId(amf, id, context) {
     if (!amf || !id) {
       return undefined;
     }
-    const refs = this._computeReferences(amf);
+    const refs = this._computeReferences(amf, context);
     if (!refs) {
       return undefined;
     }
     for (let i = 0; i < refs.length; i++) {
       const _ref = refs[i];
-      const enc = this._computeEncodes(_ref);
+      const enc = this._computeEncodes(_ref, context);
       if (enc) {
         if (enc['@id'] === id) {
           return enc;
@@ -1021,16 +1055,16 @@ export const AmfHelperMixin = (base) => class extends base {
     return undefined;
   }
 
-  _resolveRecursive(shape) {
+  _resolveRecursive(shape, context) {
     Object.keys(shape).forEach((key) => {
       const currentShape = shape[key];
-      if (currentShape instanceof Array) {
+      if (Array.isArray(currentShape)) {
         for (let i = 0, len = currentShape.length; i < len; i++) {
           currentShape[i] = this._resolve(currentShape[i]);
         }
       } else if (typeof currentShape === 'object') {
         /* eslint-disable-next-line no-param-reassign */
-        shape[key] = this._resolve(currentShape);
+        shape[key] = this._resolve(currentShape, context);
       }
     });
   }
@@ -1040,17 +1074,21 @@ export const AmfHelperMixin = (base) => class extends base {
    * then the special merge function for that key will be used to match that property
    * @param {any} shapeA AMF node
    * @param {any} shapeB AMF node
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {*} Merged AMF node
    * @private
    */
-  _mergeShapes(shapeA, shapeB) {
+  _mergeShapes(shapeA, shapeB, context) {
     const merged = { ...shapeA, ...shapeB };
     const specialMerges = [
-      { key: this._getAmfKey(this.ns.aml.vocabularies.docSourceMaps.sources), merger: this._mergeSourceMapsSources.bind(this) },
+      { 
+        key: this._getAmfKey(this.ns.aml.vocabularies.docSourceMaps.sources, context), 
+        merger: this._mergeSourceMapsSources.bind(this) 
+      },
     ];
     specialMerges.forEach(({ key, merger }) => {
-      if (this._hasProperty(merged, key)) {
-        merged[key] = merger(shapeA, shapeB);
+      if (this._hasProperty(merged, key, context)) {
+        merged[key] = merger(shapeA, shapeB, context);
       }
     });
     return Object.assign(shapeA, merged);
@@ -1062,11 +1100,12 @@ export const AmfHelperMixin = (base) => class extends base {
    * Result is wrapped in an array as per AMF model standard
    * @param shapeA AMF node
    * @param shapeB AMF node
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {(*|{})[]} Empty object or resulting merge, wrapped in an array
    * @private
    */
-  _mergeSourceMapsSources(shapeA, shapeB) {
-    const sourcesKey = this._getAmfKey(this.ns.aml.vocabularies.docSourceMaps.sources);
+  _mergeSourceMapsSources(shapeA, shapeB, context) {
+    const sourcesKey = this._getAmfKey(this.ns.aml.vocabularies.docSourceMaps.sources, context);
     let aSources = shapeA[sourcesKey] || {};
     if (Array.isArray(aSources)) {
       /* eslint-disable prefer-destructuring */
@@ -1083,17 +1122,18 @@ export const AmfHelperMixin = (base) => class extends base {
   /**
    * Expands the key property from compacted mode to full mode.
    * @param {string} value The value to process
+   * @param {Record<string, string>=} context
    * @returns {string} The expanded value.
    */
-  [expandKey](value) {
+  [expandKey](value, context) {
     let { amf } = this;
-    if (!value || typeof value !== 'string' || !amf) {
+    if (!value || typeof value !== 'string' || (!amf && !context)) {
       return value;
     }
     if (Array.isArray(amf)) {
       [amf] = amf;
     }
-    const ctx = amf['@context'];
+    const ctx = context || amf['@context'];
     if (!ctx) {
       return value;
     }
@@ -1111,11 +1151,12 @@ export const AmfHelperMixin = (base) => class extends base {
   /**
    * Computes a security model from a reference (library for example).
    * @param {string} domainId Domain id of the security requirement to find.
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {SecurityScheme|undefined} Type definition or undefined if not found.
    */
-  findSecurityScheme(domainId) {
+  findSecurityScheme(domainId, context) {
     const { amf } = this;
-    const declares = this._computeDeclares(amf);
+    const declares = this._computeDeclares(amf, context);
     let result;
     if (declares) {
       result = declares.find((item) => item['@id'] === domainId);
@@ -1124,11 +1165,11 @@ export const AmfHelperMixin = (base) => class extends base {
       result = this._resolve(result);
       return result;
     }
-    const references = this._computeReferences(amf);
+    const references = this._computeReferences(amf, context);
     if (Array.isArray(references) && references.length) {
       for (const ref of references) {
-        if (this._hasType(ref, this.ns.aml.vocabularies.document.Module)) {
-          result = this[computeReferenceSecurity](ref, domainId);
+        if (this._hasType(ref, this.ns.aml.vocabularies.document.Module, context)) {
+          result = this[computeReferenceSecurity](ref, domainId, context);
           if (result) {
             result = this._resolve(result);
             return result;
@@ -1143,10 +1184,11 @@ export const AmfHelperMixin = (base) => class extends base {
    * Computes a security model from a reference (library for example).
    * @param {DomainElement} reference AMF model for a reference to extract the data from
    * @param {string} selected Node ID to look for
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {SecurityScheme|undefined} Type definition or undefined if not found.
    */
-  [computeReferenceSecurity](reference, selected) {
-    const declare = this._computeDeclares(reference);
+  [computeReferenceSecurity](reference, selected, context) {
+    const declare = this._computeDeclares(reference, context);
     if (!declare) {
       return undefined;
     }

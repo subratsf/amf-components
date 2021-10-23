@@ -1,6 +1,6 @@
-import { AmfStore } from './AmfStore';
+import { InMemAmfGraphStore } from './InMemAmfGraphStore';
 import { AmfStoreDomEventsMixin } from './mixins/AmfStoreDomEventsMixin';
 
-export class DomEventsAmfStore extends AmfStoreDomEventsMixin(AmfStore) {
+export class DomEventsAmfStore extends AmfStoreDomEventsMixin(InMemAmfGraphStore) {
   
 }

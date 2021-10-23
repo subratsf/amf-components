@@ -134,9 +134,10 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {string[]} types The list of graph object types. When not defined it returns an empty array.
+   * @param {Record<string, string>=} context
    * @returns {string[]} The expanded types.
    */
-  readTypes(types) {
+  readTypes(types, context) {
     let target = types;
     if (typeof target === 'string') {
       target = [target];
@@ -144,7 +145,7 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
     if (!Array.isArray(target)) {
       return [];
     }
-    return target.map(this[expandKey].bind(this));
+    return target.map((type) => this[expandKey](type, context));
   }
 
   /**
@@ -152,10 +153,11 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
    * @returns {ApiSummary} API summary, without complex objects.
    */
   apiSummary(object) {
+    const context = object['@context'];
     const result = /** @type ApiSummary */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
+      types: this.readTypes(object['@type'], context),
+      customDomainProperties: this.customDomainProperties(object, context),
       sourceMaps: this.sourceMap(object),
       schemes: [],
       accepts: [],
@@ -164,53 +166,53 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
       tags: [],
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, context);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, context);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const version = this._getValue(object, ns.aml.vocabularies.core.version);
+    const version = this._getValue(object, ns.aml.vocabularies.core.version, context);
     if (version && typeof version === 'string') {
       result.version = version;
     }
-    const termsOfService = this._getValue(object, ns.aml.vocabularies.core.termsOfService);
+    const termsOfService = this._getValue(object, ns.aml.vocabularies.core.termsOfService, context);
     if (termsOfService && typeof termsOfService === 'string') {
       result.termsOfService = termsOfService;
     }
-    const accepts = object[this._getAmfKey(ns.aml.vocabularies.apiContract.accepts)];
+    const accepts = object[this._getAmfKey(ns.aml.vocabularies.apiContract.accepts, context)];
     if (Array.isArray(accepts) && accepts.length) {
-      result.accepts = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.accepts));
+      result.accepts = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.accepts, context));
     }
-    const contentType = object[this._getAmfKey(ns.aml.vocabularies.apiContract.contentType)];
+    const contentType = object[this._getAmfKey(ns.aml.vocabularies.apiContract.contentType, context)];
     if (Array.isArray(contentType) && contentType.length) {
-      result.contentType = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.contentType));
+      result.contentType = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.contentType, context));
     }
-    const schemes = object[this._getAmfKey(ns.aml.vocabularies.apiContract.scheme)];
+    const schemes = object[this._getAmfKey(ns.aml.vocabularies.apiContract.scheme, context)];
     if (Array.isArray(schemes) && schemes.length) {
-      result.schemes = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.scheme));
+      result.schemes = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.scheme, context));
     }
-    let provider = object[this._getAmfKey(ns.aml.vocabularies.core.provider)];
+    let provider = object[this._getAmfKey(ns.aml.vocabularies.core.provider, context)];
     if (Array.isArray(provider)) {
       [provider] = provider;
     }
     if (provider) {
       result.provider = this.provider(provider);
     }
-    let license = object[this._getAmfKey(ns.aml.vocabularies.core.license)];
+    let license = object[this._getAmfKey(ns.aml.vocabularies.core.license, context)];
     if (Array.isArray(license)) {
       [license] = license;
     }
     if (license) {
       result.license = this.license(license);
     }
-    const tags = object[this._getAmfKey(ns.aml.vocabularies.apiContract.tag)];
+    const tags = object[this._getAmfKey(ns.aml.vocabularies.apiContract.tag, context)];
     if (Array.isArray(tags) && tags.length) {
       result.tags = tags.map(t => this.tag(t));
     }
-    const docs = object[this._getAmfKey(ns.aml.vocabularies.core.documentation)];
+    const docs = object[this._getAmfKey(ns.aml.vocabularies.core.documentation, context)];
     if (Array.isArray(docs) && docs.length) {
       result.documentations = docs.map(d => this.documentation(d));
     }
@@ -219,66 +221,72 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {Api} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiBase}
    */
-  api(object) {
+  api(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiBase */ (this.apiSummary(object));
     result.endPoints = [];
     result.servers = [];
     result.security = [];
     const { ns } = this;
-    const endPoints = object[this._getAmfKey(ns.aml.vocabularies.apiContract.endpoint)];
+    const endPoints = object[this._getAmfKey(ns.aml.vocabularies.apiContract.endpoint, objectContext)];
     if (Array.isArray(endPoints) && endPoints.length) {
-      result.endPoints = endPoints.map(e => this.endPoint(e));
+      result.endPoints = endPoints.map(e => this.endPoint(e, objectContext));
     }
-    const servers = object[this._getAmfKey(ns.aml.vocabularies.apiContract.server)];
+    const servers = object[this._getAmfKey(ns.aml.vocabularies.apiContract.server, objectContext)];
     if (Array.isArray(servers) && servers.length) {
-      result.servers = servers.map(s => this.server(s));
+      result.servers = servers.map(s => this.server(s, objectContext));
     }
-    const security = object[this._getAmfKey(ns.aml.vocabularies.security.security)];
+    const security = object[this._getAmfKey(ns.aml.vocabularies.security.security, objectContext)];
     if (Array.isArray(security) && security.length) {
-      result.security = security.map(s => this.securityRequirement(s));
+      result.security = security.map(s => this.securityRequirement(s, objectContext));
     }
     return result;
   }
 
   /**
-   * @param {WebApi} object 
+   * @param {WebApi} object
+   * @param {Record<string, string>=} context 
    * @returns {ApiWeb}
    */
-  webApi(object) {
-    return this.api(object);
+  webApi(object, context) {
+    return this.api(object, context);
   }
 
   /**
    * @param {AsyncApi} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiAsync}
    */
-  asyncApi(object) {
-    return this.api(object);
+  asyncApi(object, context) {
+    return this.api(object, context);
   }
 
   /**
    * @param {Organization} object
+   * @param {Record<string, string>=} context
    * @returns {ApiOrganization}
    */
-  provider(object) {
+  provider(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiOrganization */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const url = this._getLinkValue(object, ns.aml.vocabularies.core.url);
+    const url = this._getLinkValue(object, ns.aml.vocabularies.core.url, objectContext);
     if (url && typeof url === 'string') {
       result.url = url;
     }
-    const email = this._getValue(object, ns.aml.vocabularies.core.email);
+    const email = this._getValue(object, ns.aml.vocabularies.core.email, objectContext);
     if (email && typeof email === 'string') {
       result.email = email;
     }
@@ -287,21 +295,23 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {License} object
+   * @param {Record<string, string>=} context
    * @returns {ApiLicense}
    */
-  license(object) {
+  license(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiLicense */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const url = this._getLinkValue(object, ns.aml.vocabularies.core.url);
+    const url = this._getLinkValue(object, ns.aml.vocabularies.core.url, objectContext);
     if (url && typeof url === 'string') {
       result.url = url;
     }
@@ -310,110 +320,114 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {Server} object The AMF Server to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiServer} Serialized Server
    */
-  server(object) {
+  server(object, context) {
+    const objectContext = context || object['@context'];
     const { ns } = this;
-    const url = this._getValue(object, ns.aml.vocabularies.core.urlTemplate) || '';
+    const url = this._getValue(object, ns.aml.vocabularies.core.urlTemplate, objectContext) || '';
     const result = /** @type ApiServer */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
+      types: this.readTypes(object['@type'], objectContext),
       url,
       variables: [],
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const variables = /** @type Parameter[] */ (object[this._getAmfKey(ns.aml.vocabularies.apiContract.variable)]);
+    const variables = /** @type Parameter[] */ (object[this._getAmfKey(ns.aml.vocabularies.apiContract.variable, objectContext)]);
     if (Array.isArray(variables) && variables.length) {
-      result.variables = variables.map((p) => this.parameter(p));
+      result.variables = variables.map((p) => this.parameter(p, objectContext));
     }
-    const protocol = /** @type string */ (this._getValue(object, ns.aml.vocabularies.apiContract.protocol));
-    const protocolVersion = /** @type string */ (this._getValue(object, ns.aml.vocabularies.apiContract.protocolVersion));
+    const protocol = /** @type string */ (this._getValue(object, ns.aml.vocabularies.apiContract.protocol, objectContext));
+    const protocolVersion = /** @type string */ (this._getValue(object, ns.aml.vocabularies.apiContract.protocolVersion, objectContext));
     if (protocol) {
       result.protocol = protocol;
     }
     if (protocolVersion) {
       result.protocolVersion = protocolVersion;
     }
-    const security = /** @type SecurityRequirement */ (object[this._getAmfKey(ns.aml.vocabularies.security.security)]);
+    const security = /** @type SecurityRequirement */ (object[this._getAmfKey(ns.aml.vocabularies.security.security, objectContext)]);
     if (Array.isArray(security) && security.length) {
-      result.security = security.map((p) => this.securityRequirement(p));
+      result.security = security.map((p) => this.securityRequirement(p, objectContext));
     }
     return result;
   }
 
   /**
    * @param {Parameter} object The Parameter to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiParameter} Serialized Parameter
    */
-  parameter(object) {
+  parameter(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiParameter */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
+      types: this.readTypes(object['@type'], objectContext),
       payloads: [],
       examples: [],
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const paramName = this._getValue(object, ns.aml.vocabularies.apiContract.paramName);
+    const paramName = this._getValue(object, ns.aml.vocabularies.apiContract.paramName, objectContext);
     if (paramName && typeof paramName === 'string') {
       result.paramName = paramName;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const required = this._getValue(object, ns.aml.vocabularies.apiContract.required);
+    const required = this._getValue(object, ns.aml.vocabularies.apiContract.required, objectContext);
     if (typeof required === 'boolean') {
       result.required = required;
     }
-    const allowEmptyValue = this._getValue(object, ns.aml.vocabularies.apiContract.allowEmptyValue);
+    const allowEmptyValue = this._getValue(object, ns.aml.vocabularies.apiContract.allowEmptyValue, objectContext);
     if (typeof allowEmptyValue === 'boolean') {
       result.allowEmptyValue = allowEmptyValue;
     }
-    const deprecated = this._getValue(object, ns.aml.vocabularies.document.deprecated);
+    const deprecated = this._getValue(object, ns.aml.vocabularies.document.deprecated, objectContext);
     if (typeof deprecated === 'boolean') {
       result.deprecated = deprecated;
     }
-    const explode = this._getValue(object, ns.aml.vocabularies.apiContract.explode);
+    const explode = this._getValue(object, ns.aml.vocabularies.apiContract.explode, objectContext);
     if (typeof explode === 'boolean') {
       result.explode = explode;
     }
-    const allowReserved = this._getValue(object, ns.aml.vocabularies.apiContract.allowReserved);
+    const allowReserved = this._getValue(object, ns.aml.vocabularies.apiContract.allowReserved, objectContext);
     if (typeof allowReserved === 'boolean') {
       result.allowReserved = allowReserved;
     }
-    const style = this._getValue(object, ns.aml.vocabularies.apiContract.style);
+    const style = this._getValue(object, ns.aml.vocabularies.apiContract.style, objectContext);
     if (style && typeof style === 'string') {
       result.style = style;
     }
-    const binding = this._getValue(object, ns.aml.vocabularies.apiContract.binding);
+    const binding = this._getValue(object, ns.aml.vocabularies.apiContract.binding, objectContext);
     if (binding && typeof binding === 'string') {
       result.binding = binding;
     }
-    const schemas = object[this._getAmfKey(ns.aml.vocabularies.shapes.schema)];
+    const schemas = object[this._getAmfKey(ns.aml.vocabularies.shapes.schema, objectContext)];
     if (Array.isArray(schemas) && schemas.length) {
       const [schema] = schemas;
       result.schema = this.unknownShape(schema, {
         trackedId: object['@id'],
-      });
+      }, objectContext);
     }
-    const payloads = object[this._getAmfKey(ns.aml.vocabularies.apiContract.payload)];
+    const payloads = object[this._getAmfKey(ns.aml.vocabularies.apiContract.payload, objectContext)];
     if (Array.isArray(payloads) && payloads.length) {
-      result.payloads = payloads.map(p => this.payload(p));
+      result.payloads = payloads.map(p => this.payload(p, objectContext));
     }
-    const examples = object[this._getAmfKey(ns.aml.vocabularies.apiContract.examples)];
+    const examples = object[this._getAmfKey(ns.aml.vocabularies.apiContract.examples, objectContext)];
     if (Array.isArray(examples) && examples.length) {
-      result.examples = examples.map(e => this.example(e));
+      result.examples = examples.map(e => this.example(e, objectContext));
     }
     return result;
   }
@@ -421,168 +435,176 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {Shape} object 
    * @param {ShapeProcessingOptions=} options 
+   * @param {Record<string, string>=} context
    * @returns {ApiShapeUnion}
    */
-  unknownShape(object, options) {
-    const types = this.readTypes(object['@type']);
+  unknownShape(object, options, context) {
+    const objectContext = context || object['@context'];
+    const types = this.readTypes(object['@type'], objectContext);
     const { ns } = this;
     if (types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
-      return this.scalarShape(/** @type ScalarShape */ (object), options);
+      return this.scalarShape(/** @type ScalarShape */ (object), options, objectContext);
     }
     if (types.includes(ns.w3.shacl.NodeShape)) {
-      return this.nodeShape(/** @type NodeShape */ (object), options);
+      return this.nodeShape(/** @type NodeShape */ (object), options, objectContext);
     }
     if (types.includes(ns.aml.vocabularies.shapes.UnionShape)) {
-      return this.unionShape(/** @type UnionShape */ (object), options);
+      return this.unionShape(/** @type UnionShape */ (object), options, objectContext);
     }
     if (types.includes(ns.aml.vocabularies.shapes.FileShape)) {
-      return this.fileShape(/** @type FileShape */ (object), options);
+      return this.fileShape(/** @type FileShape */ (object), options, objectContext);
     }
     if (types.includes(ns.aml.vocabularies.shapes.SchemaShape)) {
-      return this.schemaShape(/** @type SchemaShape */ (object), options);
+      return this.schemaShape(/** @type SchemaShape */ (object), options, objectContext);
     }
     // this must be before the ArrayShape
     if (types.includes(ns.aml.vocabularies.shapes.TupleShape)) {
-      return this.tupleShape(/** @type TupleShape */ (object), options);
+      return this.tupleShape(/** @type TupleShape */ (object), options, objectContext);
     }
     if (types.includes(ns.aml.vocabularies.shapes.ArrayShape) || types.includes(ns.aml.vocabularies.shapes.MatrixShape)) {
-      return this.arrayShape(/** @type ArrayShape */ (object), options);
+      return this.arrayShape(/** @type ArrayShape */ (object), options, objectContext);
     }
     if (types.includes(ns.aml.vocabularies.shapes.RecursiveShape)) {
-      return this.recursiveShape(/** @type RecursiveShape */ (object));
+      return this.recursiveShape(/** @type RecursiveShape */ (object), objectContext);
     }
     // recursiveShape
-    return this.anyShape(/** @type AnyShape */ (object), options);
+    return this.anyShape(/** @type AnyShape */ (object), options, objectContext);
   }
 
   /**
    * @param {DomainElement} object 
+   * @param {Record<string, string>=} context
    * @returns {boolean}
    */
-  isLink(object) {
-    return !!this._getLinkValue(object, this.ns.aml.vocabularies.document.linkTarget);
+  isLink(object, context) {
+    const objectContext = context || object['@context'];
+    return !!this._getLinkValue(object, this.ns.aml.vocabularies.document.linkTarget, objectContext);
   }
 
   /**
    * @param {DomainElement} object 
+   * @param {Record<string, string>=} context
    * @returns {DomainElement|undefined}
    */
-  getLinkTarget(object) {
-    const id = this._getLinkValue(object, this.ns.aml.vocabularies.document.linkTarget);
-    return this[findAmfType](id);
+  getLinkTarget(object, context) {
+    const objectContext = context || object['@context'];
+    const id = this._getLinkValue(object, this.ns.aml.vocabularies.document.linkTarget, objectContext);
+    return this[findAmfType](id, objectContext);
   }
 
   /**
    * @param {Shape} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiShape}
    */
-  shape(object) {
+  shape(object, context) {
+    const objectContext = context || object['@context'];
     this._resolve(object);
     /** @type string */
     let linkLabel;
     let target = object;
     if (this.isLink(target)) {
-      linkLabel = /** @type string */ (this._getValue(target, this.ns.aml.vocabularies.document.linkLabel));
-      const id = this._getLinkValue(target, this.ns.aml.vocabularies.document.linkTarget);
-      const value = /** @type Shape */ (this[findAmfType](id));
+      linkLabel = /** @type string */ (this._getValue(target, this.ns.aml.vocabularies.document.linkLabel, objectContext));
+      const id = this._getLinkValue(target, this.ns.aml.vocabularies.document.linkTarget, objectContext);
+      const value = /** @type Shape */ (this[findAmfType](id, objectContext));
       if (value) {
         target = value;
       }
     }
     const result = /** @type ApiShape */ ({
       id: target['@id'],
-      types: this.readTypes(object['@type']),
+      types: this.readTypes(object['@type'], objectContext),
       values: [],
       inherits: [],
       or: [],
       and: [],
       xone: [],
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     if (linkLabel) {
       result.linkLabel = linkLabel;
     }
     const { ns } = this;
-    const name = this._getValue(target, ns.w3.shacl.name);
+    const name = this._getValue(target, ns.w3.shacl.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const displayName = this._getValue(target, ns.aml.vocabularies.core.displayName);
+    const displayName = this._getValue(target, ns.aml.vocabularies.core.displayName, objectContext);
     if (displayName && typeof displayName === 'string') {
       result.displayName = displayName;
     } else {
-      const coreName = this._getValue(target, ns.aml.vocabularies.core.name);
+      const coreName = this._getValue(target, ns.aml.vocabularies.core.name, objectContext);
       if (coreName && typeof coreName === 'string') {
         result.displayName = coreName;
       }
     }
-    const description = this._getValue(target, ns.aml.vocabularies.core.description);
+    const description = this._getValue(target, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const defaultValueStr = this._getValue(target, ns.w3.shacl.defaultValueStr);
+    const defaultValueStr = this._getValue(target, ns.w3.shacl.defaultValueStr, objectContext);
     if (defaultValueStr && typeof defaultValueStr === 'string') {
       result.defaultValueStr = defaultValueStr;
     }
-    const deprecated = this._getValue(target, ns.aml.vocabularies.shapes.deprecated);
+    const deprecated = this._getValue(target, ns.aml.vocabularies.shapes.deprecated, objectContext);
     if (typeof deprecated === 'boolean') {
       result.deprecated = deprecated;
     }
-    const readOnly = this._getValue(target, ns.aml.vocabularies.shapes.readOnly);
+    const readOnly = this._getValue(target, ns.aml.vocabularies.shapes.readOnly, objectContext);
     if (typeof readOnly === 'boolean') {
       result.readOnly = readOnly;
     }
-    const writeOnly = this._getValue(target, ns.aml.vocabularies.shapes.writeOnly);
+    const writeOnly = this._getValue(target, ns.aml.vocabularies.shapes.writeOnly, objectContext);
     if (typeof writeOnly === 'boolean') {
       result.writeOnly = writeOnly;
     }
-    const defValue = target[this._getAmfKey(ns.w3.shacl.defaultValue)];
+    const defValue = target[this._getAmfKey(ns.w3.shacl.defaultValue, objectContext)];
     if (Array.isArray(defValue) && defValue.length) {
-      result.defaultValue = this.unknownDataNode(defValue[0]);
+      result.defaultValue = this.unknownDataNode(defValue[0], objectContext);
     }
     // @TODO:
     // if (Array.isArray(inherits) && inherits.length) {
     //   result.inherits = inherits.map((item) => this.unknownShape(item));
     // }
-    const orKey = this._getAmfKey(ns.w3.shacl.or);
+    const orKey = this._getAmfKey(ns.w3.shacl.or, objectContext);
     const orGroup = /** @type Shape[] */ (target[orKey]);
     if (Array.isArray(orGroup) && orGroup.length) {
-      result.or = orGroup.map((item) => this.unknownShape(item));
+      result.or = orGroup.map((item) => this.unknownShape(item, undefined, objectContext));
     }
-    const andKey = this._getAmfKey(ns.w3.shacl.and);
+    const andKey = this._getAmfKey(ns.w3.shacl.and, objectContext);
     const andGroup = /** @type Shape[] */ (target[andKey]);
     if (Array.isArray(andGroup) && andGroup.length) {
-      result.and = andGroup.map((item) => this.unknownShape(item));
+      result.and = andGroup.map((item) => this.unknownShape(item, undefined, objectContext));
     }
-    const xoneKey = this._getAmfKey(ns.w3.shacl.xone);
+    const xoneKey = this._getAmfKey(ns.w3.shacl.xone, objectContext);
     const xone = /** @type Shape[] */ (target[xoneKey]);
     if (Array.isArray(xone) && xone.length) {
-      result.xone = xone.map((item) => this.unknownShape(item));
+      result.xone = xone.map((item) => this.unknownShape(item, undefined, objectContext));
     }
-    const valuesList = target[this._getAmfKey(ns.w3.shacl.in)];
+    const valuesList = target[this._getAmfKey(ns.w3.shacl.in, objectContext)];
     if (Array.isArray(valuesList) && valuesList.length) {
       const [values] = valuesList;
       const prefix = this.ns.w3.rdfSchema.toString();
-      const prefixCompact = this._getAmfKey(prefix);
+      const prefixCompact = this._getAmfKey(prefix, objectContext);
       Object.keys(values).forEach((key) => {
         if (key.startsWith(prefix) || key.startsWith(prefixCompact)) {
           let value = values[key];
           if (Array.isArray(value)) {
             [value] = value;
           }
-          const processed = this.unknownDataNode(value);
+          const processed = this.unknownDataNode(value, objectContext);
           result.values.push(processed);
         }
       });
     }
-    const notKey = this._getAmfKey(ns.w3.shacl.not);
+    const notKey = this._getAmfKey(ns.w3.shacl.not, objectContext);
     let not = /** @type Shape */ (target[notKey]);
     if (not) {
       if (Array.isArray(not)) {
         [not] = not;
       }
-      result.not = this.unknownShape(not);
+      result.not = this.unknownShape(not, undefined, objectContext);
     }
     return result;
   }
@@ -590,13 +612,15 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {AnyShape} object
    * @param {ShapeProcessingOptions=} options 
+   * @param {Record<string, string>=} context
    * @returns {ApiAnyShape}
    */
-  anyShape(object, options={}) {
+  anyShape(object, options={}, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiAnyShape */ (this.shape(target));
+    const result = /** @type ApiAnyShape */ (this.shape(target, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type Shape */ (this.getLinkTarget(target));
+      const value = /** @type Shape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
@@ -604,24 +628,24 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
     result.examples = [];
 
     const { ns } = this;
-    const examples = target[this._getAmfKey(ns.aml.vocabularies.apiContract.examples)];
+    const examples = target[this._getAmfKey(ns.aml.vocabularies.apiContract.examples, objectContext)];
     if (Array.isArray(examples) && examples.length) {
       if (options.trackedId) {
-        const filtered = this.filterTrackedExamples(examples, options.trackedId);
-        result.examples = filtered.map((item) => this.example(item));
+        const filtered = this.filterTrackedExamples(examples, options.trackedId, objectContext);
+        result.examples = filtered.map((item) => this.example(item, objectContext));
       } else {
-        const filtered = this.filterNonTrackedExamples(examples);
-        result.examples = filtered.map((item) => this.example(item));
+        const filtered = this.filterNonTrackedExamples(examples, objectContext);
+        result.examples = filtered.map((item) => this.example(item, objectContext));
       }
     }
-    const docs = target[this._getAmfKey(ns.aml.vocabularies.core.documentation)];
+    const docs = target[this._getAmfKey(ns.aml.vocabularies.core.documentation, objectContext)];
     if (Array.isArray(docs) && docs.length) {
       const [documentation] = docs;
-      result.documentation = this.documentation(documentation);
+      result.documentation = this.documentation(documentation, objectContext);
     }
-    const xml = target[this._getAmfKey(ns.aml.vocabularies.shapes.xmlSerialization)];
+    const xml = target[this._getAmfKey(ns.aml.vocabularies.shapes.xmlSerialization, objectContext)];
     if (Array.isArray(xml) && xml.length) {
-      result.xmlSerialization = this.xmlSerializer(xml[0]);
+      result.xmlSerialization = this.xmlSerializer(xml[0], objectContext);
     }
     return result;
   }
@@ -633,12 +657,13 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
    * 
    * @param {Example[]} examples 
    * @param {string} trackedId 
+   * @param {Record<string, string>=} context
    * @returns {Example[]}
    */
-  filterTrackedExamples(examples, trackedId) {
+  filterTrackedExamples(examples, trackedId, context) {
     const { docSourceMaps } = this.ns.raml.vocabularies;
-    const sourceKey = this._getAmfKey(docSourceMaps.sources);
-    const trackedKey = this._getAmfKey(docSourceMaps.trackedElement);
+    const sourceKey = this._getAmfKey(docSourceMaps.sources, context);
+    const trackedKey = this._getAmfKey(docSourceMaps.trackedElement, context);
     const longId = trackedId.indexOf('amf') === -1 ? `amf://id${trackedId}` : trackedId;
     return examples.filter((item) => {
       let example = item;
@@ -659,7 +684,7 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
       if (Array.isArray(tracked)) {
         [tracked] = tracked;
       }
-      const { value } = this.synthesizedField(tracked);
+      const { value } = this.synthesizedField(tracked, context);
       if (!value) {
         return true;
       }
@@ -677,12 +702,13 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
    * defined in a payload.
    * 
    * @param {Example[]} examples 
+   * @param {Record<string, string>=} context
    * @returns {Example[]}
    */
-  filterNonTrackedExamples(examples) {
+  filterNonTrackedExamples(examples, context) {
     const { docSourceMaps } = this.ns.raml.vocabularies;
-    const sourceKey = this._getAmfKey(docSourceMaps.sources);
-    const trackedKey = this._getAmfKey(docSourceMaps.trackedElement);
+    const sourceKey = this._getAmfKey(docSourceMaps.sources, context);
+    const trackedKey = this._getAmfKey(docSourceMaps.trackedElement, context);
     return examples.filter((item) => {
       let example = item;
       if (Array.isArray(example)) {
@@ -702,7 +728,7 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
       if (Array.isArray(tracked)) {
         [tracked] = tracked;
       }
-      const { value } = this.synthesizedField(tracked);
+      const { value } = this.synthesizedField(tracked, context);
       if (!value) {
         return true;
       }
@@ -713,49 +739,51 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {ScalarShape} object
    * @param {ShapeProcessingOptions=} options 
+   * @param {Record<string, string>=} context
    * @returns {ApiScalarShape}
    */
-  scalarShape(object, options={}) {
+  scalarShape(object, options={}, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiScalarShape */ (this.anyShape(target, options));
+    const result = /** @type ApiScalarShape */ (this.anyShape(target, options, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type ScalarShape */ (this.getLinkTarget(target));
+      const value = /** @type ScalarShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
     }
     const { ns } = this;
-    const pattern = this._getValue(target, ns.w3.shacl.pattern);
+    const pattern = this._getValue(target, ns.w3.shacl.pattern, objectContext);
     if (pattern && typeof pattern === 'string') {
       result.pattern = pattern;
     }
-    const dataType = this._getLinkValue(target, ns.w3.shacl.datatype);
+    const dataType = this._getLinkValue(target, ns.w3.shacl.datatype, objectContext);
     if (dataType && typeof dataType === 'string') {
       result.dataType = dataType;
     }
-    const format = this._getValue(target, ns.aml.vocabularies.shapes.format);
+    const format = this._getValue(target, ns.aml.vocabularies.shapes.format, objectContext);
     if (format && typeof format === 'string') {
       result.format = format;
     }
-    const multipleOf = this._getValue(target, ns.aml.vocabularies.shapes.multipleOf);
+    const multipleOf = this._getValue(target, ns.aml.vocabularies.shapes.multipleOf, objectContext);
     if (typeof multipleOf === 'number') {
       result.multipleOf = multipleOf;
     }
-    const minInclusive = this._getValue(target, ns.w3.shacl.minInclusive);
+    const minInclusive = this._getValue(target, ns.w3.shacl.minInclusive, objectContext);
     if (typeof minInclusive === 'number') {
       result.minimum = minInclusive;
       result.exclusiveMinimum = false;
     }
-    const maxInclusive = this._getValue(target, ns.w3.shacl.maxInclusive);
+    const maxInclusive = this._getValue(target, ns.w3.shacl.maxInclusive, objectContext);
     if (typeof maxInclusive === 'number') {
       result.maximum = maxInclusive;
       result.exclusiveMaximum = false;
     }
-    const minLength = this._getValue(target, ns.w3.shacl.minLength);
+    const minLength = this._getValue(target, ns.w3.shacl.minLength, objectContext);
     if (typeof minLength === 'number') {
       result.minLength = minLength;
     }
-    const maxLength = this._getValue(target, ns.w3.shacl.maxLength);
+    const maxLength = this._getValue(target, ns.w3.shacl.maxLength, objectContext);
     if (typeof maxLength === 'number') {
       result.maxLength = maxLength;
     }
@@ -765,27 +793,29 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {NodeShape} object The NodeShape to serialize
    * @param {ShapeProcessingOptions=} options 
+   * @param {Record<string, string>=} context
    * @returns {ApiNodeShape}
    */
-  nodeShape(object, options={}) {
+  nodeShape(object, options={}, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiNodeShape */ (this.anyShape(target, options));
+    const result = /** @type ApiNodeShape */ (this.anyShape(target, options, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type NodeShape */ (this.getLinkTarget(target));
+      const value = /** @type NodeShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
     }
     const { ns } = this;
-    const discriminator = this._getValue(target, ns.aml.vocabularies.shapes.discriminator);
+    const discriminator = this._getValue(target, ns.aml.vocabularies.shapes.discriminator, objectContext);
     if (discriminator && typeof discriminator === 'string') {
       result.discriminator = discriminator;
     }
-    const discriminatorValue = this._getValue(target, ns.aml.vocabularies.shapes.discriminatorValue);
+    const discriminatorValue = this._getValue(target, ns.aml.vocabularies.shapes.discriminatorValue, objectContext);
     if (discriminatorValue && typeof discriminatorValue === 'string') {
       result.discriminatorValue = discriminatorValue;
     }
-    const closed = this._getValue(target, ns.w3.shacl.closed);
+    const closed = this._getValue(target, ns.w3.shacl.closed, objectContext);
     if (typeof closed === 'boolean') {
       result.closed = closed;
     }
@@ -810,9 +840,9 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
     // } else {
     //   result.customShapePropertyDefinitions = [];
     // }
-    const properties = /** @type PropertyShape[] */ (target[this._getAmfKey(ns.w3.shacl.property)]);
+    const properties = /** @type PropertyShape[] */ (target[this._getAmfKey(ns.w3.shacl.property, objectContext)]);
     if (Array.isArray(properties) && properties.length) {
-      result.properties = properties.map((item) => this.propertyShape(item));
+      result.properties = properties.map((item) => this.propertyShape(item, objectContext));
     } else {
       result.properties = [];
     }
@@ -826,27 +856,29 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {PropertyShape} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiPropertyShape}
    */
-  propertyShape(object) {
+  propertyShape(object, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiPropertyShape */ (this.shape(target));
+    const result = /** @type ApiPropertyShape */ (this.shape(target, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type PropertyShape */ (this.getLinkTarget(target));
+      const value = /** @type PropertyShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
     }
     const { ns } = this;
-    const path = this._getLinkValue(target, ns.w3.shacl.path);
+    const path = this._getLinkValue(target, ns.w3.shacl.path, objectContext);
     if (path && typeof path === 'string') {
       result.path = path;
     }
-    const minCount = this._getValue(target, ns.w3.shacl.minCount);
+    const minCount = this._getValue(target, ns.w3.shacl.minCount, objectContext);
     if (typeof minCount === 'number') {
       result.minCount = minCount;
     }
-    const maxCount = this._getValue(target, ns.w3.shacl.maxCount);
+    const maxCount = this._getValue(target, ns.w3.shacl.maxCount, objectContext);
     if (typeof maxCount === 'number') {
       result.maxCount = maxCount;
     }
@@ -854,10 +886,10 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
     //   result.patternName = patternName.value();
     // }
     
-    const ranges = /** @type Shape[] */ (target[this._getAmfKey(ns.aml.vocabularies.shapes.range)]);
+    const ranges = /** @type Shape[] */ (target[this._getAmfKey(ns.aml.vocabularies.shapes.range, objectContext)]);
     if (Array.isArray(ranges) && ranges.length) {
       const [range] = ranges;
-      result.range = this.unknownShape(range);
+      result.range = this.unknownShape(range, undefined, objectContext);
     }
     return result;
   }
@@ -865,14 +897,16 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {UnionShape} object
    * @param {ShapeProcessingOptions=} options 
+   * @param {Record<string, string>=} context
    * @returns {ApiUnionShape}
    */
-  unionShape(object, options={}) {
-    const anyOf = /** @type Shape[] */ (object[this._getAmfKey(this.ns.aml.vocabularies.shapes.anyOf)]);
-    const result = /** @type ApiUnionShape */ (this.anyShape(object, options));
+  unionShape(object, options={}, context) {
+    const objectContext = context || object['@context'];
+    const anyOf = /** @type Shape[] */ (object[this._getAmfKey(this.ns.aml.vocabularies.shapes.anyOf, objectContext)]);
+    const result = /** @type ApiUnionShape */ (this.anyShape(object, options, objectContext));
     if (Array.isArray(anyOf) && anyOf.length) {
       const opt = { ...options, trackedId: undefined };
-      result.anyOf = anyOf.map((shape) => this.unknownShape(shape, opt));
+      result.anyOf = anyOf.map((shape) => this.unknownShape(shape, opt, objectContext));
     } else {
       result.anyOf = [];
     }
@@ -882,49 +916,51 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {FileShape} object
    * @param {ShapeProcessingOptions=} options 
+   * @param {Record<string, string>=} context
    * @returns {ApiFileShape}
    */
-  fileShape(object, options={}) {
+  fileShape(object, options={}, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiFileShape */ (this.anyShape(target, options));
+    const result = /** @type ApiFileShape */ (this.anyShape(target, options, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type FileShape */ (this.getLinkTarget(target));
+      const value = /** @type FileShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
     }
     const { ns } = this;
-    const pattern = this._getValue(target, ns.w3.shacl.pattern);
+    const pattern = this._getValue(target, ns.w3.shacl.pattern, objectContext);
     if (pattern && typeof pattern === 'string') {
       result.pattern = pattern;
     }
-    const fileTypes = /** @type string[] */ (this._getValueArray(target, ns.aml.vocabularies.shapes.fileType));
+    const fileTypes = /** @type string[] */ (this._getValueArray(target, ns.aml.vocabularies.shapes.fileType, objectContext));
     if (Array.isArray(fileTypes) && fileTypes.length) {
       result.fileTypes = fileTypes;
     }
-    const minLength = this._getValue(target, ns.w3.shacl.minLength);
+    const minLength = this._getValue(target, ns.w3.shacl.minLength, objectContext);
     if (typeof minLength === 'number') {
       result.minLength = minLength;
     }
-    const maxLength = this._getValue(target, ns.w3.shacl.maxLength);
+    const maxLength = this._getValue(target, ns.w3.shacl.maxLength, objectContext);
     if (typeof maxLength === 'number') {
       result.maxLength = maxLength;
     }
-    const minInclusive = this._getValue(target, ns.w3.shacl.minInclusive);
+    const minInclusive = this._getValue(target, ns.w3.shacl.minInclusive, objectContext);
     if (typeof minInclusive === 'number') {
       result.minimum = minInclusive;
       result.exclusiveMinimum = false;
     }
-    const maxInclusive = this._getValue(target, ns.w3.shacl.maxInclusive);
+    const maxInclusive = this._getValue(target, ns.w3.shacl.maxInclusive, objectContext);
     if (typeof maxInclusive === 'number') {
       result.maximum = maxInclusive;
       result.exclusiveMaximum = false;
     }
-    const format = this._getValue(target, ns.aml.vocabularies.shapes.format);
+    const format = this._getValue(target, ns.aml.vocabularies.shapes.format, objectContext);
     if (format && typeof format === 'string') {
       result.format = format;
     }
-    const multipleOf = this._getValue(target, ns.aml.vocabularies.shapes.multipleOf);
+    const multipleOf = this._getValue(target, ns.aml.vocabularies.shapes.multipleOf, objectContext);
     if (typeof multipleOf === 'number') {
       result.multipleOf = multipleOf;
     }
@@ -934,23 +970,25 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {SchemaShape} object
    * @param {ShapeProcessingOptions=} options
+   * @param {Record<string, string>=} context
    * @returns {ApiSchemaShape}
    */
-  schemaShape(object, options={}) {
+  schemaShape(object, options={}, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiSchemaShape */ (this.anyShape(target, options));
+    const result = /** @type ApiSchemaShape */ (this.anyShape(target, options, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type SchemaShape */ (this.getLinkTarget(target));
+      const value = /** @type SchemaShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
     }
     const { ns } = this;
-    const mediaType = this._getValue(target, ns.aml.vocabularies.core.mediaType);
+    const mediaType = this._getValue(target, ns.aml.vocabularies.core.mediaType, objectContext);
     if (mediaType && typeof mediaType === 'string') {
       result.mediaType = mediaType;
     }
-    const raw = this._getValue(target, ns.aml.vocabularies.document.raw);
+    const raw = this._getValue(target, ns.aml.vocabularies.document.raw, objectContext);
     if (raw && typeof raw === 'string') {
       result.raw = raw;
     }
@@ -959,19 +997,21 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {RecursiveShape} object
+   * @param {Record<string, string>=} context
    * @returns {ApiRecursiveShape}
    */
-  recursiveShape(object) {
+  recursiveShape(object, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiRecursiveShape */ (this.shape(target));
+    const result = /** @type ApiRecursiveShape */ (this.shape(target, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type RecursiveShape */ (this.getLinkTarget(target));
+      const value = /** @type RecursiveShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
     }
     const { ns } = this;
-    const fp = this._getLinkValue(object, ns.aml.vocabularies.shapes.fixPoint);
+    const fp = this._getLinkValue(object, ns.aml.vocabularies.shapes.fixPoint, objectContext);
     if (fp && typeof fp === 'string') {
       result.fixPoint = fp;
     }
@@ -981,13 +1021,15 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {DataArrangeShape} object
    * @param {ShapeProcessingOptions=} options
+   * @param {Record<string, string>=} context
    * @returns {ApiDataArrangeShape}
    */
-  dataArrangeShape(object, options={}) {
+  dataArrangeShape(object, options={}, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiDataArrangeShape */ (this.anyShape(target, options));
+    const result = /** @type ApiDataArrangeShape */ (this.anyShape(target, options, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type DataArrangeShape */ (this.getLinkTarget(target));
+      const value = /** @type DataArrangeShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
@@ -1009,22 +1051,24 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {ArrayShape} object
    * @param {ShapeProcessingOptions=} options
+   * @param {Record<string, string>=} context
    * @returns {ApiArrayShape}
    */
-  arrayShape(object, options={}) {
+  arrayShape(object, options={}, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiArrayShape */ (this.dataArrangeShape(target, options));
+    const result = /** @type ApiArrayShape */ (this.dataArrangeShape(target, options, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type ArrayShape */ (this.getLinkTarget(target));
+      const value = /** @type ArrayShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
     }
 
-    const items = target[this._getAmfKey(this.ns.aml.vocabularies.shapes.items)];
+    const items = target[this._getAmfKey(this.ns.aml.vocabularies.shapes.items, objectContext)];
     if (Array.isArray(items) && items.length) {
       const [item] = items;
-      result.items = this.unknownShape(item);
+      result.items = this.unknownShape(item, undefined, objectContext);
     }
     return result;
   }
@@ -1032,19 +1076,21 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * @param {TupleShape} object
    * @param {ShapeProcessingOptions=} options
+   * @param {Record<string, string>=} context
    * @returns {ApiTupleShape}
    */
-  tupleShape(object, options) {
+  tupleShape(object, options, context) {
+    const objectContext = context || object['@context'];
     let target = object;
-    const result = /** @type ApiTupleShape */ (this.dataArrangeShape(target, options));
+    const result = /** @type ApiTupleShape */ (this.dataArrangeShape(target, options, objectContext));
     if (this.isLink(target)) {
-      const value = /** @type TupleShape */ (this.getLinkTarget(target));
+      const value = /** @type TupleShape */ (this.getLinkTarget(target, objectContext));
       if (value) {
         target = value;
       }
     }
-    const items = target[this._getAmfKey(this.ns.aml.vocabularies.shapes.items)];
-    const prefix = this._getAmfKey(this.ns.w3.rdfSchema.key);
+    const items = target[this._getAmfKey(this.ns.aml.vocabularies.shapes.items, objectContext)];
+    const prefix = this._getAmfKey(this.ns.w3.rdfSchema.key, objectContext);
     if (Array.isArray(items) && items.length) {
       result.items = [];
       items.forEach((item) => {
@@ -1057,7 +1103,7 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
           if (Array.isArray(shape)) {
             [shape] = shape;
           }
-          const value = this.unknownShape(shape);
+          const value = this.unknownShape(shape, undefined, objectContext);
           result.items.push(value);
         });
       });
@@ -1069,24 +1115,26 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {CreativeWork} object The CreativeWork to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiDocumentation} Serialized CreativeWork
    */
-  documentation(object) {
+  documentation(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiDocumentation */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
-    const url = this._getLinkValue(object, this.ns.aml.vocabularies.core.url);
+    const url = this._getLinkValue(object, this.ns.aml.vocabularies.core.url, objectContext);
     if (url && typeof url === 'string') {
       result.url = url;
     }
-    const description = this._getValue(object, this.ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, this.ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const title = this._getValue(object, this.ns.aml.vocabularies.core.title);
+    const title = this._getValue(object, this.ns.aml.vocabularies.core.title, objectContext);
     if (title && typeof title === 'string') {
       result.title = title;
     }
@@ -1095,82 +1143,86 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {Example} object The Example to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiExample} Serialized Example
    */
-  example(object) {
+  example(object, context) {
+    const objectContext = context || object['@context'];
     this._resolve(object);
     const result = /** @type ApiExample */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
       strict: false,
     });
     const { ns } = this;
-    const strict = this._getValue(object, ns.aml.vocabularies.document.strict);
+    const strict = this._getValue(object, ns.aml.vocabularies.document.strict, objectContext);
     if (typeof strict === 'boolean') {
       result.strict = strict;
     }
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const displayName = this._getValue(object, ns.aml.vocabularies.core.displayName);
+    const displayName = this._getValue(object, ns.aml.vocabularies.core.displayName, objectContext);
     if (displayName && typeof displayName === 'string') {
       result.displayName = displayName;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const raw = this._getValue(object, ns.aml.vocabularies.document.raw);
+    const raw = this._getValue(object, ns.aml.vocabularies.document.raw, objectContext);
     if (raw && typeof raw === 'string') {
       result.value = raw;
     }
-    const location = this._getValue(object, ns.aml.vocabularies.document.location);
+    const location = this._getValue(object, ns.aml.vocabularies.document.location, objectContext);
     if (location && typeof location === 'string') {
       result.location = location;
     }
     // if (!mediaType.isNullOrEmpty) {
     //   result.mediaType = mediaType.value();
     // }
-    const structuredValue = object[this._getAmfKey(ns.aml.vocabularies.document.structuredValue)];
+    const structuredValue = object[this._getAmfKey(ns.aml.vocabularies.document.structuredValue, objectContext)];
     if (Array.isArray(structuredValue) && structuredValue.length) {
       const [value] = structuredValue;
-      result.structuredValue = this.unknownDataNode(value);
+      result.structuredValue = this.unknownDataNode(value, objectContext);
     }
     return result;
   }
 
   /**
    * @param {XMLSerializer} object
+   * @param {Record<string, string>=} context
    * @returns {ApiXMLSerializer}
    */
-  xmlSerializer(object) {
+  xmlSerializer(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiXMLSerializer */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const xmlAttribute = this._getValue(object, ns.aml.vocabularies.shapes.xmlAttribute);
+    const xmlAttribute = this._getValue(object, ns.aml.vocabularies.shapes.xmlAttribute, objectContext);
     if (typeof xmlAttribute === 'boolean') {
       result.attribute = xmlAttribute;
     }
-    const wrapped = this._getValue(object, ns.aml.vocabularies.shapes.xmlWrapped);
+    const wrapped = this._getValue(object, ns.aml.vocabularies.shapes.xmlWrapped, objectContext);
     if (typeof wrapped === 'boolean') {
       result.wrapped = wrapped;
     }
-    const name = this._getValue(object, ns.aml.vocabularies.shapes.xmlName);
+    const name = this._getValue(object, ns.aml.vocabularies.shapes.xmlName, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const xmlNs = this._getValue(object, ns.aml.vocabularies.shapes.xmlNamespace);
+    const xmlNs = this._getValue(object, ns.aml.vocabularies.shapes.xmlNamespace, objectContext);
     if (xmlNs && typeof xmlNs === 'string') {
       result.namespace = xmlNs;
     }
-    const xmlPrefix = this._getValue(object, ns.aml.vocabularies.shapes.xmlPrefix);
+    const xmlPrefix = this._getValue(object, ns.aml.vocabularies.shapes.xmlPrefix, objectContext);
     if (xmlPrefix && typeof xmlPrefix === 'string') {
       result.prefix = xmlPrefix;
     }
@@ -1179,35 +1231,37 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {DataNode} object
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {ApiDataNodeUnion}
    */
-  unknownDataNode(object) {
-    const types = this.readTypes(object['@type']);
+  unknownDataNode(object, context) {
+    const types = this.readTypes(object['@type'], context);
     const { ns } = this;
     if (types.includes(ns.aml.vocabularies.data.Scalar)) {
-      return this.scalarNode(/** @type ScalarNode */(object));
+      return this.scalarNode(/** @type ScalarNode */(object), context);
     }
     if (types.includes(ns.aml.vocabularies.data.Object)) {
-      return this.objectNode(/** @type ObjectNode */(object));
+      return this.objectNode(/** @type ObjectNode */(object), context);
     }
     if (types.includes(ns.aml.vocabularies.data.Array)) {
-      return this.arrayNode(/** @type ArrayNode */(object));
+      return this.arrayNode(/** @type ArrayNode */(object), context);
     }
     return undefined;
   }
 
   /**
    * @param {DataNode} object
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {ApiDataNode}
    */
-  dataNode(object) {
+  dataNode(object, context) {
     const result = /** @type ApiDataNode */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
+      types: this.readTypes(object['@type'], context),
+      customDomainProperties: this.customDomainProperties(object, context),
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, context);
     if (name && typeof name === 'string') {
       result.name = name;
     }
@@ -1216,16 +1270,18 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {ScalarNode} object
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {ApiScalarNode}
    */
-  scalarNode(object) {
-    const result = /** @type ApiScalarNode */ (this.dataNode(object));
+  scalarNode(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiScalarNode */ (this.dataNode(object, context));
     const { ns } = this;
-    const value = this._getValue(object, ns.aml.vocabularies.data.value);
+    const value = this._getValue(object, ns.aml.vocabularies.data.value, objectContext);
     if (value && typeof value === 'string') {
       result.value = value;
     }
-    const dataType = this._getLinkValue(object, ns.w3.shacl.datatype);
+    const dataType = this._getLinkValue(object, ns.w3.shacl.datatype, objectContext);
     if (dataType && typeof dataType === 'string') {
       result.dataType = dataType;
     }
@@ -1234,13 +1290,15 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {ObjectNode} object
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {ApiObjectNode}
    */
-  objectNode(object) {
-    const result = /** @type ApiObjectNode */ (this.dataNode(object));
+  objectNode(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiObjectNode */ (this.dataNode(object, context));
     result.properties = {};
     const prefix = this.ns.aml.vocabularies.data.toString();
-    const prefixCompact = `${this._getAmfKey(prefix)}:`;
+    const prefixCompact = `${this._getAmfKey(prefix, objectContext)}:`;
     Object.keys(object).forEach((key) => {
       if (key.startsWith(prefix) || key.startsWith(prefixCompact)) {
         let value = object[key];
@@ -1248,7 +1306,7 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
           [value] = value;
         }
         const name = key.replace(prefix, '').replace(prefixCompact, '');
-        result.properties[name] = this.unknownDataNode(value);
+        result.properties[name] = this.unknownDataNode(value, context);
       }
     });
     return result;
@@ -1256,10 +1314,12 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {ArrayNode} object
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {ApiArrayNode}
    */
-  arrayNode(object) {
-    const result = /** @type ApiArrayNode */ (this.dataNode(object));
+  arrayNode(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiArrayNode */ (this.dataNode(object, objectContext));
     result.members = [];
     const members = /** @type DataNode[] */ (this._computePropertyArray(object, this.ns.w3.rdfSchema.member));
     if (Array.isArray(members) && members.length) {
@@ -1271,11 +1331,13 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * Adds the custom domain properties to the currently processed property, a.k.a annotations.
    * @param {DomainElement} object 
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {ApiCustomDomainProperty[]} The list of custom domain properties.
    */
-  customDomainProperties(object) {
+  customDomainProperties(object, context) {
     const result = /** @type ApiCustomDomainProperty[] */ ([]);
-    const ids = this._getLinkValues(object, this.ns.aml.vocabularies.document.customDomainProperties);
+    const objectContext = context || object['@context'];
+    const ids = this._getLinkValues(object, this.ns.aml.vocabularies.document.customDomainProperties, objectContext);
     if (Array.isArray(ids) && ids.length) {
       ids.forEach((id) => {
         const key = `amf://id${id}`;
@@ -1286,8 +1348,8 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
         if (Array.isArray(value)) {
           [value] = value;
         }
-        const extension = this.unknownDataNode(value);
-        const name = this._getValue(value, this.ns.aml.vocabularies.core.extensionName);
+        const extension = this.unknownDataNode(value, objectContext);
+        const name = this._getValue(value, this.ns.aml.vocabularies.core.extensionName, objectContext);
         if (!name || !extension) {
           return;
         }
@@ -1304,13 +1366,15 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {EndPoint} object The EndPoint to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiEndPoint} Serialized EndPoint
    */
-  endPoint(object) {
+  endPoint(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiEndPoint */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
       sourceMaps: this.sourceMap(object),
       path: '',
       operations: [],
@@ -1321,43 +1385,43 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
       extends: [],
     });
     const { ns } = this;
-    const path = this._getValue(object, ns.aml.vocabularies.apiContract.path);
+    const path = this._getValue(object, ns.aml.vocabularies.apiContract.path, objectContext);
     if (path && typeof path === 'string') {
       result.path = path;
     }
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const summary = this._getValue(object, ns.aml.vocabularies.core.summary);
+    const summary = this._getValue(object, ns.aml.vocabularies.core.summary, objectContext);
     if (summary && typeof summary === 'string') {
       result.summary = summary;
     }
-    const operations = this[getArrayItems](object, ns.aml.vocabularies.apiContract.supportedOperation);
+    const operations = this[getArrayItems](object, ns.aml.vocabularies.apiContract.supportedOperation, objectContext);
     if (Array.isArray(operations) && operations.length) {
-      result.operations = operations.map(i => this.operation(/** @type Operation */ (i)));
+      result.operations = operations.map(i => this.operation(/** @type Operation */ (i), objectContext));
     }
-    const parameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.parameter);
+    const parameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.parameter, objectContext);
     if (Array.isArray(parameters) && parameters.length) {
-      result.parameters = parameters.map(i => this.parameter(i));
+      result.parameters = parameters.map(i => this.parameter(i, objectContext));
     }
-    const payloads = this[getArrayItems](object, ns.aml.vocabularies.apiContract.payload);
+    const payloads = this[getArrayItems](object, ns.aml.vocabularies.apiContract.payload, objectContext);
     if (Array.isArray(payloads) && payloads.length) {
-      result.payloads = payloads.map(i => this.payload(/** @type Payload */(i)));
+      result.payloads = payloads.map(i => this.payload(/** @type Payload */(i), objectContext));
     }
-    const servers = this[getArrayItems](object, ns.aml.vocabularies.apiContract.server);
+    const servers = this[getArrayItems](object, ns.aml.vocabularies.apiContract.server, objectContext);
     if (Array.isArray(servers) && servers.length) {
-      result.servers = servers.map(i => this.server(i));
+      result.servers = servers.map(i => this.server(i, objectContext));
     }
-    const security = this[getArrayItems](object, ns.aml.vocabularies.security.security);
+    const security = this[getArrayItems](object, ns.aml.vocabularies.security.security, objectContext);
     if (Array.isArray(security) && security.length) {
-      result.security = security.map(i => this.securityRequirement(i));
+      result.security = security.map(i => this.securityRequirement(i, objectContext));
     }
-    const extensions = this[getArrayItems](object, ns.aml.vocabularies.document.extends);
+    const extensions = this[getArrayItems](object, ns.aml.vocabularies.document.extends, objectContext);
     if (Array.isArray(extensions) && extensions.length) {
       result.extends = [];
       extensions.forEach((ex) => {
@@ -1365,10 +1429,10 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
         if (Array.isArray(extension)) {
           [extension] = extension;
         }
-        if (this._hasType(extension, ns.aml.vocabularies.apiContract.ParametrizedResourceType)) {
-          result.extends.push(this.parametrizedResourceType(extension));
-        } else if (this._hasType(extension, ns.aml.vocabularies.apiContract.ParametrizedTrait)) {
-          result.extends.push(this.parametrizedTrait(extension));
+        if (this._hasType(extension, ns.aml.vocabularies.apiContract.ParametrizedResourceType, objectContext)) {
+          result.extends.push(this.parametrizedResourceType(extension, objectContext));
+        } else if (this._hasType(extension, ns.aml.vocabularies.apiContract.ParametrizedTrait, objectContext)) {
+          result.extends.push(this.parametrizedTrait(extension, objectContext));
         }
       });
     }
@@ -1377,13 +1441,15 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {Operation} object The Operation to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiOperation} Serialized Operation
    */
-  operation(object) {
+  operation(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiOperation */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
       sourceMaps: this.sourceMap(object),
       method: '',
       deprecated: false,
@@ -1398,98 +1464,100 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
       extends: [],
     });
     const { ns } = this;
-    const method = this._getValue(object, ns.aml.vocabularies.apiContract.method);
+    const method = this._getValue(object, ns.aml.vocabularies.apiContract.method, objectContext);
     if (method && typeof method === 'string') {
       result.method = method;
     }
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const summary = this._getValue(object, ns.aml.vocabularies.apiContract.guiSummary);
+    const summary = this._getValue(object, ns.aml.vocabularies.apiContract.guiSummary, objectContext);
     if (summary && typeof summary === 'string') {
       result.summary = summary;
     }
-    const deprecated = this._getValue(object, ns.aml.vocabularies.core.deprecated);
+    const deprecated = this._getValue(object, ns.aml.vocabularies.core.deprecated, objectContext);
     if (typeof deprecated === 'boolean') {
       result.deprecated = deprecated;
     }
-    const operationId = this._getValue(object, ns.aml.vocabularies.apiContract.operationId);
+    const operationId = this._getValue(object, ns.aml.vocabularies.apiContract.operationId, objectContext);
     if (operationId && typeof operationId === 'string') {
       result.operationId = operationId;
     }
-    const accepts = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.accepts));
+    const accepts = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.accepts, objectContext));
     if (Array.isArray(accepts)) {
       result.accepts = accepts;
     }
-    const schemes = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.scheme));
+    const schemes = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.scheme, objectContext));
     if (Array.isArray(schemes)) {
       result.schemes = schemes;
     }
-    const contentType = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.contentType));
+    const contentType = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.apiContract.contentType, objectContext));
     if (Array.isArray(contentType)) {
       result.contentType = contentType;
     }
 
-    let expects = object[this._getAmfKey(ns.aml.vocabularies.apiContract.expects)];
+    let expects = object[this._getAmfKey(ns.aml.vocabularies.apiContract.expects, objectContext)];
     if (expects) {
       if (Array.isArray(expects)) {
         [expects] = expects;
       }
-      result.request = this.request(expects);
+      result.request = this.request(expects, objectContext);
     }
-    let documentation = object[this._getAmfKey(ns.aml.vocabularies.core.documentation)];
+    let documentation = object[this._getAmfKey(ns.aml.vocabularies.core.documentation, objectContext)];
     if (documentation) {
       if (Array.isArray(documentation)) {
         [documentation] = documentation;
       }
-      result.documentation = this.documentation(documentation);
+      result.documentation = this.documentation(documentation, objectContext);
     }
-    const responses = object[this._getAmfKey(ns.aml.vocabularies.apiContract.returns)];
+    const responses = object[this._getAmfKey(ns.aml.vocabularies.apiContract.returns, objectContext)];
     if (Array.isArray(responses)) {
-      result.responses = responses.map(r => this.response(r));
+      result.responses = responses.map(r => this.response(r, objectContext));
     }
-    const callbacks = object[this._getAmfKey(ns.aml.vocabularies.apiContract.callback)];
+    const callbacks = object[this._getAmfKey(ns.aml.vocabularies.apiContract.callback, objectContext)];
     if (Array.isArray(callbacks)) {
-      result.callbacks = callbacks.map(c => this.callback(c));
+      result.callbacks = callbacks.map(c => this.callback(c, objectContext));
     }
-    const servers = object[this._getAmfKey(ns.aml.vocabularies.apiContract.server)];
+    const servers = object[this._getAmfKey(ns.aml.vocabularies.apiContract.server, objectContext)];
     if (Array.isArray(servers)) {
       result.servers = servers.map(s => this.server(s));
     }
-    const security = object[this._getAmfKey(ns.aml.vocabularies.security.security)];
+    const security = object[this._getAmfKey(ns.aml.vocabularies.security.security, objectContext)];
     if (Array.isArray(security)) {
-      result.security = security.map(s => this.securityRequirement(s));
+      result.security = security.map(s => this.securityRequirement(s, objectContext));
     }
-    const tags = object[this._getAmfKey(ns.aml.vocabularies.apiContract.tag)];
+    const tags = object[this._getAmfKey(ns.aml.vocabularies.apiContract.tag, objectContext)];
     if (Array.isArray(tags) && tags.length) {
-      result.tags = tags.map(s => this.tag(s));
+      result.tags = tags.map(s => this.tag(s, objectContext));
     }
-    const traits = object[this._getAmfKey(ns.aml.vocabularies.document.extends)];
+    const traits = object[this._getAmfKey(ns.aml.vocabularies.document.extends, objectContext)];
     if (Array.isArray(traits) && traits.length) {
-      result.extends = traits.map(t => this.parametrizedTrait(t));
+      result.extends = traits.map(t => this.parametrizedTrait(t, objectContext));
     }
     return result;
   }
 
   /**
    * @param {Tag} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiTag}
    */
-  tag(object) {
+  tag(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiTag */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
       sourceMaps: this.sourceMap(object),
       name: '',
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
@@ -1498,43 +1566,47 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {Callback} object
+   * @param {Record<string, string>=} context
    * @returns {ApiCallback}
    */
-  callback(object) {
+  callback(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiCallback */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
       sourceMaps: this.sourceMap(object),
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const expression = this._getValue(object, ns.aml.vocabularies.apiContract.expression);
+    const expression = this._getValue(object, ns.aml.vocabularies.apiContract.expression, objectContext);
     if (expression && typeof expression === 'string') {
       result.expression = expression;
     }
-    let endpoint = object[this._getAmfKey(ns.aml.vocabularies.apiContract.endpoint)];
+    let endpoint = object[this._getAmfKey(ns.aml.vocabularies.apiContract.endpoint, objectContext)];
     if (endpoint) {
       if (Array.isArray(endpoint)) {
         [endpoint] = endpoint;
       }
-      result.endpoint = this.endPoint(endpoint);
+      result.endpoint = this.endPoint(endpoint, objectContext);
     }
     return result;
   }
 
   /**
    * @param {Request} object The API request to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiRequest} Serialized API request
    */
-  request(object) {
+  request(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiRequest */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
       sourceMaps: this.sourceMap(object),
       required: false,
       headers: [],
@@ -1544,125 +1616,129 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
       cookieParameters: [],
     });
     const { ns } = this;
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const required = this._getValue(object, ns.aml.vocabularies.apiContract.required);
+    const required = this._getValue(object, ns.aml.vocabularies.apiContract.required, objectContext);
     if (required && typeof required === 'boolean') {
       result.required = required;
     }
-    let queryString = object[this._getAmfKey(ns.aml.vocabularies.apiContract.queryString)];
+    let queryString = object[this._getAmfKey(ns.aml.vocabularies.apiContract.queryString, objectContext)];
     if (queryString) {
       if (Array.isArray(queryString)) {
         [queryString] = queryString;
       }
-      result.queryString = this.unknownShape(queryString);
+      result.queryString = this.unknownShape(queryString, undefined, objectContext);
     }
-    const headers = this[getArrayItems](object, ns.aml.vocabularies.apiContract.header);
+    const headers = this[getArrayItems](object, ns.aml.vocabularies.apiContract.header, objectContext);
     if (Array.isArray(headers) && headers.length) {
-      result.headers = headers.map(p => this.parameter(p));
+      result.headers = headers.map(p => this.parameter(p, objectContext));
     }
-    const queryParameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.parameter);
+    const queryParameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.parameter, objectContext);
     if (Array.isArray(queryParameters) && queryParameters.length) {
-      result.queryParameters = queryParameters.map(p => this.parameter(p));
+      result.queryParameters = queryParameters.map(p => this.parameter(p, objectContext));
     }
-    const uriParameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.uriParameter);
+    const uriParameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.uriParameter, objectContext);
     if (Array.isArray(uriParameters) && uriParameters.length) {
-      result.uriParameters = uriParameters.map(p => this.parameter(p));
+      result.uriParameters = uriParameters.map(p => this.parameter(p, objectContext));
     }
-    const cookieParameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.cookieParameter);
+    const cookieParameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.cookieParameter, objectContext);
     if (Array.isArray(cookieParameters) && cookieParameters.length) {
-      result.cookieParameters = cookieParameters.map(p => this.parameter(p));
+      result.cookieParameters = cookieParameters.map(p => this.parameter(p, objectContext));
     }
-    const payloads = this[getArrayItems](object, ns.aml.vocabularies.apiContract.payload);
+    const payloads = this[getArrayItems](object, ns.aml.vocabularies.apiContract.payload, objectContext);
     if (Array.isArray(payloads) && payloads.length) {
-      result.payloads = payloads.map(p => this.payload(/** @type Payload */ (p)));
+      result.payloads = payloads.map(p => this.payload(/** @type Payload */ (p), objectContext));
     }
     return result;
   }
 
   /**
    * @param {Response} object The Response to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiResponse} Serialized Response
    */
-  response(object) {
+  response(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiResponse */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
       headers: [],
       payloads: [],
       examples: [],
       links: [],
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const statusCode = this._getValue(object, ns.aml.vocabularies.apiContract.statusCode);
+    const statusCode = this._getValue(object, ns.aml.vocabularies.apiContract.statusCode, objectContext);
     if (statusCode && typeof statusCode === 'string') {
       result.statusCode = statusCode;
     }
-    const headers = this[getArrayItems](object, ns.aml.vocabularies.apiContract.header);
+    const headers = this[getArrayItems](object, ns.aml.vocabularies.apiContract.header, objectContext);
     if (Array.isArray(headers) && headers.length) {
-      result.headers = headers.map(p => this.parameter(p));
+      result.headers = headers.map(p => this.parameter(p, objectContext));
     }
-    const payloads = this[getArrayItems](object, ns.aml.vocabularies.apiContract.payload);
+    const payloads = this[getArrayItems](object, ns.aml.vocabularies.apiContract.payload, objectContext);
     if (Array.isArray(payloads) && payloads.length) {
-      result.payloads = payloads.map(p => this.payload(/** @type Payload */(p)));
+      result.payloads = payloads.map(p => this.payload(/** @type Payload */(p), objectContext));
     }
-    const examples = object[this._getAmfKey(ns.aml.vocabularies.apiContract.examples)];
+    const examples = object[this._getAmfKey(ns.aml.vocabularies.apiContract.examples, objectContext)];
     if (Array.isArray(examples) && examples.length) {
-      result.examples = examples.map(e => this.example(e));
+      result.examples = examples.map(e => this.example(e, objectContext));
     }
-    const links = object[this._getAmfKey(ns.aml.vocabularies.apiContract.link)];
+    const links = object[this._getAmfKey(ns.aml.vocabularies.apiContract.link, objectContext)];
     if (Array.isArray(links) && links.length) {
-      result.links = links.map(p => this.templatedLink(p));
+      result.links = links.map(p => this.templatedLink(p, objectContext));
     }
     return result;
   }
 
   /**
    * @param {Payload} object The Payload to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiPayload} Serialized Payload
    */
-  payload(object) {
+  payload(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiPayload */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
       examples: [],
       // encoding: [],
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const mediaType = this._getValue(object, ns.aml.vocabularies.core.mediaType);
+    const mediaType = this._getValue(object, ns.aml.vocabularies.core.mediaType, objectContext);
     if (mediaType && typeof mediaType === 'string') {
       result.mediaType = mediaType;
     }
-    let schema = object[this._getAmfKey(ns.aml.vocabularies.shapes.schema)];
+    let schema = object[this._getAmfKey(ns.aml.vocabularies.shapes.schema, objectContext)];
     if (schema) {
       if (Array.isArray(schema)) {
         [schema] = schema;
       }
       result.schema = this.unknownShape(schema, {
         trackedId: result.id,
-      });
+      }, objectContext);
     }
-    const examples = object[this._getAmfKey(ns.aml.vocabularies.apiContract.examples)];
+    const examples = object[this._getAmfKey(ns.aml.vocabularies.apiContract.examples, objectContext)];
     if (Array.isArray(examples) && examples.length) {
-      result.examples = examples.map(e => this.example(e));
+      result.examples = examples.map(e => this.example(e, objectContext));
     }
     // if (Array.isArray(encoding) && encoding.length) {
     //   result.encoding = encoding.map((p) => p.id);
@@ -1672,43 +1748,45 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {TemplatedLink} object The TemplatedLink to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiTemplatedLink} Serialized TemplatedLink
    */
-  templatedLink(object) {
+  templatedLink(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiTemplatedLink */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
       mapping: [],
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const operationId = this._getValue(object, ns.aml.vocabularies.apiContract.operationId);
+    const operationId = this._getValue(object, ns.aml.vocabularies.apiContract.operationId, objectContext);
     if (operationId && typeof operationId === 'string') {
       result.operationId = operationId;
     }
-    let server = object[this._getAmfKey(ns.aml.vocabularies.apiContract.server)];
+    let server = object[this._getAmfKey(ns.aml.vocabularies.apiContract.server, objectContext)];
     if (server) {
       if (Array.isArray(server)) {
         [server] = server;
       }
-      result.server = this.server(server);
+      result.server = this.server(server, objectContext);
     }
-    let mapping = /** @type IriTemplateMapping[] */ (object[this._getAmfKey(ns.aml.vocabularies.apiContract.mapping)]);
+    let mapping = /** @type IriTemplateMapping[] */ (object[this._getAmfKey(ns.aml.vocabularies.apiContract.mapping, objectContext)]);
     if (mapping) {
       if (mapping && !Array.isArray(mapping)) {
         mapping = [mapping];
       }
       if (mapping) {
-        result.mapping = mapping.map(item => this.iriTemplateMapping(item));
+        result.mapping = mapping.map(item => this.iriTemplateMapping(item, objectContext));
       }
     }
     // if (!template.isNullOrEmpty) {
@@ -1722,21 +1800,23 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {IriTemplateMapping} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiIriTemplateMapping}
    */
-  iriTemplateMapping(object) {
+  iriTemplateMapping(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiIriTemplateMapping */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const templateVariable = this._getValue(object, ns.aml.vocabularies.apiContract.templateVariable);
+    const templateVariable = this._getValue(object, ns.aml.vocabularies.apiContract.templateVariable, objectContext);
     if (templateVariable && typeof templateVariable === 'string') {
       result.templateVariable = templateVariable;
     }
-    const linkExpression = this._getValue(object, ns.aml.vocabularies.apiContract.linkExpression);
+    const linkExpression = this._getValue(object, ns.aml.vocabularies.apiContract.linkExpression, objectContext);
     if (linkExpression && typeof linkExpression === 'string') {
       result.linkExpression = linkExpression;
     }
@@ -1745,156 +1825,166 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {ParametrizedSecurityScheme} object The ParametrizedSecurityScheme to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiParametrizedSecurityScheme} Serialized ParametrizedSecurityScheme
    */
-  parametrizedSecurityScheme(object) {
+  parametrizedSecurityScheme(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiParametrizedSecurityScheme */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    let scheme = object[this._getAmfKey(ns.aml.vocabularies.security.scheme)];
+    let scheme = object[this._getAmfKey(ns.aml.vocabularies.security.scheme, objectContext)];
     if (scheme) {
       if (Array.isArray(scheme)) {
         [scheme] = scheme;
       }
-      result.scheme = this.securityScheme(scheme);
+      result.scheme = this.securityScheme(scheme, objectContext);
     }
-    let settings = object[this._getAmfKey(ns.aml.vocabularies.security.settings)];
+    let settings = object[this._getAmfKey(ns.aml.vocabularies.security.settings, objectContext)];
     if (settings) {
       if (Array.isArray(settings)) {
         [settings] = settings;
       }
-      result.settings = this.securitySettings(settings);
+      result.settings = this.securitySettings(settings, objectContext);
     }
     return result;
   }
 
   /**
    * @param {SecurityScheme} object The SecurityScheme to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityScheme} Serialized SecurityScheme
    */
-  securityScheme(object) {
+  securityScheme(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiSecurityScheme */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
       headers: [],
       queryParameters: [],
       responses: [],
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const displayName = this._getValue(object, ns.aml.vocabularies.core.displayName);
+    const displayName = this._getValue(object, ns.aml.vocabularies.core.displayName, objectContext);
     if (displayName && typeof displayName === 'string') {
       result.displayName = displayName;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const type = this._getValue(object, ns.aml.vocabularies.security.type);
+    const type = this._getValue(object, ns.aml.vocabularies.security.type, objectContext);
     if (type && typeof type === 'string') {
       result.type = type;
     }
-    let settings = object[this._getAmfKey(ns.aml.vocabularies.security.settings)];
+    let settings = object[this._getAmfKey(ns.aml.vocabularies.security.settings, objectContext)];
     if (settings) {
       if (Array.isArray(settings)) {
         [settings] = settings;
       }
-      result.settings = this.securitySettings(settings);
+      result.settings = this.securitySettings(settings, objectContext);
     }
-    let queryString = object[this._getAmfKey(ns.aml.vocabularies.apiContract.queryString)];
+    let queryString = object[this._getAmfKey(ns.aml.vocabularies.apiContract.queryString, objectContext)];
     if (queryString) {
       if (Array.isArray(queryString)) {
         [queryString] = queryString;
       }
-      result.queryString = this.unknownShape(queryString);
+      result.queryString = this.unknownShape(queryString, undefined, objectContext);
     }
-    const headers = this[getArrayItems](object, ns.aml.vocabularies.apiContract.header);
+    const headers = this[getArrayItems](object, ns.aml.vocabularies.apiContract.header, objectContext);
     if (Array.isArray(headers) && headers.length) {
-      result.headers = headers.map(p => this.parameter(p));
+      result.headers = headers.map(p => this.parameter(p, objectContext));
     }
-    const queryParameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.parameter);
+    const queryParameters = this[getArrayItems](object, ns.aml.vocabularies.apiContract.parameter, objectContext);
     if (Array.isArray(queryParameters) && queryParameters.length) {
-      result.queryParameters = queryParameters.map(p => this.parameter(p));
+      result.queryParameters = queryParameters.map(p => this.parameter(p, objectContext));
     }
-    const responses = this[getArrayItems](object, ns.aml.vocabularies.apiContract.response);
+    const responses = this[getArrayItems](object, ns.aml.vocabularies.apiContract.response, objectContext);
     if (Array.isArray(responses) && responses.length) {
-      result.responses = responses.map(p => this.response(/** @type Response */ (p)));
+      result.responses = responses.map(p => this.response(/** @type Response */ (p), objectContext));
     }
     return result;
   }
 
   /**
    * @param {SecurityRequirement} object The SecurityRequirement to serialize.
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityRequirement} Serialized SecurityRequirement
    */
-  securityRequirement(object) {
+  securityRequirement(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiSecurityRequirement */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
       schemes: [],
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const schemes = /** @type ParametrizedSecurityScheme[] */ (object[this._getAmfKey(ns.aml.vocabularies.security.schemes)]);
+    const schemes = /** @type ParametrizedSecurityScheme[] */ (object[this._getAmfKey(ns.aml.vocabularies.security.schemes, objectContext)]);
     if (Array.isArray(schemes) && schemes.length) {
-      result.schemes = schemes.map(p => this.parametrizedSecurityScheme(p));
+      result.schemes = schemes.map(p => this.parametrizedSecurityScheme(p, objectContext));
     }
     return result;
   }
 
   /**
    * @param {Settings} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSecuritySettingsUnion}
    */
-  securitySettings(object) {
+  securitySettings(object, context) {
+    const objectContext = context || object['@context'];
     const { ns } = this;
-    const types = this.readTypes(object['@type']);
+    const types = this.readTypes(object['@type'], objectContext);
     if (types.includes(ns.aml.vocabularies.security.OAuth1Settings)) {
-      return this.oAuth1Settings(/** @type OAuth1Settings */ (object));
+      return this.oAuth1Settings(/** @type OAuth1Settings */ (object), objectContext);
     }
     if (types.includes(ns.aml.vocabularies.security.OAuth2Settings)) {
-      return this.oAuth2Settings(/** @type OAuth2Settings */ (object));
+      return this.oAuth2Settings(/** @type OAuth2Settings */ (object), objectContext);
     }
     if (types.includes(ns.aml.vocabularies.security.ApiKeySettings)) {
-      return this.apiKeySettings(/** @type ApiKeySettings */ (object));
+      return this.apiKeySettings(/** @type ApiKeySettings */ (object), objectContext);
     }
     if (types.includes(ns.aml.vocabularies.security.HttpSettings)) {
-      return this.httpSettings(/** @type HttpSettings */ (object));
+      return this.httpSettings(/** @type HttpSettings */ (object), objectContext);
     }
     if (types.includes(ns.aml.vocabularies.security.OpenIdConnectSettings)) {
-      return this.openIdConnectSettings(/** @type OpenIdConnectSettings */ (object));
+      return this.openIdConnectSettings(/** @type OpenIdConnectSettings */ (object), objectContext);
     }
-    return this.settings(object);
+    return this.settings(object, objectContext);
   }
 
   /**
    * @param {Settings} object
+   * @param {Record<string, string>=} context
    * @returns {ApiSecuritySettings}
    */
-  settings(object) {
+  settings(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiSecuritySettings */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     // if (additionalProperties && additionalProperties.id) {
     //   result.additionalProperties = this.unknownDataNode(additionalProperties);
@@ -1904,24 +1994,26 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {OAuth1Settings} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityOAuth1Settings}
    */
-  oAuth1Settings(object) {
-    const result = /** @type ApiSecurityOAuth1Settings */ (this.settings(object));
+  oAuth1Settings(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiSecurityOAuth1Settings */ (this.settings(object, objectContext));
     const { ns } = this;
-    const authorizationUri = this._getValue(object, ns.aml.vocabularies.security.authorizationUri);
+    const authorizationUri = this._getValue(object, ns.aml.vocabularies.security.authorizationUri, objectContext);
     if (authorizationUri && typeof authorizationUri === 'string') {
       result.authorizationUri = authorizationUri;
     }
-    const requestTokenUri = this._getValue(object, ns.aml.vocabularies.security.requestTokenUri);
+    const requestTokenUri = this._getValue(object, ns.aml.vocabularies.security.requestTokenUri, objectContext);
     if (requestTokenUri && typeof requestTokenUri === 'string') {
       result.requestTokenUri = requestTokenUri;
     }
-    const tokenCredentialsUri = this._getValue(object, ns.aml.vocabularies.security.tokenCredentialsUri);
+    const tokenCredentialsUri = this._getValue(object, ns.aml.vocabularies.security.tokenCredentialsUri, objectContext);
     if (tokenCredentialsUri && typeof tokenCredentialsUri === 'string') {
       result.tokenCredentialsUri = tokenCredentialsUri;
     }
-    const signatures = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.security.signature));
+    const signatures = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.security.signature, objectContext));
     if (Array.isArray(signatures) && signatures.length) {
       result.signatures = signatures;
     } else {
@@ -1932,20 +2024,22 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {OAuth2Settings} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityOAuth2Settings}
    */
-  oAuth2Settings(object) {
-    const result = /** @type ApiSecurityOAuth2Settings */ (this.settings(object));
+  oAuth2Settings(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiSecurityOAuth2Settings */ (this.settings(object, objectContext));
     const { ns } = this;
-    const grants = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.security.authorizationGrant));
+    const grants = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.security.authorizationGrant, objectContext));
     if (Array.isArray(grants) && grants.length) {
       result.authorizationGrants = grants;
     } else {
       result.authorizationGrants = [];
     }
-    const flows = /** @type OAuth2Flow[] */ (object[this._getAmfKey(ns.aml.vocabularies.security.flows)]);
+    const flows = /** @type OAuth2Flow[] */ (object[this._getAmfKey(ns.aml.vocabularies.security.flows, objectContext)]);
     if (Array.isArray(flows) && flows.length) {
-      result.flows = flows.map((p) => this.oAuth2Flow(p));
+      result.flows = flows.map((p) => this.oAuth2Flow(p, objectContext));
     } else {
       result.flows = [];
     }
@@ -1954,57 +2048,61 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {OAuth2Flow} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityOAuth2Flow}
    */
-  oAuth2Flow(object) {
+  oAuth2Flow(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiSecurityOAuth2Flow */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
       scopes: [],
-      sourceMaps: this.sourceMap(object),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const authorizationUri = this._getValue(object, ns.aml.vocabularies.security.authorizationUri);
+    const authorizationUri = this._getValue(object, ns.aml.vocabularies.security.authorizationUri, objectContext);
     if (authorizationUri && typeof authorizationUri === 'string') {
       result.authorizationUri = authorizationUri;
     }
-    const accessTokenUri = this._getValue(object, ns.aml.vocabularies.security.accessTokenUri);
+    const accessTokenUri = this._getValue(object, ns.aml.vocabularies.security.accessTokenUri, objectContext);
     if (accessTokenUri && typeof accessTokenUri === 'string') {
       result.accessTokenUri = accessTokenUri;
     }
-    const flow = this._getValue(object, ns.aml.vocabularies.security.flow);
+    const flow = this._getValue(object, ns.aml.vocabularies.security.flow, objectContext);
     if (flow && typeof flow === 'string') {
       result.flow = flow;
     }
-    const refreshUri = this._getValue(object, ns.aml.vocabularies.security.refreshUri);
+    const refreshUri = this._getValue(object, ns.aml.vocabularies.security.refreshUri, objectContext);
     if (refreshUri && typeof refreshUri === 'string') {
       result.refreshUri = refreshUri;
     }
-    const scopes = object[this._getAmfKey(ns.aml.vocabularies.security.scope)];
+    const scopes = object[this._getAmfKey(ns.aml.vocabularies.security.scope, objectContext)];
     if (Array.isArray(scopes) && scopes.length) {
-      result.scopes = scopes.map((p) => this.scope(p));
+      result.scopes = scopes.map((p) => this.scope(p, objectContext));
     }
     return result;
   }
 
   /**
    * @param {Scope} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityScope}
    */
-  scope(object) {
+  scope(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiSecurityScope */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
@@ -2013,16 +2111,18 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {ApiKeySettings} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityApiKeySettings}
    */
-  apiKeySettings(object) {
-    const result = /** @type ApiSecurityApiKeySettings */ (this.settings(object));
+  apiKeySettings(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiSecurityApiKeySettings */ (this.settings(object, objectContext));
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const inParam = this._getValue(object, ns.aml.vocabularies.security.in);
+    const inParam = this._getValue(object, ns.aml.vocabularies.security.in, objectContext);
     if (inParam && typeof inParam === 'string') {
       result.in = inParam;
     }
@@ -2031,16 +2131,18 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {HttpSettings} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityHttpSettings}
    */
-  httpSettings(object) {
-    const result = /** @type ApiSecurityHttpSettings */ (this.settings(object));
+  httpSettings(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiSecurityHttpSettings */ (this.settings(object, objectContext));
     const { ns } = this;
-    const scheme = this._getValue(object, ns.aml.vocabularies.security.scheme);
+    const scheme = this._getValue(object, ns.aml.vocabularies.security.scheme, objectContext);
     if (scheme && typeof scheme === 'string') {
       result.scheme = scheme;
     }
-    const bearerFormat = this._getValue(object, ns.aml.vocabularies.security.bearerFormat);
+    const bearerFormat = this._getValue(object, ns.aml.vocabularies.security.bearerFormat, objectContext);
     if (bearerFormat && typeof bearerFormat === 'string') {
       result.bearerFormat = bearerFormat;
     }
@@ -2049,12 +2151,14 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {OpenIdConnectSettings} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSecurityOpenIdConnectSettings}
    */
-  openIdConnectSettings(object) {
-    const result = /** @type ApiSecurityOpenIdConnectSettings */ (this.settings(object));
+  openIdConnectSettings(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiSecurityOpenIdConnectSettings */ (this.settings(object, objectContext));
     const { ns } = this;
-    const url = this._getValue(object, ns.aml.vocabularies.security.openIdConnectUrl);
+    const url = this._getValue(object, ns.aml.vocabularies.security.openIdConnectUrl, objectContext);
     if (url && typeof url === 'string') {
       result.url = url;
     }
@@ -2064,11 +2168,13 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
   /**
    * Serializes source maps, when available.
    * @param {DocumentSourceMaps} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiDocumentSourceMaps|undefined}
    */
-  sourceMap(object) {
+  sourceMap(object, context) {
+    const objectContext = context || object['@context'];
     const { ns } = this;
-    let sm = object[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.sources)];
+    let sm = object[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.sources, objectContext)];
     if (!sm) {
       return undefined;
     }
@@ -2079,38 +2185,40 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
       id: sm['@id'],
       types: this.readTypes(sm['@type']),
     });
-    const synthesizedField = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.synthesizedField)];
+    const synthesizedField = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.synthesizedField, objectContext)];
     if (Array.isArray(synthesizedField) && synthesizedField.length) {
-      result.synthesizedField = synthesizedField.map(i => this.synthesizedField(i));
+      result.synthesizedField = synthesizedField.map(i => this.synthesizedField(i, objectContext));
     }
-    const lexical = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.lexical)];
+    const lexical = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.lexical, objectContext)];
     if (Array.isArray(lexical) && lexical.length) {
-      result.lexical = lexical.map(i => this.synthesizedField(i))
+      result.lexical = lexical.map(i => this.synthesizedField(i, objectContext))
     }
-    const trackedElement = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.trackedElement)];
+    const trackedElement = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.trackedElement, objectContext)];
     if (Array.isArray(trackedElement) && trackedElement.length) {
-      result.trackedElement = this.synthesizedField(trackedElement[0]);
+      result.trackedElement = this.synthesizedField(trackedElement[0], objectContext);
     }
-    const autoName = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.autoGeneratedName)];
+    const autoName = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.autoGeneratedName, objectContext)];
     if (Array.isArray(autoName) && autoName.length) {
-      result.autoGeneratedName = autoName.map(i => this.synthesizedField(i))
+      result.autoGeneratedName = autoName.map(i => this.synthesizedField(i, objectContext))
     }
-    const jsonSchema = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.parsedJsonSchema)];
+    const jsonSchema = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.parsedJsonSchema, objectContext)];
     if (Array.isArray(jsonSchema) && jsonSchema.length) {
-      result.parsedJsonSchema = this.synthesizedField(jsonSchema[0]);
+      result.parsedJsonSchema = this.synthesizedField(jsonSchema[0], objectContext);
     }
-    const declaredElement = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.declaredElement)];
+    const declaredElement = sm[this._getAmfKey(ns.aml.vocabularies.docSourceMaps.declaredElement, objectContext)];
     if (Array.isArray(declaredElement) && declaredElement.length) {
-      result.declaredElement = this.synthesizedField(declaredElement[0]);
+      result.declaredElement = this.synthesizedField(declaredElement[0], objectContext);
     }
     return result;
   }
 
   /**
    * @param {SynthesizedField} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiSynthesizedField}
    */
-  synthesizedField(object) {
+  synthesizedField(object, context) {
+    const objectContext = context || object['@context'];
     // compact model
     if (typeof object === 'string') {
       return /** @type ApiSynthesizedField */ ({
@@ -2122,12 +2230,12 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
       id: object['@id'],
     });
     // @ts-ignore
-    const element = this._getValue(object, this.ns.aml.vocabularies.docSourceMaps.element);
+    const element = this._getValue(object, this.ns.aml.vocabularies.docSourceMaps.element, objectContext);
     if (typeof element === 'string') {
       result.element = element;
     }
     // @ts-ignore
-    const value = this._getValue(object, this.ns.aml.vocabularies.docSourceMaps.value);
+    const value = this._getValue(object, this.ns.aml.vocabularies.docSourceMaps.value, objectContext);
     if (typeof value === 'string') {
       result.value = value
     }
@@ -2136,124 +2244,135 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {ParametrizedDeclaration} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiParametrizedDeclaration}
    */
-  parametrizedDeclaration(object) {
+  parametrizedDeclaration(object, context) {
+    const objectContext = context || object['@context'];
     const result = /** @type ApiParametrizedDeclaration */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
+      types: this.readTypes(object['@type'], objectContext),
       variables: [],
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
     });
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     if (name && typeof name === 'string') {
       result.name = name;
     }
-    const variables = object[this._getAmfKey(ns.aml.vocabularies.document.variable)];
+    const variables = object[this._getAmfKey(ns.aml.vocabularies.document.variable, objectContext)];
     if (Array.isArray(variables)) {
       variables.forEach((item) => {
-        result.variables.push(this.variableValue(item));
+        result.variables.push(this.variableValue(item, objectContext));
       });
     }
-    const targets = object[this._getAmfKey(ns.aml.vocabularies.document.target)];
+    const targets = object[this._getAmfKey(ns.aml.vocabularies.document.target, objectContext)];
     if (Array.isArray(targets) && targets.length) {
       const [target] = targets;
-      result.target = this.abstractDeclaration(target);
+      result.target = this.abstractDeclaration(target, objectContext);
     }
     return result;
   }
 
   /**
    * @param {ParametrizedTrait} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiParametrizedTrait}
    */
-  parametrizedTrait(object) {
-    const result = /** @type ApiParametrizedTrait */ (this.parametrizedDeclaration(object));
+  parametrizedTrait(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiParametrizedTrait */ (this.parametrizedDeclaration(object, objectContext));
     return result;
   }
 
   /**
-   * @param {ParametrizedResourceType} object 
+   * @param {ParametrizedResourceType} object
+   * @param {Record<string, string>=} context 
    * @returns {ApiParametrizedResourceType}
    */
-  parametrizedResourceType(object) {
-    const result = /** @type ApiParametrizedResourceType */ (this.parametrizedDeclaration(object));
+  parametrizedResourceType(object, context) {
+    const objectContext = context || object['@context'];
+    const result = /** @type ApiParametrizedResourceType */ (this.parametrizedDeclaration(object, objectContext));
     return result;
   }
 
   /**
    * @param {VariableValue} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiVariableValue}
    */
-  variableValue(object) {
+  variableValue(object, context) {
+    const objectContext = context || object['@context'];
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     const result = /** @type ApiVariableValue */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
       name,
     });
-    const values = object[this._getAmfKey(ns.aml.vocabularies.document.value)];
+    const values = object[this._getAmfKey(ns.aml.vocabularies.document.value, objectContext)];
     if (Array.isArray(values)) {
       const [item] = values;
-      result.value = this.unknownDataNode(item);
+      result.value = this.unknownDataNode(item, objectContext);
     }
     return result;
   }
 
   /**
    * @param {AbstractDeclaration} object 
+   * @param {Record<string, string>=} context
    * @returns {ApiAbstractDeclaration}
    */
-  abstractDeclaration(object) {
+  abstractDeclaration(object, context) {
+    const objectContext = context || object['@context'];
     const { ns } = this;
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, objectContext);
     const result = /** @type ApiAbstractDeclaration */ ({
       id: object['@id'],
-      types: this.readTypes(object['@type']),
-      customDomainProperties: this.customDomainProperties(object),
-      sourceMaps: this.sourceMap(object),
+      types: this.readTypes(object['@type'], objectContext),
+      customDomainProperties: this.customDomainProperties(object, objectContext),
+      sourceMaps: this.sourceMap(object, objectContext),
       name,
       variables: [],
     });
-    const variables = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.document.variable));
+    const variables = /** @type string[] */ (this._getValueArray(object, ns.aml.vocabularies.document.variable, objectContext));
     if (Array.isArray(variables)) {
       result.variables = variables;
     }
-    const description = this._getValue(object, ns.aml.vocabularies.core.description);
+    const description = this._getValue(object, ns.aml.vocabularies.core.description, objectContext);
     if (description && typeof description === 'string') {
       result.description = description;
     }
-    const dataNode = object[this._getAmfKey(ns.aml.vocabularies.document.dataNode)];
+    const dataNode = object[this._getAmfKey(ns.aml.vocabularies.document.dataNode, objectContext)];
     if (Array.isArray(dataNode)) {
       const [item] = dataNode;
-      result.dataNode = this.unknownDataNode(item);
+      result.dataNode = this.unknownDataNode(item, objectContext);
     }
     return result;
   }
 
   /**
    * @param {EndPoint} object The EndPoint to serialize as a list item.
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {ApiEndPointWithOperationsListItem} Serialized EndPoint as a list item.
    */
-  endPointWithOperationsListItem(object) {
+  endPointWithOperationsListItem(object, context) {
     const { ns } = this;
-    const path = this._getValue(object, ns.aml.vocabularies.apiContract.path);
+    const path = this._getValue(object, ns.aml.vocabularies.apiContract.path, context);
 
     const result = /** @type ApiEndPointWithOperationsListItem */ ({
       id: object['@id'],
       path,
       operations: [],
     });
-    const operations = this[getArrayItems](object, ns.aml.vocabularies.apiContract.supportedOperation);
+    const operations = this[getArrayItems](object, ns.aml.vocabularies.apiContract.supportedOperation, context);
     if (Array.isArray(operations) && operations.length) {
-      result.operations = operations.map(i => this.operationListItem(/** @type Operation */ (i)));
+      result.operations = operations.map(i => this.operationListItem(/** @type Operation */ (i), context));
     }
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, context);
     if (name && typeof name === 'string') {
       result.name = name;
     }
@@ -2262,19 +2381,20 @@ export class AmfSerializer extends AmfHelperMixin(Object) {
 
   /**
    * @param {Operation} object The Operation to serialize as a list item.
+   * @param {Record<string, string>=} context A context to use. If not set, it looks for the context of the passed model
    * @returns {ApiOperationListItem} Serialized Operation as a list item.
    */
-  operationListItem(object) {
+  operationListItem(object, context) {
     const result = /** @type ApiOperationListItem */ ({
       id: object['@id'],
       method: '',
     });
     const { ns } = this;
-    const method = this._getValue(object, ns.aml.vocabularies.apiContract.method);
+    const method = this._getValue(object, ns.aml.vocabularies.apiContract.method, context);
     if (method && typeof method === 'string') {
       result.method = method;
     }
-    const name = this._getValue(object, ns.aml.vocabularies.core.name);
+    const name = this._getValue(object, ns.aml.vocabularies.core.name, context);
     if (name && typeof name === 'string') {
       result.name = name;
     }
