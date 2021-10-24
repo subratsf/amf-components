@@ -28,7 +28,7 @@ describe('ApiResourceDocumentElement', () => {
       .domainId="${domainId}"
       .operationId="${operationId}"
     ></api-resource-document>`);
-    await aTimeout(2);
+    await aTimeout(5);
     return /** @type ApiResourceDocumentElement */ (element);
   }
 
@@ -42,7 +42,7 @@ describe('ApiResourceDocumentElement', () => {
       .domainId="${domainId}"
       asyncApi
     ></api-resource-document>`);
-    await aTimeout(2);
+    await aTimeout(5);
     return /** @type ApiResourceDocumentElement */ (element);
   }
 
@@ -56,7 +56,7 @@ describe('ApiResourceDocumentElement', () => {
       .domainId="${domainId}"
       tryItPanel
     ></api-resource-document>`);
-    await aTimeout(2);
+    await aTimeout(5);
     return /** @type ApiResourceDocumentElement */ (element);
   }
 
