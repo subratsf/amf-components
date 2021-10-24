@@ -325,7 +325,7 @@ describe('ApiNavigationElement', () => {
         demoModel = await loader.getGraph(compact);
         extDocsModel = await loader.getGraph(compact, 'ext-docs');
         rearrangeModel = await loader.getGraph(compact, 'rearrange-api');
-        streetlightsModel = await loader.getGraph(compact, 'streetlights');
+        streetlightsModel = await loader.getGraph(compact, 'streetlights2');
         asyncModel = await loader.getGraph(compact, 'async-api');
       });
 

@@ -170,7 +170,7 @@ class ComponentPage extends AmfDemoBase {
       ['google-drive-api', 'Google Drive'],
       ['mocking-service', 'Lots of methods'],
       ['no-endpoints', 'No endpoints!'],
-      ['streetlights', 'streetlights (unsorted for the tree layout)'],
+      ['streetlights2', 'streetlights 2 (unsorted for the tree layout)'],
       ['APIC-449', 'APIC-449'],
       ['APIC-554', 'APIC-554'],
       ['APIC-554-ii', 'APIC-554-ii'],
