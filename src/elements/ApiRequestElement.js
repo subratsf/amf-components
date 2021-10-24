@@ -252,7 +252,6 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     this.urlLabel = undefined;
     /** @type string */
     this.baseUri = undefined;
-    this.eventsTarget = undefined;
     /** @type boolean */
     this.allowHideOptional = false;
     /** @type boolean */
