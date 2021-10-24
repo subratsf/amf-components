@@ -275,7 +275,7 @@ describe('ApiResourceDocumentElement', () => {
         await nextFrame();
         const op = element.shadowRoot.querySelector('api-operation-document');
         assert.notOk(op.tryItButton);
-      });``
+      });
 
       it('sets the asyncApi', async () => {
         const data = loader.lookupEndpoint(demoModel, '/messages');

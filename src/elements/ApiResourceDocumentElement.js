@@ -10,6 +10,7 @@ import {
   customDomainPropertiesTemplate,
 } from './ApiDocumentationBase.js';
 import { joinTraitNames } from '../lib/Utils.js';
+import { SecurityProcessor } from '../lib/SecurityProcessor.js';
 import * as UrlLib from '../lib/UrlUtils.js';
 import { ReportingEvents } from '../events/ReportingEvents.js';
 import { TelemetryEvents } from '../events/TelemetryEvents.js';
@@ -60,6 +61,7 @@ export const collectCodeSnippets = Symbol('collectCodeSnippets');
 export const processSelectionTimeout = Symbol('processSelectionTimeout');
 export const extendsTemplate = Symbol('extendsTemplate');
 export const traitsTemplate = Symbol('traitsTemplate');
+export const readCodeSnippets = Symbol('readCodeSnippets');
 
 /**
  * A web component that renders the resource documentation page for an API resource built from 
@@ -508,14 +510,7 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
     if (!panels.length) {
       return;
     }
-    Array.from(panels).forEach((panel) => {
-      const { requestId } = panel.dataset;
-      if (!requestId) {
-        return;
-      }
-      const request = panel.serialize();
-      this[requestValues][requestId] = request;
-    });
+    Array.from(panels).forEach((panel) => this[readCodeSnippets](panel));
     this.requestUpdate();
   }
 
@@ -524,13 +519,32 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
    */
   [requestChangeHandler](e) {
     const panel = /** @type ApiRequestPanelElement */ (e.target);
+    this[readCodeSnippets](panel);
+    this.requestUpdate();
+  }
+
+  /**
+   * Reads the request data from the request panel for the code snippets.
+   * @param {ApiRequestPanelElement} panel 
+   */
+  [readCodeSnippets](panel) {
     const { requestId } = panel.dataset;
     if (!requestId) {
       return;
     }
-    const request = panel.serialize();
-    this[requestValues][requestId] = request;
-    this.requestUpdate();
+    try {
+      const request = panel.serialize();
+      if (request.authorization && request.authorization.length) {
+        SecurityProcessor.applyAuthorization(request, request.authorization);
+      }
+      this[requestValues][requestId] = request;
+    } catch (e) {
+      // what can go wrong it that the request is not yet set on the editor
+      // due to the debouncer and we are trying to serialize a request
+      // that is not yet ready. This will redo the operation when the request panel 
+      // render the HTTP editor.
+      // ...
+    }
   }
 
   render() {
@@ -601,8 +615,8 @@ export default class ApiResourceDocumentationElement extends ApiDocumentationBas
    * @returns {TemplateResult} The template for the API operation.
    */
   [operationTemplate](operation) {
-    const { endpoint, serverId, baseUri, tryItPanel, tryItButton } = this;
-    const renderTryIt = !tryItPanel && !!tryItButton;
+    const { endpoint, serverId, baseUri, tryItPanel, tryItButton, asyncApi } = this;
+    const renderTryIt = !tryItPanel && !asyncApi && !!tryItButton;
     const classes = {
       'operation-container': true,
       tryit: tryItPanel,

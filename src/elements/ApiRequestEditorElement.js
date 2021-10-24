@@ -139,6 +139,7 @@ export const versionValue = Symbol('versionValue');
 export const graphChangeHandler = Symbol('graphChangeHandler');
 export const debounceValue = Symbol('debounceValue');
 export const processDebounce = Symbol('processDebounce');
+export const authorizationChangeHandler = Symbol('authorizationChangeHandler');
 
 export default class ApiRequestEditorElement extends AmfParameterMixin(EventsTargetMixin(LitElement)) {
   get styles() {
@@ -1508,6 +1509,13 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(EventsTar
     this.execute();
   }
 
+  /**
+   * A handler for the change event on the authorization panel.
+   */
+  [authorizationChangeHandler]() {
+    this.notifyChange();
+  }
+
   render() {
     const { styles } = this;
     return html`<style>${styles}</style>
@@ -1552,7 +1560,8 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(EventsTar
         .outlined="${outlined}"
         .oauth2RedirectUri="${redirectUri}"
         .credentialsSource="${credentialsSource}"
-        ?globalCache="${globalCache}"></api-authorization-editor>
+        ?globalCache="${globalCache}"
+        @change="${this[authorizationChangeHandler]}"></api-authorization-editor>
     </section>
     `;
   }
