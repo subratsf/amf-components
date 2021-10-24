@@ -35,6 +35,7 @@
     "dompurify",
     "fasttext",
     "formdata",
+    "graphload",
     "httpbin",
     "itemschange",
     "mimechange",

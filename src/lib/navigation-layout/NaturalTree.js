@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-plusplus */
 /** @typedef {import('../../types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
@@ -34,7 +35,7 @@ export class NaturalTree {
     const { path, name, id, operations,  } = item;
     const result = /** @type ApiEndpointsTreeItem */ ({
       path,
-      label: this.prepareLabel(item),
+      label: name,
       name,
       id,
       indent: 0,
@@ -63,19 +64,43 @@ export class NaturalTree {
         }
       }
     }
+    if (!result.label) {
+      if (indent > 0) {
+        try {
+          result.label = this.computePathName(path, parts, indent);
+        } catch (_) {
+          result.label = path;
+        }
+      } else {
+        result.label = path;
+      }
+    }
     result.indent = indent;
     this.result.push(result);
   }
 
   /**
-   * @param {ApiEndPointWithOperationsListItem} item
+   * Computes label for an endpoint when name is missing and the endpoint
+   * is indented, hence name should be truncated.
+   * @param {string} currentPath Endpoint's path
+   * @param {string[]} parts Path parts
+   * @param {number} indent Endpoint indentation
    * @returns {string} 
    */
-  prepareLabel(item) {
-    const { path, name, } = item;
-    if (name) {
-      return name;
+   computePathName(currentPath, parts, indent) {
+    const { basePaths } = this;
+    let path = '';
+    
+    const latestBasePath = basePaths[basePaths.length - 1];
+    for (let i = 0, len = parts.length - 1; i < len; i++) {
+      path += `/${parts[i]}`;
+      if (!latestBasePath || latestBasePath.indexOf(`${path}/`) !== -1) {
+        indent--;
+      }
+      if (indent === 0) {
+        break;
+      }
     }
-    return path || 'Unknown path';
+    return currentPath.replace(path, '');
   }
 }

@@ -12,6 +12,7 @@ import {
   SelectionType, 
   SchemaAddType,
   NavigationLayout,
+  DocumentMeta,
 } from '../types';
 
 export declare const apiIdValue: unique symbol;
@@ -107,6 +108,8 @@ export declare const addSchemaInputTemplate: unique symbol;
 export declare const addSchemaKeydownHandler: unique symbol;
 export declare const commitNewSchema: unique symbol;
 export declare const addingSchemaTypeValue: unique symbol;
+export declare const graphChangeHandler: unique symbol;
+export declare const documentMetaValue: unique symbol;
 
 /**
  * @fires graphload
@@ -186,30 +189,15 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
    * The currently focused item.
    */
   get focusedItem(): HTMLElement | undefined;
-
-  /** 
-   * When this property change the element queries the graph store for the data model.
-   * It can be skipped when the application calls the `queryGraph()` method imperatively.
-   * @attribute
-   */
-  apiId: string;
   /**
-  * A model `@id` of selected documentation part.
-  * Special case is for `summary` view. It's not part of an API
-  * but most applications has some kins of summary view for the
-  * API.
+  * The domain id that is currently being selected.
   * @attribute
   */
-  selected: string;
+  domainId: string;
   /**
    * Type of the selected item.
-   * One of `documentation`, `type`, `security`, `endpoint`, `operation`
-   * or `summary`.
-   *
-   * This property is set after `selected` property.
-   * @attribute
    */
-  selectedType: string;
+  get domainType(): SelectionType;
   /**
    * If set it renders `API summary` menu option.
    * It will allow to set `selected` and `selectedType` to `summary`
@@ -292,6 +280,21 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
   * @attribute
   */
   edit: boolean;
+  /** 
+   * When set it expands or opens all endpoints and makes all operations visible.
+   * Note, the user can toggle an endpoint anyway so this property does not mean
+   * that all endpoints are expanded. When it's true then it means that all endpoints
+   * was expanded at some point in time.
+   * @attribute
+   */
+  endpointsExpanded: boolean;
+
+  /**
+   * @return True when the summary entry is rendered.
+   * Summary should be rendered only when `summary` is set and current model is not a RAML fragment.
+   */
+  get summaryRendered(): boolean;
+  get documentMeta(): DocumentMeta;
 
   constructor();
 

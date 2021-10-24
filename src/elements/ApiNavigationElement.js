@@ -7,6 +7,7 @@ import { LitElement, html } from 'lit-element';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { classMap } from 'lit-html/directives/class-map.js';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { HttpStyles } from '@advanced-rest-client/app';
 import '@anypoint-web-components/awc/anypoint-icon-button.js';
 import '@anypoint-web-components/awc/anypoint-collapse.js';
@@ -42,7 +43,9 @@ import { cancelEvent } from '../lib/Utils.js'
 
 export const queryingValue = Symbol('queryingValue');
 export const abortControllerValue = Symbol('abortControllerValue');
-export const selectedValue = Symbol('selectedValue');
+export const domainIdValue = Symbol('domainIdValue');
+export const domainTypeValue = Symbol('domainTypeValue');
+export const endpointsExpandedValue = Symbol('endpointsExpandedValue');
 export const documentationsValue = Symbol('documentationsValue');
 export const schemasValue = Symbol('schemasValue');
 export const securityValue = Symbol('securityValue');
@@ -155,22 +158,30 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
   }
 
   /** 
-   * @returns {string|undefined} The current selected domain id.
+   * @returns {string|undefined} The current selection domain id.
    */
-  get selected() {
-    return this[selectedValue];
+  get domainId() {
+    return this[domainIdValue];
   }
 
   /** 
    * @returns {string|undefined} The domain id that is currently being selected.
    */
-  set selected(value) {
-    const old = this[selectedValue];
+  set domainId(value) {
+    const old = this[domainIdValue];
     if (old === value) {
       return;
     }
-    this[selectedValue] = value;
-    this.requestUpdate('selected', old);
+    this[domainIdValue] = value;
+    this.requestUpdate('domainId', old);
+    this.select(value);
+  }
+
+  /**
+   * @returns {SelectionType}Type of the selected domain item.
+   */
+  get domainType() {
+    return this[domainTypeValue];
   }
 
   /**
@@ -254,6 +265,41 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
     this.requestUpdate('layout', old);
   }
 
+  /** @returns {boolean} */
+  get endpointsExpanded() {
+    if (typeof this[endpointsExpandedValue] !== 'boolean') {
+      return false;
+    }
+    return this[endpointsExpandedValue];
+  }
+
+  /** @param {boolean} value */
+  set endpointsExpanded(value) {
+    const old = this[endpointsExpandedValue];
+    if (old === value) {
+      return;
+    }
+    this[endpointsExpandedValue] = value;
+    if (value) {
+      this.expandAllEndpoints();
+    } else {
+      this.collapseAllEndpoints();
+    }
+  }
+
+  /**
+   * @return {boolean} True when the summary entry is rendered.
+   * Summary should be rendered only when `summary` is set and current model is not a RAML fragment.
+   */
+  get summaryRendered() {
+    const { summary, documentMeta } = this;
+    if (!summary || !documentMeta) {
+      return false;
+    }
+    const { isFragment, isLibrary } = documentMeta;
+    return !isFragment && !isLibrary;
+  }
+
   static get properties() {
     return {
       /** 
@@ -267,18 +313,10 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
        * but most applications has some kins of summary view for the
        * API.
        */
-      selected: { type: String, reflect: true },
-      /**
-        * Type of the selected item.
-        * One of `documentation`, `type`, `security`, `endpoint`, `operation`
-        * or `summary`.
-        *
-        * This property is set after `selected` property.
-        */
-      selectedType: { type: String, reflect: true },
+      domainId: { type: String, reflect: true },
       /**
         * If set it renders `API summary` menu option.
-        * It will allow to set `selected` and `selectedType` to `summary`
+        * It will allow to set `domainId` and `domainType` to `summary`
         * when this option is set.
         */
       summary: { type: Boolean, reflect: true },
@@ -346,6 +384,13 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
        * The user can double-click on a menu item and edit its name.
        */
       edit: { type: Boolean, reflect: true, },
+      /** 
+       * When set it expands or opens all endpoints and makes all operations visible.
+       * Note, the user can toggle an endpoint anyway so this property does not mean
+       * that all endpoints are expanded. When it's true then it means that all endpoints
+       * was expanded at some point in time.
+       */
+      endpointsExpanded: { type: Boolean, reflect: true, },
     };
   }
 
@@ -770,6 +815,11 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
     const { graphId, graphShape } = node.dataset;
     if (graphId && graphShape) {
       this[makeSelection](graphId, /** @type SelectionType */ (graphShape));
+    } else {
+      // this is probably the abstract endpoint from the EndpointTree class.
+      // We are preventing default so the element can ignore focusing on the item.
+      e.preventDefault();
+      e.stopPropagation();
     }
   }
 
@@ -1201,9 +1251,9 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
       return;
     }
     this[selectedItemValue] = element;
-    this[deselectItem](this.selected, this.selectedType);
-    this.selected = id;
-    this.selectedType = type;
+    this[deselectItem](this.domainId, this.domainType);
+    this[domainIdValue] = id;
+    this[domainTypeValue] = type;
     if (id === 'summary') {
       this[summarySelected] = true;
     } else {
@@ -1347,6 +1397,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
         this[openedEndpointsValue].push(graphId);
       }
     });
+    this[endpointsExpandedValue] = true;
     this.requestUpdate();
   }
 
@@ -1355,6 +1406,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
    */
   collapseAllEndpoints() {
     this[openedEndpointsValue] = [];
+    this[endpointsExpandedValue] = false;
     this.requestUpdate();
   }
 
@@ -1720,8 +1772,8 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
    * @return {TemplateResult|string} The template for the summary filed.
    */
   [summaryTemplate]() {
-    const { summary, summaryLabel, documentMeta } = this;
-    if (!summary || !summaryLabel || !documentMeta || documentMeta.isFragment) {
+    const { summaryRendered, summaryLabel } = this;
+    if (!summaryRendered || !summaryLabel) {
       return '';
     }
     const selected = this[summarySelected];
@@ -1791,7 +1843,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
           ?anypoint="${this.anypoint}"
           tabindex="-1"
         >
-          <arc-icon aria-label="${toggleState}" icon="keyboardArrowDown"></arc-icon>
+          <arc-icon aria-label="${toggleState}" role="img" icon="keyboardArrowDown"></arc-icon>
         </anypoint-icon-button>
       </div>
       <anypoint-collapse
@@ -1832,7 +1884,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
       part="api-navigation-list-item"
       class="${classMap(classes)}"
       data-path="${path}"
-      data-graph-id="${id}"
+      data-graph-id="${ifDefined(id)}"
       data-graph-shape="resource"
       @click="${this[itemClickHandler]}"
       title="Open this endpoint"
@@ -1876,7 +1928,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
       data-graph-id="${id}"
       @click="${this[endpointToggleClickHandler]}"
     >
-      <arc-icon icon="arrowDropDown"></arc-icon>
+      <arc-icon icon="arrowDropDown" role="img" aria-label="Toggle the list of operations"></arc-icon>
     </anypoint-icon-button>`;
   }
 
@@ -1960,7 +2012,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
           ?anypoint="${this.anypoint}"
           tabindex="-1"
         >
-          <arc-icon aria-label="${toggleState}" icon="keyboardArrowDown"></arc-icon>
+          <arc-icon aria-label="${toggleState}" role="img" icon="keyboardArrowDown"></arc-icon>
         </anypoint-icon-button>
       </div>
       <anypoint-collapse .opened="${documentationsOpened}">
@@ -2075,7 +2127,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
           ?anypoint="${this.anypoint}"
           tabindex="-1"
         >
-          <arc-icon aria-label="${toggleState}" icon="keyboardArrowDown"></arc-icon>
+          <arc-icon aria-label="${toggleState}" role="img" icon="keyboardArrowDown"></arc-icon>
         </anypoint-icon-button>
       </div>
       <anypoint-collapse .opened="${schemasOpened}">
@@ -2152,7 +2204,7 @@ export default class ApiNavigationElement extends EventsTargetMixin(LitElement) 
           ?anypoint="${this.anypoint}"
           tabindex="-1"
         >
-          <arc-icon aria-label="${toggleState}" icon="keyboardArrowDown"></arc-icon>
+          <arc-icon aria-label="${toggleState}" role="img" icon="keyboardArrowDown"></arc-icon>
         </anypoint-icon-button>
       </div>
       <anypoint-collapse .opened="${securityOpened}">

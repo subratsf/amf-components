@@ -1,13 +1,13 @@
-import { fixture, assert, nextFrame, html } from '@open-wc/testing';
+import { fixture, assert, nextFrame, html, oneEvent } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../define/api-navigation.js';
 import {
-  docsValue,
-  typesValue,
+  documentationsValue,
+  schemasValue,
   securityValue,
   endpointsValue,
-  isFragmentValue,
 } from '../../src/elements/ApiNavigationElement.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
+import '../../define/api-navigation.js';
 
 /** @typedef {import('../../').ApiNavigationElement} ApiNavigationElement */
 /** @typedef {import('../../').Amf.AmfDocument} AmfDocument */
@@ -15,38 +15,54 @@ import {
 describe('ApiNavigationElement', () => {
   describe('Documentation fragment', () => {
     const loader = new AmfLoader();
+    const store = new DomEventsAmfStore(window);
+    store.listen();
 
     /**
-     * @param {AmfDocument=} amf
      * @returns {Promise<ApiNavigationElement>}
      */
-    async function basicFixture(amf) {
-      return fixture(html`<api-navigation .amf="${amf}"></api-navigation>`);
+    async function dataFixture() {
+      const elm = /** @type ApiNavigationElement */ (await fixture(html`
+        <api-navigation 
+          summary 
+          layout="tree"
+          filter
+          endpointsOpened
+          documentationsOpened
+          schemasOpened
+          securityOpened></api-navigation>
+      `));
+      await oneEvent(elm, 'graphload');
+      await nextFrame();
+      return elm;
     }
 
     [false, true].forEach((compact) => {
       describe(compact ? 'Compact model' : 'Full model', () => {
+        before(async () => {
+          const amf = await loader.getGraph(compact, 'documentation-fragment');
+          store.amf = amf;
+        });
+
         /** @type ApiNavigationElement */
         let element;
-
         beforeEach(async () => {
-          const amf = await loader.getGraph(compact, 'documentation-fragment');
-          element = await basicFixture(amf);
+          element = await dataFixture();
         });
 
         it('collects the documentation information', () => {
-          const result = element[docsValue];
+          const result = element[documentationsValue];
           assert.lengthOf(result, 1);
           assert.typeOf(result[0].id, 'string');
-          assert.equal(result[0].label, 'About');
+          assert.equal(result[0].title, 'About');
         });
 
         it('opens the Documentation', () => {
-          assert.isTrue(element.docsOpened);
+          assert.isTrue(element.documentationsOpened);
         });
 
-        it('sets the [isFragmentValue]', () => {
-          assert.isTrue(element[isFragmentValue]);
+        it('documentMeta has the isFragment property', () => {
+          assert.isTrue(element.documentMeta.isFragment);
         });
 
         it('sets the summaryRendered', () => {
@@ -60,15 +76,15 @@ describe('ApiNavigationElement', () => {
         });
 
         it('does not set types', () => {
-          assert.isUndefined(element[typesValue]);
+          assert.deepEqual(element[schemasValue], []);
         });
 
         it('does not set security', () => {
-          assert.isUndefined(element[securityValue]);
+          assert.deepEqual(element[securityValue], []);
         });
 
         it('does not set endpoints', () => {
-          assert.isUndefined(element[endpointsValue]);
+          assert.deepEqual(element[endpointsValue], []);
         });
       });
     });

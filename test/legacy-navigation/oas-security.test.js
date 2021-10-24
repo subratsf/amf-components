@@ -1,14 +1,14 @@
 import { fixture, assert, html } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../define/api-navigation.js';
+import '../../define/api-navigation-legacy.js';
 import {
   securityValue,
-} from '../../src/elements/ApiNavigationElement.js';
+} from '../../src/elements/ApiNavigationLegacyElement.js';
 
-/** @typedef {import('../../').ApiNavigationElement} ApiNavigationElement */
+/** @typedef {import('../../').ApiNavigationLegacyElement} ApiNavigationElement */
 /** @typedef {import('../../').Amf.AmfDocument} AmfDocument */
 
-describe('ApiNavigationElement', () => {
+describe('ApiNavigationLegacyElement', () => {
   describe('OAS security computations', () => {
     const loader = new AmfLoader();
 
@@ -17,7 +17,7 @@ describe('ApiNavigationElement', () => {
      * @returns {Promise<ApiNavigationElement>}
      */
     async function basicFixture(amf) {
-      return fixture(html`<api-navigation .amf="${amf}"></api-navigation>`);
+      return fixture(html`<api-navigation-legacy .amf="${amf}"></api-navigation-legacy>`);
     }
 
     [false, true].forEach((compact) => {

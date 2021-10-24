@@ -1,13 +1,13 @@
-import { fixture, assert, nextFrame, html } from '@open-wc/testing';
+import { fixture, assert, nextFrame, html, oneEvent } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../define/api-navigation.js';
 import {
-  docsValue,
-  typesValue,
+  documentationsValue,
+  schemasValue,
   securityValue,
   endpointsValue,
-  isFragmentValue,
 } from '../../src/elements/ApiNavigationElement.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
+import '../../define/api-navigation.js';
 
 /** @typedef {import('../../').ApiNavigationElement} ApiNavigationElement */
 /** @typedef {import('../../').Amf.AmfDocument} AmfDocument */
@@ -15,52 +15,66 @@ import {
 describe('ApiNavigationElement', () => {
   describe('Security fragment', () => {
     const loader = new AmfLoader();
+    const store = new DomEventsAmfStore(window);
+    store.listen();
 
     /**
-     * @param {AmfDocument=} amf
      * @returns {Promise<ApiNavigationElement>}
      */
-    async function basicFixture(amf) {
-      return fixture(html`<api-navigation .amf="${amf}"></api-navigation>`);
+    async function dataFixture() {
+      const elm = /** @type ApiNavigationElement */ (await fixture(html`
+        <api-navigation 
+          summary 
+          layout="tree"
+          filter
+          endpointsOpened
+          documentationsOpened
+          schemasOpened
+          securityOpened></api-navigation>
+      `));
+      await oneEvent(elm, 'graphload');
+      await nextFrame();
+      return elm;
     }
 
     [false, true].forEach((compact) => {
       describe(compact ? 'Compact model' : 'Full model', () => {
+        before(async () => {
+          const amf = await loader.getGraph(compact, 'oauth2-fragment');
+          store.amf = amf;
+        });
+
         /** @type ApiNavigationElement */
         let element;
-
         beforeEach(async () => {
-          const amf = await loader.getGraph(compact, 'oauth2-fragment');
-          element = await basicFixture();
-          element.amf = amf;
-          await nextFrame();
+          element = await dataFixture();
         });
 
-        it('Documentation is undefined', () => {
-          assert.isUndefined(element[docsValue]);
+        it('the documentation is empty', () => {
+          assert.isUndefined(element[documentationsValue]);
         });
 
-        it('Types is undefined', () => {
-          assert.isUndefined(element[typesValue]);
+        it('the schemas is empty', () => {
+          assert.deepEqual(element[schemasValue], []);
         });
 
-        it('Security is computed', () => {
+        it('the security is computed', () => {
           const result = element[securityValue];
           assert.lengthOf(result, 1);
           assert.typeOf(result[0].id, 'string');
-          assert.equal(result[0].label, 'MyOauth - OAuth 2.0');
+          assert.equal(result[0].displayName, 'MyOauth');
         });
 
-        it('Endpoints is undefined', () => {
-          assert.isUndefined(element[endpointsValue]);
+        it('the endpoints is empty', () => {
+          assert.deepEqual(element[endpointsValue], []);
         });
 
         it('Security is opened', () => {
           assert.isTrue(element.securityOpened);
         });
 
-        it('[isFragmentValue] is set', () => {
-          assert.isTrue(element[isFragmentValue]);
+        it('documentMeta has the isFragment property', () => {
+          assert.isTrue(element.documentMeta.isFragment);
         });
 
         it('summaryRendered is false', () => {

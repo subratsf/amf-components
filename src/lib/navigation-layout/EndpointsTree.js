@@ -75,6 +75,7 @@ export class EndpointsTree {
         if (hasParts) {
           const info = this.findCommonRootInfo(parts);
           if (info) {
+            // this is an abstract item, it's not actually an endpoint
             const parent = {
               indent: info.item.indent,
               path: info.common,

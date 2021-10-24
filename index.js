@@ -16,8 +16,8 @@ export { default as ApiRequestEditorElement } from './src/elements/ApiRequestEdi
 export { default as ApiAuthorizationEditorElement } from './src/elements/ApiAuthorizationEditorElement.js';
 export { default as ApiAuthorizationMethodElement } from './src/elements/ApiAuthorizationMethodElement.js';
 export { default as ApiServerSelectorElement } from './src/elements/ApiServerSelectorElement.js';
-
 export { default as ApiNavigationElement } from './src/elements/ApiNavigationElement.js';
+export { default as ApiNavigationLegacyElement } from './src/elements/ApiNavigationLegacyElement.js';
 export { default as ApiSecurityDocumentElement } from './src/elements/ApiSecurityDocumentElement.js';
 export { default as ApiParametrizedSecuritySchemeElement } from './src/elements/ApiParametrizedSecuritySchemeElement.js';
 export { default as ApiSecurityRequirementDocumentElement } from './src/elements/ApiSecurityRequirementDocumentElement.js';
@@ -39,3 +39,5 @@ export { DomEventsAmfStore } from './src/store/DomEventsAmfStore.js';
 export { AmfStore } from './src/store/AmfStore.js';
 export { AmfStoreDomEventsMixin } from './src/store/mixins/AmfStoreDomEventsMixin.js';
 export { InMemAmfGraphStore } from './src/store/InMemAmfGraphStore.js';
+export { NavigationContextMenu } from './src/plugins/NavigationContextMenu.js';
+export { default as NavigationContextMenuCommands } from './src/plugins/NavigationCommands.js';

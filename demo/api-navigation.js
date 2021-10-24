@@ -4,6 +4,7 @@ import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import '@anypoint-web-components/awc/anypoint-radio-button.js';
 import '@anypoint-web-components/awc/anypoint-radio-group.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
+import { NavigationContextMenu, NavigationContextMenuCommands } from '../index.js';
 import '../define/api-navigation.js';
 
 /** @typedef {import('../').NavigationLayout} NavigationLayout */
@@ -14,15 +15,24 @@ class ComponentPage extends AmfDemoBase {
   constructor() {
     super();
     this.initObservableProperties([ 
-      'summary', 'filter', 'edit', 'layout',
+      'summary', 'filter', 'edit', 'layout', 'endpointsExpanded',
     ]);
     this.componentName = 'api-navigation';
     this.noApiNavigation = true;
     this.summary = true;
     this.filter = false;
     this.edit = false;
+    this.endpointsExpanded = false;
     /** @type NavigationLayout */
     this.layout = undefined;
+  }
+
+  firstRender() {
+    super.firstRender();
+    const nav = document.querySelector('api-navigation');
+    this.menu = new NavigationContextMenu(nav, { cancelNativeWhenHandled: true });
+    this.menu.registerCommands(NavigationContextMenuCommands);
+    this.menu.connect();
   }
 
   /**
@@ -52,7 +62,6 @@ class ComponentPage extends AmfDemoBase {
   }
 
   demoTemplate() {
-    const { loaded } = this;
     return html`
     <section class="documentation-section">
       <h3>Interactive demo</h3>
@@ -61,7 +70,7 @@ class ComponentPage extends AmfDemoBase {
       </p>
 
       <div class="api-demo-content">
-        ${!loaded ? html`<p>Load an API model first.</p>` : this.loadedTemplate()}
+        ${this.loadedTemplate()}
       </div>
     </section>
     `;
@@ -74,7 +83,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   componentTemplate() {
-    const { demoStates, darkThemeActive, summary, filter, edit, layout } = this;
+    const { demoStates, darkThemeActive, summary, filter, edit, layout, endpointsExpanded } = this;
     return html`
     <arc-interactive-demo
       .states="${demoStates}"
@@ -86,6 +95,7 @@ class ComponentPage extends AmfDemoBase {
         ?edit="${edit}"
         ?filter="${filter}"
         .layout="${layout}"
+        ?endpointsExpanded="${endpointsExpanded}"
         @apinavigate="${this._navigationHandler}"
         slot="content"
       >
@@ -119,6 +129,15 @@ class ComponentPage extends AmfDemoBase {
       >
         Edit mode
       </anypoint-checkbox>
+      <anypoint-checkbox
+        aria-describedby="mainOptionsLabel"
+        slot="options"
+        name="endpointsExpanded"
+        ?checked="${endpointsExpanded}"
+        @change="${this._toggleMainOption}"
+      >
+        Expand endpoints
+      </anypoint-checkbox>
 
       <label slot="options" id="mainOptionsLabel">Layout</label>
       <anypoint-radio-group slot="options" @select="${this._toggleLayoutOption}" attrForSelected="value" selectable="anypoint-radio-button">
@@ -151,6 +170,7 @@ class ComponentPage extends AmfDemoBase {
       ['google-drive-api', 'Google Drive'],
       ['mocking-service', 'Lots of methods'],
       ['no-endpoints', 'No endpoints!'],
+      ['streetlights', 'streetlights (unsorted for the tree layout)'],
       ['APIC-449', 'APIC-449'],
       ['APIC-554', 'APIC-554'],
       ['APIC-554-ii', 'APIC-554-ii'],

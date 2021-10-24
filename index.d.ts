@@ -17,6 +17,7 @@ export { default as ApiAuthorizationEditorElement } from './src/elements/ApiAuth
 export { default as ApiAuthorizationMethodElement } from './src/elements/ApiAuthorizationMethodElement';
 export { default as ApiServerSelectorElement } from './src/elements/ApiServerSelectorElement';
 export { default as ApiNavigationElement } from './src/elements/ApiNavigationElement';
+export { default as ApiNavigationLegacyElement } from './src/elements/ApiNavigationLegacyElement.js';
 export { default as ApiSecurityDocumentElement } from './src/elements/ApiSecurityDocumentElement';
 export { default as ApiParametrizedSecuritySchemeElement } from './src/elements/ApiParametrizedSecuritySchemeElement';
 export { default as ApiSecurityRequirementDocumentElement } from './src/elements/ApiSecurityRequirementDocumentElement';
@@ -46,3 +47,5 @@ export { DomEventsAmfStore } from './src/store/DomEventsAmfStore';
 export { AmfStore } from './src/store/AmfStore';
 export { AmfStoreDomEventsMixin } from './src/store/mixins/AmfStoreDomEventsMixin';
 export { InMemAmfGraphStore } from './src/store/InMemAmfGraphStore';
+export { NavigationContextMenu } from './src/plugins/NavigationContextMenu';
+export { default as NavigationContextMenuCommands } from './src/plugins/NavigationCommands';

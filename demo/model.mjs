@@ -80,6 +80,7 @@ config.set('example-fragment/example-fragment.raml', { type: "RAML 1.0" });
 config.set('multi-server/multi-server.yaml', { type: "OAS 3.0", mime: 'application/yaml' });
 config.set('async-api/async-api.yaml', { type: "ASYNC 2.0" });
 config.set('Streetlights/Streetlights.yaml', { type: "ASYNC 2.0" });
+config.set('streetlights/streetlights.yaml', { type: "ASYNC 2.0" });
 config.set('api-keys/api-keys.yaml', { type: "OAS 3.0", mime: 'application/yaml' });
 config.set('oauth-flows/oauth-flows.yaml', { type: "OAS 3.0", mime: 'application/yaml' });
 config.set('oas-bearer/oas-bearer.yaml', { type: "OAS 3.0", mime: 'application/yaml' });
