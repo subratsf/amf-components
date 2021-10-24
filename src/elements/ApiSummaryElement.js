@@ -1,35 +1,46 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
-import { Styles as HttpStyles } from '@api-components/http-method-label';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import '@advanced-rest-client/highlight/arc-marked.js';
+import { HttpStyles } from '@advanced-rest-client/app';
 import elementStyles from './styles/ApiSummary.js';
 import commonStyles from './styles/Common.js';
 import { 
   ApiDocumentationBase, 
   descriptionTemplate, 
-  serializerValue,
+  processDebounce,
+  // serializerValue,
 } from './ApiDocumentationBase.js';
 import { sanitizeHTML } from '../lib/Utils.js';
 import * as UrlLib from '../lib/UrlUtils.js';
+import { NavigationEvents } from '../events/NavigationEvents.js';
+import { ApiEvents } from '../events/ApiEvents.js';
+import { ReportingEvents } from '../events/ReportingEvents.js';
+import { TelemetryEvents } from '../events/TelemetryEvents.js';
+import { ServerEvents } from '../events/ServerEvents.js';
+import { EndpointEvents } from '../events/EndpointEvents.js';
+import { ns } from '../helpers/Namespace.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDocumentation} ApiDocumentation */
-/** @typedef {import('@api-components/amf-helper-mixin').CreativeWork} CreativeWork */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSummary} ApiSummary */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').AsyncApi} AsyncApi */
-/** @typedef {import('@api-components/amf-helper-mixin').WebApi} WebApi */
-/** @typedef {import('@api-components/amf-helper-mixin').EndPoint} EndPoint */
-/** @typedef {import('../types').ApiSummaryEndpoint} ApiSummaryEndpoint */
-/** @typedef {import('../types').ApiSummaryOperation} ApiSummaryOperation */
+/** @typedef {import('../helpers/api').ApiDocumentation} ApiDocumentation */
+/** @typedef {import('../helpers/amf').CreativeWork} CreativeWork */
+/** @typedef {import('../helpers/api').ApiSummary} ApiSummary */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../helpers/amf').AsyncApi} AsyncApi */
+/** @typedef {import('../helpers/amf').WebApi} WebApi */
+/** @typedef {import('../helpers/amf').EndPoint} EndPoint */
+/** @typedef {import('../types').SelectionType} SelectionType */
+/** @typedef {import('../types').ApiEndPointWithOperationsListItem} ApiEndPointWithOperationsListItem */
+/** @typedef {import('../types').ApiOperationListItem} ApiOperationListItem */
 
 export const summaryValue = Symbol('summaryValue');
 export const serversValue = Symbol('serversValue');
-export const processEndpoints = Symbol('computeEndpoints');
 export const endpointsValue = Symbol('endpointsValue');
-export const endpointOperations = Symbol('endpointOperations');
+export const querySummary = Symbol('querySummary');
+export const processSummary = Symbol('processSummary');
+export const queryServers = Symbol('queryServers');
+export const queryEndpoints = Symbol('queryEndpoints');
 export const isAsyncValue = Symbol('isAsyncValue');
 export const baseUriValue = Symbol('baseUriValue');
 export const navigateHandler = Symbol('navigateHandler');
@@ -109,10 +120,15 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     this[summaryValue] = undefined;
     /** @type {ApiServer[]} */
     this[serversValue] = undefined;
-    /** @type {ApiSummaryEndpoint[]} */
+    /** @type {ApiEndPointWithOperationsListItem[]} */
     this[endpointsValue] = undefined;
     /** @type {boolean} */
     this[isAsyncValue] = undefined;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this[processDebounce]();
   }
 
   /**
@@ -120,65 +136,65 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
    * @returns {Promise<void>}
    */
   async processGraph() {
-    this[endpointsValue] = undefined;
-    this[serversValue] = undefined;
-    this[summaryValue] = undefined;
-    this[isAsyncValue] = undefined;
-    const { amf } = this;
-    if (!amf) {
-      return;
-    }
-    this[isAsyncValue] = this._isAsyncAPI(amf);
-    const servers = this._getServers();
-    this[serversValue] = Array.isArray(servers) ? servers.map(s => this[serializerValue].server(s)) : undefined;
-    const webApi = this._computeApi(amf);
-    if (!webApi) {
-      return;
-    }
-    const summary = this[serializerValue].apiSummary(webApi);
-    this[summaryValue] = summary;
-    this[processEndpoints](webApi);
+    await this[querySummary]();
+    await this[queryServers]();
+    await this[queryEndpoints]();
+    await this[processSummary]();
     this.requestUpdate();
   }
 
   /**
-   * @param {AsyncApi | WebApi} webApi
+   * Queries the API store for the API summary object.
    */
-  [processEndpoints](webApi) {
-    if (this.hideToc) {
-      return;
+  async [querySummary]() {
+    this[summaryValue] = undefined;
+    try {
+      const info = await ApiEvents.summary(this);
+      this[summaryValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API summary data: ${e.message}`, this.localName);
     }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.endpoint);
-    const endpoints = /** @type EndPoint[] */ (this._ensureArray(webApi[key]));
-    if (!endpoints || !endpoints.length) {
-      return;
-    }
-    const list = endpoints.map((item) => {
-      const result = /** @type ApiSummaryEndpoint */ ({
-        name: this._getValue(item, this.ns.aml.vocabularies.core.name),
-        path: this._getValue(item, this.ns.aml.vocabularies.apiContract.path),
-        id: item['@id'],
-        ops: this[endpointOperations](item),
-      });
-      return result;
-    });
-    this[endpointsValue] = list;
   }
 
   /**
-   * @param {EndPoint} endpoint
-   * @returns {ApiSummaryOperation[]|undefined} 
+   * Queries the API store for the API summary object.
    */
-  [endpointOperations](endpoint) {
-    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation);
-    const so = this._ensureArray(endpoint[key]);
-    if (!so || !so.length) {
-      return undefined;
+  async [queryServers]() {
+    this[serversValue] = undefined;
+    try {
+      const info = await ServerEvents.query(this);
+      this[serversValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API servers: ${e.message}`, this.localName);
     }
-    return so.map((item) => ({
-        id: item['@id'],
-        method: /** @type string */ (this._getValue(item, this.ns.aml.vocabularies.apiContract.method)),
-      }));
+  }
+
+  /**
+   * Logic executed after the summary is requested from the store.
+   */
+  async [processSummary]() {
+    this[isAsyncValue] = undefined;
+    const { summary } = this;
+    if (!summary) {
+      return;
+    }
+    this[isAsyncValue] = summary.types.includes(ns.aml.vocabularies.apiContract.AsyncAPI);
+  }
+
+  /**
+   * Queries the API endpoints and methods.
+   */
+  async [queryEndpoints]() {
+    this[endpointsValue] = undefined;
+    try {
+      const info = await EndpointEvents.list(this);
+      this[endpointsValue] = info;
+    } catch (e) {
+      TelemetryEvents.exception(this, e.message, false);
+      ReportingEvents.error(this, e, `Unable to query for API endpoints: ${e.message}`, this.localName);
+    }
   }
 
   /**
@@ -191,15 +207,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     if (!data.id || !data.shapeType) {
       return;
     }
-    const ev = new CustomEvent('api-navigation-selection-changed', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        selected: data.id,
-        type: data.shapeType,
-      }
-    });
-    this.dispatchEvent(ev);
+    NavigationEvents.apiNavigate(this, data.id, /** @type SelectionType */ (data.shapeType), data.parent);
   }
 
   render() {
@@ -232,7 +240,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     return html`
     <div class="api-title" role="heading" aria-level="${titleLevel}" part="api-title">
       <label part="api-title-label">API title:</label>
-      <span>${summary.name}</span>
+      <span class="text-selectable">${summary.name}</span>
     </div>`;
   }
 
@@ -247,7 +255,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     return html`
     <p class="inline-description version" part="api-version">
       <label>Version:</label>
-      <span>${summary.version}</span>
+      <span class="text-selectable">${summary.version}</span>
     </p>`;
   }
 
@@ -299,7 +307,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     const uri = UrlLib.computeApiBaseUri({ baseUri, server, protocols, });
     const { description } = server;
     return html`
-    <li>
+    <li class="text-selectable">
       ${uri}
       ${description ? html`<arc-marked .markdown=${description} class="server-description"></arc-marked>` : ''}
     </li>`;
@@ -313,7 +321,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     if (!summary || !summary.schemes || !summary.schemes.length) {
       return '';
     }
-    const result = summary.schemes.map((item) => html`<span class="chip">${item}</span>`);
+    const result = summary.schemes.map((item) => html`<span class="chip text-selectable">${item}</span>`);
 
     return html`
     <label class="section">Supported protocols</label>
@@ -327,16 +335,16 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     }
     const { name='', email, url } = summary.provider;
     const link = url ? sanitizeHTML(
-      `<a href="${url}" target="_blank" class="app-link provider-url">${url}</a>`,
-    ) : 'undefined';
+      `<a href="${url}" target="_blank" class="app-link provider-url text-selectable">${url}</a>`,
+    ) : '';
     return html`
     <section role="contentinfo" class="docs-section" part="info-section">
       <label class="section">Contact information</label>
       <p class="inline-description" part="info-inline-desc">
-        <span class="provider-name">${name}</span>
-        ${email ? html`<a class="app-link link-padding provider-email" href="mailto:${email}">${email}</a>` : ''}
+        <span class="provider-name text-selectable">${name}</span>
+        ${email ? html`<a class="app-link link-padding provider-email text-selectable" href="mailto:${email}">${email}</a>` : ''}
       </p>
-      ${url ? html` <p class="inline-description" part="info-inline-desc">${unsafeHTML(link)}</p>` : ''}
+      ${url ? html` <p class="inline-description text-selectable" part="info-inline-desc">${unsafeHTML(link)}</p>` : ''}
     </section>`;
   }
 
@@ -350,7 +358,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
       return '';
     }
     const link = sanitizeHTML(
-      `<a href="${url}" target="_blank" class="app-link">${name}</a>`,
+      `<a href="${url}" target="_blank" class="app-link text-selectable">${name}</a>`,
     );
     return html`
     <section aria-labelledby="licenseLabel" class="docs-section" part="license-section">
@@ -370,7 +378,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     <section aria-labelledby="tocLabel" class="docs-section">
       <label class="section" id="tocLabel">Terms of service</label>
       <arc-marked .markdown="${summary.termsOfService}" sanitize>
-        <div slot="markdown-html" class="markdown-body"></div>
+        <div slot="markdown-html" class="markdown-body text-selectable"></div>
       </arc-marked>
     </section>`;
   }
@@ -379,7 +387,7 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     if (this.hideToc) {
       return '';
     }
-    const endpoints = /** @type {ApiSummaryEndpoint[]} */ (this[endpointsValue]);
+    const endpoints = /** @type {ApiEndPointWithOperationsListItem[]} */ (this[endpointsValue]);
     if (!endpoints || !endpoints.length) {
       return '';
     }
@@ -395,11 +403,12 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   }
 
   /**
-   * @param {ApiSummaryEndpoint} item
+   * @param {ApiEndPointWithOperationsListItem} item
    * @returns {TemplateResult} 
    */
   [endpointTemplate](item) {
-    const ops = item.ops && item.ops.length ? item.ops.map((op) => this[methodTemplate](op, item)) : '';
+    const { operations=[] } = item;
+    const ops = operations.length ? operations.map((op) => this[methodTemplate](op, item)) : '';
     return html`
     <div class="endpoint-item" @click="${this[navigateHandler]}" @keydown="${() => {}}">
       ${item.name ? this[endpointNameTemplate](item) : this[endpointPathTemplate](item)}
@@ -410,22 +419,22 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   }
 
   /**
-   * @param {ApiSummaryEndpoint} item
+   * @param {ApiEndPointWithOperationsListItem} item
    * @returns {TemplateResult} 
    */
   [endpointPathTemplate](item) {
     return html`
     <a
-      class="endpoint-path"
+      class="endpoint-path text-selectable"
       href="#${item.path}"
       data-id="${item.id}"
-      data-shape-type="endpoint"
+      data-shape-type="resource"
       title="Open endpoint documentation">${item.path}</a>
     `;
   }
 
   /**
-   * @param {ApiSummaryEndpoint} item
+   * @param {ApiEndPointWithOperationsListItem} item
    * @returns {TemplateResult|string} 
    */
   [endpointNameTemplate](item) {
@@ -434,18 +443,18 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
     }
     return html`
     <a
-      class="endpoint-path"
+      class="endpoint-path text-selectable"
       href="#${item.path}"
       data-id="${item.id}"
-      data-shape-type="endpoint"
+      data-shape-type="resource"
       title="Open endpoint documentation">${item.name}</a>
     <p class="endpoint-path-name">${item.path}</p>
     `;
   }
 
   /**
-   * @param {ApiSummaryOperation} item
-   * @param {ApiSummaryEndpoint} endpoint
+   * @param {ApiOperationListItem} item
+   * @param {ApiEndPointWithOperationsListItem} endpoint
    * @returns {TemplateResult} 
    */
   [methodTemplate](item, endpoint) {
@@ -455,7 +464,8 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
         class="method-label"
         data-method="${item.method}"
         data-id="${item.id}"
-        data-shape-type="method"
+        data-shape-type="operation"
+        data-parent="${endpoint.id}"
         title="Open method documentation">${item.method}</a>
     `;
   }

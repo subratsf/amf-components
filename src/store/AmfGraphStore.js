@@ -1,7 +1,7 @@
-import { v4 } from '@advanced-rest-client/uuid-generator/main.js';
+import { v4 } from '@advanced-rest-client/uuid';
 import { AmfStore } from './AmfStore.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
 
 /**
  * The AMF graph store that hosts multiple instances of the AMF graph model.
@@ -10,9 +10,13 @@ import { AmfStore } from './AmfStore.js';
  * with the store (like HTTP or WS).
  */
 export class AmfGraphStore {
-  constructor() {
+  /**
+   * @param {EventTarget=} target The event target to dispatch the events on.
+   */
+  constructor(target=window) {
     /** @type {Map<string, AmfStore>} */
     this.apis = new Map();
+    this.target = target;
   }
 
   /**
@@ -22,7 +26,7 @@ export class AmfGraphStore {
    */
   async add(graph) {
     const id = v4();
-    const instance = new AmfStore(graph);
+    const instance = new AmfStore(this.target, graph);
     this.apis.set(id, instance);
     return id;
   }

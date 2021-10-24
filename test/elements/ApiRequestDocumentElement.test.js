@@ -1,29 +1,30 @@
 import { fixture, assert, nextFrame, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-request-document.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
+import '../../define/api-request-document.js';
 
 /** @typedef {import('../../').ApiRequestDocumentElement} ApiRequestDocumentElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').Request} Request */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/api').ApiRequest} ApiRequest */
 
 describe('ApiRequestDocumentElement', () => {
   const loader = new AmfLoader();
+  const store = new DomEventsAmfStore(window);
+  store.listen();
 
   /**
-   * @param {AmfDocument} amf
-   * @param {Request=} shape
+   * @param {ApiRequest=} shape
    * @param {string=} mimeType
    * @returns {Promise<ApiRequestDocumentElement>}
    */
-  async function basicFixture(amf, shape, mimeType) {
+  async function basicFixture(shape, mimeType) {
     const element = await fixture(html`<api-request-document 
       .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
-      .domainModel="${shape}"
+      .request="${shape}"
       .mimeType="${mimeType}"
     ></api-request-document>`);
-    await aTimeout(0);
+    await aTimeout(1);
     return /** @type ApiRequestDocumentElement */ (element);
   }
 
@@ -33,11 +34,12 @@ describe('ApiRequestDocumentElement', () => {
       let model;
       before(async () => {
         model = await loader.getGraph(compact);
+        store.amf = model;
       });
 
       it('renders the request headers', async () => {
-        const data = loader.lookupRequest(model, '/people', 'get');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, '/people', 'get');
+        const element = await basicFixture(data);
 
         assert.isTrue(element.hasHeaders, 'hasHeaders is true');
 
@@ -49,8 +51,8 @@ describe('ApiRequestDocumentElement', () => {
       });
 
       it('ignores headers section when no headers', async () => {
-        const data = loader.lookupRequest(model, '/messages', 'get');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, '/messages', 'get');
+        const element = await basicFixture(data);
 
         assert.isFalse(element.hasHeaders, 'hasHeaders is true');
 
@@ -64,19 +66,20 @@ describe('ApiRequestDocumentElement', () => {
       let model;
       before(async () => {
         model = await loader.getGraph(compact);
+        store.amf = model;
       });
 
       it('renders the payload schema', async () => {
-        const data = loader.lookupRequest(model, '/people', 'post');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, '/people', 'post');
+        const element = await basicFixture(data);
 
         const node = element.shadowRoot.querySelector('api-payload-document');
         assert.ok(node, 'has the payload document');
       });
 
       it('ignores the payload when not defined', async () => {
-        const data = loader.lookupRequest(model, '/people', 'get');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, '/people', 'get');
+        const element = await basicFixture(data);
 
         const node = element.shadowRoot.querySelector('api-payload-document');
         assert.notOk(node);
@@ -88,11 +91,12 @@ describe('ApiRequestDocumentElement', () => {
       let model;
       before(async () => {
         model = await loader.getGraph(compact);
+        store.amf = model;
       });
 
       it('renders the request media type selector', async () => {
-        const data = loader.lookupRequest(model, '/people', 'put');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, '/people', 'put');
+        const element = await basicFixture(data);
 
         const section = element.shadowRoot.querySelector('.params-section[data-controlled-by="payloadOpened"]');
         const selector = section.querySelector('.media-type-selector');
@@ -103,8 +107,8 @@ describe('ApiRequestDocumentElement', () => {
       });
 
       it('ignores the media type when not defined', async () => {
-        const data = loader.lookupRequest(model, '/orgs/{orgId}', 'put');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, '/orgs/{orgId}', 'put');
+        const element = await basicFixture(data);
 
         const section = element.shadowRoot.querySelector('.params-section[data-controlled-by="payloadOpened"]');
         const selector = section.querySelector('.media-type-selector');
@@ -112,8 +116,8 @@ describe('ApiRequestDocumentElement', () => {
       });
 
       it('selecting a mime type changes the payload', async () => {
-        const data = loader.lookupRequest(model, '/people', 'put');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, '/people', 'put');
+        const element = await basicFixture(data);
 
         const section = element.shadowRoot.querySelector('.params-section[data-controlled-by="payloadOpened"]');
         const selector = section.querySelector('.media-type-selector');
@@ -133,11 +137,12 @@ describe('ApiRequestDocumentElement', () => {
       let model;
       before(async () => {
         model = await loader.getGraph(compact, 'APIC-463');
+        store.amf = model;
       });
 
       it('renders the request media type selector', async () => {
-        const data = loader.lookupRequest(model, '/test', 'post');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, '/test', 'post');
+        const element = await basicFixture(data);
 
         const section = element.shadowRoot.querySelector('.params-section[data-controlled-by="payloadOpened"]');
         const selector = section.querySelector('.media-type-selector');
@@ -155,11 +160,12 @@ describe('ApiRequestDocumentElement', () => {
       let model;
       before(async () => {
         model = await loader.getGraph(compact, 'anyOf');
+        store.amf = model;
       });
 
       it('renders the documentation for anyOf type', async () => {
-        const data = loader.lookupRequest(model, 'test', 'publish');
-        const element = await basicFixture(model, data);
+        const data = loader.getRequest(model, 'test', 'publish');
+        const element = await basicFixture(data);
         const doc = element.shadowRoot.querySelector('api-payload-document');
         assert.ok(doc);
       });

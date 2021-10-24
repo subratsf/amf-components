@@ -1,4 +1,5 @@
 import { ApiConsoleRequest, ApiConsoleResponse, AbortRequestEventDetail } from '../types';
+import { ApiRequest } from '../helpers/api';
 
 /**
  * The event dispatched to transport request from the api request editor.
@@ -59,6 +60,12 @@ interface IRequestEvents {
    * @param target The node on which to dispatch the event.
    */
   apiResponseLegacy(target: EventTarget, response: ApiConsoleResponse): void;
+  /**
+   * Reads a Request from the store.
+   * @param target The node on which to dispatch the event
+   * @param id The id of the request to read.
+   */
+  get(target: EventTarget, id: string): Promise<ApiRequest>;
 }
 
 export const RequestEvents: IRequestEvents;

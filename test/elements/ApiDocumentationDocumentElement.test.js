@@ -1,41 +1,42 @@
 import { fixture, assert, html, aTimeout, nextFrame } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-documentation-document.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
+import '../../define/api-documentation-document.js';
 
 /** @typedef {import('../../').ApiDocumentationDocumentElement} ApiDocumentationDocumentElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').CreativeWork} CreativeWork */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDocumentation} ApiDocumentation */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/api').ApiDocumentation} ApiDocumentation */
 
 describe('ApiDocumentationDocumentElement', () => {
   const loader = new AmfLoader();
+  const store = new DomEventsAmfStore(window);
+  store.listen();
   const apiFile = 'documented-api';
 
   /**
-   * @param {AmfDocument} amf
-   * @param {CreativeWork} graph
+   * @param {ApiDocumentation} model
    * @returns {Promise<ApiDocumentationDocumentElement>}
    */
-  async function graphFixture(amf, graph) {
-    const element = await fixture(html`<api-documentation-document
-      .amf="${amf}"
-      .domainModel="${graph}"></api-documentation-document>`);
-    // there's a debouncer set for the domainModel change
-    await aTimeout(2);
-    await nextFrame();
+  async function graphFixture(model) {
+    const element = await fixture(html`
+    <api-documentation-document
+      .queryDebouncerTimeout="${0}"
+      .documentation="${model}"
+      ></api-documentation-document>`);
     return /** @type ApiDocumentationDocumentElement */ (element);
   }
 
   /**
-   * @param {AmfDocument} amf
    * @param {string} domainId
    * @returns {Promise<ApiDocumentationDocumentElement>}
    */
-  async function domainIdFixture(amf, domainId) {
-    const element = await fixture(html`<api-documentation-document
-      .amf="${amf}"
-      .domainId="${domainId}"></api-documentation-document>`);
+  async function domainIdFixture(domainId) {
+    const element = await fixture(html`
+    <api-documentation-document
+      .queryDebouncerTimeout="${0}"
+      .domainId="${domainId}"
+    ></api-documentation-document>`);
     // there's a debouncer set for the domainId change
     await aTimeout(2);
     await nextFrame();
@@ -49,11 +50,13 @@ describe('ApiDocumentationDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, apiFile);
+          store.amf = model;
         });
 
         it('initializes the component with the domainId', async () => {
           const docs = loader.getDocumentation(model, 'Test docs');
-          const element = await domainIdFixture(model, docs.id);
+          const element = await domainIdFixture(docs.id);
+          await nextFrame();
           const title = element.shadowRoot.querySelector('.documentation-header');
           assert.ok(title, 'has the documentation title');
           const description = element.shadowRoot.querySelector('.api-description');
@@ -61,8 +64,8 @@ describe('ApiDocumentationDocumentElement', () => {
         });
 
         it('initializes the component with the graph model', async () => {
-          const docs = loader.lookupDocumentation(model, 'Test docs');
-          const element = await graphFixture(model, docs);
+          const docs = loader.getDocumentation(model, 'Test docs');
+          const element = await graphFixture(docs);
           const title = element.shadowRoot.querySelector('.documentation-header');
           assert.ok(title, 'has the documentation title');
           const description = element.shadowRoot.querySelector('.api-description');
@@ -75,20 +78,21 @@ describe('ApiDocumentationDocumentElement', () => {
         let element;
         /** @type AmfDocument */
         let model;
-        /** @type CreativeWork */
+        /** @type ApiDocumentation */
         let docs;
 
         before(async () => {
           model = await loader.getGraph(compact, apiFile);
-          docs = loader.lookupDocumentation(model, 'Test docs');
+          store.amf = model;
+          docs = loader.getDocumentation(model, 'Test docs');
         });
 
         beforeEach(async () => {
-          element = await graphFixture(model, docs);
+          element = await graphFixture(docs);
         });
 
         it('has the #model', () => {
-          assert.typeOf(element.model, 'object');
+          assert.typeOf(element.documentation, 'object');
         });
 
         it('renders the title', () => {
@@ -108,18 +112,19 @@ describe('ApiDocumentationDocumentElement', () => {
         let element;
         /** @type AmfDocument */
         let model;
-        /** @type CreativeWork */
+        /** @type ApiDocumentation */
         let docs;
         /** @type NodeListOf<HTMLAnchorElement> */
         let anchors;
 
         before(async () => {
           model = await loader.getGraph(compact, apiFile);
-          docs = loader.lookupDocumentation(model, 'Read this!');
+          store.amf = model;
+          docs = loader.getDocumentation(model, 'Read this!');
         });
 
         beforeEach(async () => {
-          element = await graphFixture(model, docs);
+          element = await graphFixture(docs);
           anchors = element.shadowRoot.querySelectorAll('a');
         });
 

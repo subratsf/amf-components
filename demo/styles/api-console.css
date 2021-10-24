@@ -1,0 +1,132 @@
+@import url('./console-theme.css');
+
+* {
+  font-family: 'Roboto', 'Noto', sans-serif;
+  font-size: 16px;
+}
+
+html,
+body {
+  background-color: var(--secondary-background-color);
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', 'Noto', sans-serif;
+  font-size: 16px;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+h2 {
+  font-size: var(--theme-h2-font-size, 56px);
+  font-weight: var(--theme-h2-font-weight, 200);
+  color: var(--theme-h1-color, currentColor);
+}
+
+h2.title {
+  font-size: 1.25rem;
+  line-height: 2rem;
+  font-weight: 500;
+}
+
+header {
+  height: 64px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: var(--api-console-toolbar-background-color, #212121);
+  color: var(--api-console-toolbar-color, #fff);
+}
+
+header.tall {
+  height: 128px;
+  align-items: flex-end;
+}
+
+nav {
+  background-color: var(--api-navigation-background-color, #fff);
+  color: var(--api-navigation-color, initial);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px #e5e5e5 solid;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--secondary-background-color, #ffffff);
+  height: 100%;
+  overflow: auto;
+  padding: 00px 24px;
+  margin: 40px 0;
+}
+
+.menu-divider {
+  margin: 8px 0;
+  height: 1px;
+  background-color: var(--api-divider-color);
+}
+
+.page {
+  flex: 1;
+}
+
+.header-menu {
+  margin-left: auto;
+}
+
+.title-line {
+  padding: 60px 0;
+  margin: 0;
+  text-align: center;
+}
+
+.title-line h2 {
+  font-size: var(--theme-h2-font-size, 56px);
+  font-weight: var(--theme-h2-font-weight, 200);
+  color: var(--theme-h1-color, currentColor);
+}
+
+.api-selector .api-list {
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app-loader {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+api-navigation {
+  flex: 1;
+  width: 256px;
+}
+
+api-documentation {
+  max-width: 1900px;
+}

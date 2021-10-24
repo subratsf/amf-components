@@ -3,28 +3,26 @@
 import { LitElement, html } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
-import { ApiExampleGenerator } from '@api-components/api-schema';
-import '@anypoint-web-components/anypoint-button/anypoint-button.js';
-import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
+import { EventsTargetMixin } from  '@anypoint-web-components/awc';
+import '@anypoint-web-components/awc/anypoint-button.js';
+import '@anypoint-web-components/awc/anypoint-collapse.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import '@advanced-rest-client/highlight/arc-marked.js';
-import '../../api-annotation-document.js';
+import { ApiExampleGenerator } from '../schema/ApiExampleGenerator.js';
+import { EventTypes } from '../events/EventTypes.js';
+import '../../define/api-annotation-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiCustomDomainProperty} ApiCustomDomainProperty */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiExample} ApiExample */
-/** @typedef {import('@api-components/api-schema').SchemaExample} SchemaExample */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiCustomDomainProperty} ApiCustomDomainProperty */
+/** @typedef {import('../helpers/api').ApiExample} ApiExample */
+/** @typedef {import('../types').SchemaExample} SchemaExample */
 
 export const sectionToggleClickHandler = Symbol('sectionToggleClickHandler');
 export const processDebounce = Symbol('queryDebounce');
 export const debounceValue = Symbol('debounceValue');
 export const domainIdValue = Symbol('domainIdValue');
-export const domainModelValue = Symbol('domainModelValue');
-export const serializerValue = Symbol('domainIdValue');
 export const clickHandler = Symbol('clickHandler');
 export const descriptionTemplate = Symbol('descriptionTemplate');
 export const sectionToggleTemplate = Symbol('sectionToggleTemplate');
@@ -36,11 +34,12 @@ export const exampleTemplate = Symbol('exampleTemplate');
 export const examplesValue = Symbol('examplesValue');
 export const evaluateExamples = Symbol('evaluateExamples');
 export const evaluateExample = Symbol('evaluateExample');
+export const graphChangeHandler = Symbol('graphChangeHandler');
 
 /**
  * A base class for the documentation components with common templates and functions.
  */
-export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
+export class ApiDocumentationBase extends EventsTargetMixin(LitElement) {
   /** 
    * @returns {string|undefined} The domain id of the object to render.
    */
@@ -63,28 +62,6 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
     }
   }
 
-  /** 
-   * @returns {DomainElement|undefined} The domain object read from the AMF graph model.
-   */
-  get domainModel() {
-    return this[domainModelValue];
-  }
-
-  /** 
-   * @returns {DomainElement|undefined} The domain object read from the AMF graph model.
-   */
-  set domainModel(value) {
-    const old = this[domainModelValue];
-    if (old === value) {
-      return;
-    }
-    this[domainModelValue] = value;
-    this.requestUpdate('domainModel', old);
-    if (value) {
-      this[processDebounce]();
-    }
-  }
-
   static get properties() {
     return {
       /** 
@@ -92,7 +69,7 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
        */
       domainId: { type: String, reflect: true },
       /** 
-       * Enabled compatibility with the Anypoint platform.
+       * Enables Anypoint platform styles.
        */
       anypoint: { type: Boolean, reflect: true },
     };
@@ -104,22 +81,15 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
      * The timeout after which the `queryGraph()` function is called 
      * in the debouncer.
      */
-    this.queryDebouncerTimeout = 2;
+    this.queryDebouncerTimeout = 1;
     /** @type {boolean} */
     this.anypoint = undefined;
     /**
      * @type {SchemaExample[]}
      */
     this[examplesValue] = undefined;
-    this[serializerValue] = new AmfSerializer();
-  }
 
-  /**
-   * @param {AmfDocument} amf 
-   */
-  __amfChanged(amf) {
-    this[serializerValue].amf = amf;
-    this[processDebounce]();
+    this[graphChangeHandler] = this[graphChangeHandler].bind(this);
   }
 
   connectedCallback() {
@@ -135,6 +105,29 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
       clearTimeout(this[debounceValue]);
       this[debounceValue] = undefined;
     }
+  }
+
+  /**
+     * @param {EventTarget} node
+     */
+  _attachListeners(node) {
+    node.addEventListener(EventTypes.Store.graphChange, this[graphChangeHandler]);
+    super._attachListeners(node);
+  }
+
+  /**
+   * @param {EventTarget} node
+   */
+  _detachListeners(node) {
+    node.removeEventListener(EventTypes.Store.graphChange, this[graphChangeHandler]);
+    super._detachListeners(node);
+  }
+
+  /**
+   * Handler for the event dispatched by the store when the graph model change.
+   */
+  [graphChangeHandler]() {
+    this[processDebounce]();
   }
 
   /**
@@ -237,7 +230,7 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
   [sectionToggleTemplate](ctrlProperty) {
     const label = this[ctrlProperty] ? 'Hide' : 'Show';
     return html`
-    <anypoint-button class="section-toggle" ?compatibility="${this.anypoint}">
+    <anypoint-button class="section-toggle" ?anypoint="${this.anypoint}">
       ${label} <arc-icon icon="keyboardArrowDown" class="toggle-icon"></arc-icon>
     </anypoint-button>
     `;
@@ -280,7 +273,6 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
   [schemaItemTemplate](model, dataName) {
     return html`
     <api-parameter-document 
-      .amf="${this.amf}" 
       .parameter="${model}" 
       class="property-item"
       data-name="${ifDefined(dataName)}"
@@ -304,7 +296,7 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
         sanitize
         @click="${this[clickHandler]}"
       >
-        <div slot="markdown-html" class="markdown-body"></div>
+        <div slot="markdown-html" class="markdown-body text-selectable"></div>
       </arc-marked>
     </div>`;
   }
@@ -353,8 +345,8 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
     <details class="schema-example">
       <summary>Example${label ? `: ${label}` : ''}</summary>
       <div class="example-content">
-        ${description ? html`<div class="example-description">${description}</div>` : ''}
-        <pre class="code-value"><code>${renderValue}</code></pre>
+        ${description ? html`<div class="example-description text-selectable">${description}</div>` : ''}
+        <pre class="code-value text-selectable"><code>${renderValue}</code></pre>
       </div>
     </details>
     `;

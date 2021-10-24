@@ -121,4 +121,12 @@ export default css`
 .example-description {
   margin: 12px 0;
 }
+
+.text-selectable {
+  user-select: text;
+}
+
+.markdown-body {
+  color: var(--api-description-color, rgba(0, 0, 0, 0.74));
+}
 `;

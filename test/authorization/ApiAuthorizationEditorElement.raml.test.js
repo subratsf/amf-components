@@ -1,20 +1,20 @@
 import { html, fixture, assert, nextFrame } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from "../AmfLoader.js";
-import '../../api-authorization-editor.js';
+import '../../define/api-authorization-editor.js';
 import { methodsValue } from '../../src/elements/ApiAuthorizationEditorElement.js';
 
 /** @typedef {import('../../index').ApiAuthorizationEditorElement} ApiAuthorizationEditorElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth1Authorization} OAuth1Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.DigestAuthorization} DigestAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.PassThroughAuthorization} PassThroughAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('@advanced-rest-client/events').Authorization.BasicAuthorization} BasicAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2Authorization} OAuth2Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth1Authorization} OAuth1Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.DigestAuthorization} DigestAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.BearerAuthorization} BearerAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.PassThroughAuthorization} PassThroughAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
 
 describe('ApiAuthorizationEditorElement', () => {
   /**
@@ -443,7 +443,7 @@ describe('ApiAuthorizationEditorElement', () => {
         });
 
         it('marks invalid when no token', async () => {
-          const security = await getSecurityRequirement(model, '/oauth2', 'post');
+          const security = getSecurityRequirement(model, '/oauth2', 'post');
           const element = await basicFixture(model, security);
 
           const form = element.shadowRoot.querySelector('api-authorization-method');
@@ -458,7 +458,7 @@ describe('ApiAuthorizationEditorElement', () => {
         });
 
         it('respects delivery method (query)', async () => {
-          const security = await getSecurityRequirement(model, '/oauth2-query-delivery', 'get');
+          const security = getSecurityRequirement(model, '/oauth2-query-delivery', 'get');
           const element = await basicFixture(model, security);
 
           const form = element.shadowRoot.querySelector('api-authorization-method');
@@ -476,7 +476,7 @@ describe('ApiAuthorizationEditorElement', () => {
         });
 
         it('respects delivery method (header)', async () => {
-          const security = await getSecurityRequirement(model, '/oauth2-header-delivery', 'get');
+          const security = getSecurityRequirement(model, '/oauth2-header-delivery', 'get');
           const element = await basicFixture(model, security);
 
           const form = element.shadowRoot.querySelector('api-authorization-method');
@@ -494,7 +494,7 @@ describe('ApiAuthorizationEditorElement', () => {
         });
 
         it('uses default delivery', async () => {
-          const security = await getSecurityRequirement(model, '/oauth2-no-delivery', 'get');
+          const security = getSecurityRequirement(model, '/oauth2-no-delivery', 'get');
           const element = await basicFixture(model, security);
 
           const form = element.shadowRoot.querySelector('api-authorization-method');

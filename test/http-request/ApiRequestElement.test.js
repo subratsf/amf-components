@@ -1,76 +1,85 @@
-import { fixture, assert, html, nextFrame } from '@open-wc/testing';
+import { fixture, assert, html, nextFrame, aTimeout } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-request.js';
+import '../../define/api-request.js';
 import { loadMonaco } from '../MonacoSetup.js';
 import { EventTypes } from '../../src/events/EventTypes.js';
+import { NavigationEvents } from '../../src/events/NavigationEvents.js';
 import { propagateResponse, responseHandler } from '../../src/elements/ApiRequestElement.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../../').ApiRequestElement} ApiRequestElement */
 /** @typedef {import('../../').ApiRequestEditorElement} ApiRequestEditorElement */
 /** @typedef {import('../../src/types').ApiConsoleResponse} ApiConsoleResponse */
 
 describe('ApiRequestElement', () => {
+  const store = new DomEventsAmfStore(window);
+  store.listen();
+
   /** @type AmfLoader */
-  let store;
+  let loader;
   before(async () => {
     await loadMonaco();
-    store = new AmfLoader();
+    loader = new AmfLoader();
   });
 
   /**
-   * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function basicFixture(model, selected) {
-    return fixture(html`<api-request .amf="${model}" .selected="${selected}"></api-request>`);
+  async function basicFixture(domainId) {
+    const element = /** @type ApiRequestElement */ (await fixture(html`<api-request .domainId="${domainId}"></api-request>`));
+    await aTimeout(2);
+    return element;
   }
 
   /**
-   * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function proxyFixture(model, selected) {
-    return fixture(
-      html`<api-request .amf="${model}" .selected="${selected}" proxy="https://proxy.domain.com/"></api-request>`
-    );
+  async function proxyFixture(domainId) {
+    const element = /** @type ApiRequestElement */ (await fixture(
+      html`<api-request .domainId="${domainId}" proxy="https://proxy.domain.com/"></api-request>`
+    ));
+    await aTimeout(2);
+    return element;
   }
 
   /**
-   * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function proxyEncFixture(model, selected) {
-    return fixture(html`<api-request
-      .amf="${model}"
-      .selected="${selected}"
-      proxy="https://proxy.domain.com/"
-      proxyEncodeUrl></api-request>`);
+  async function proxyEncFixture(domainId) {
+    const element = /** @type ApiRequestElement */ (await fixture(html`<api-request
+    .domainId="${domainId}"
+    proxy="https://proxy.domain.com/"
+    proxyEncodeUrl></api-request>`));
+    await aTimeout(2);
+    return element;
   }
 
   /**
-   * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function addHeadersFixture(model, selected) {
+  async function addHeadersFixture(domainId) {
     const headers = [{"name": "x-test", "value": "header-value"}];
-    return fixture(html`<api-request .amf="${model}" .selected="${selected}" .appendHeaders="${headers}"></api-request>`);
+    const element = /** @type ApiRequestElement */ (await fixture(html`<api-request .domainId="${domainId}" .appendHeaders="${headers}"></api-request>`));
+    await aTimeout(2);
+    return element;
   }
 
   /**
-   * @param {AmfDocument=} model
-   * @param {string=} selected
+   * @param {string=} domainId
    * @returns {Promise<ApiRequestElement>}
    */
-  async function navigationFixture(model, selected) {
-    return fixture(
-      html`<api-request .amf="${model}" .selected="${selected}" handleNavigationEvents></api-request>`
-    );
+  async function navigationFixture(domainId) {
+    const element = /** @type ApiRequestElement */ (await fixture(
+      html`<api-request .domainId="${domainId}" handleNavigationEvents></api-request>`
+    ));
+    await aTimeout(2);
+    return element;
   }
 
   function appendRequestData(element, request={}) {
@@ -82,7 +91,8 @@ describe('ApiRequestElement', () => {
     /** @type AmfDocument */
     let model;
     before(async () => {
-      model = await store.getGraph(true);
+      model = await loader.getGraph(true);
+      store.amf = model;
     });
 
     it('can be constructed with document.createElement', () => {
@@ -91,13 +101,13 @@ describe('ApiRequestElement', () => {
     });
 
     it('hasResponse is false', async () => {
-      const element = await basicFixture(model);
+      const element = await basicFixture();
       assert.isFalse(element.hasResponse);
     });
 
     it('api-request is dispatched', async () => {
-      const method = store.lookupOperation(model, '/people', 'get');
-      const element = await basicFixture(model, method['@id']);
+      const method = loader.lookupOperation(model, '/people', 'get');
+      const element = await basicFixture(method['@id']);
       appendRequestData(element);
       const spy = sinon.spy();
       element.addEventListener('api-request', spy);
@@ -111,12 +121,13 @@ describe('ApiRequestElement', () => {
     /** @type AmfDocument */
     let model;
     before(async () => {
-      model = await store.getGraph(true);
+      model = await loader.getGraph(true);
+      store.amf = model;
     });
 
     it('changes URL in the api request event', async () => {
-      const method = store.lookupOperation(model, '/people', 'get');
-      const element = await proxyFixture(model, method['@id']);
+      const method = loader.lookupOperation(model, '/people', 'get');
+      const element = await proxyFixture(method['@id']);
       const editor = element.shadowRoot.querySelector('api-request-editor');
 
       const spy = sinon.spy();
@@ -130,8 +141,8 @@ describe('ApiRequestElement', () => {
     });
 
     it('encodes the original URL', async () => {
-      const method = store.lookupOperation(model, '/people', 'get');
-      const element = await proxyEncFixture(model, method['@id']);
+      const method = loader.lookupOperation(model, '/people', 'get');
+      const element = await proxyEncFixture(method['@id']);
       appendRequestData(element);
       const spy = sinon.spy();
       element.addEventListener(EventTypes.Request.apiRequest, spy);
@@ -149,12 +160,13 @@ describe('ApiRequestElement', () => {
     /** @type AmfDocument */
     let model;
     before(async () => {
-      model = await store.getGraph(true);
+      model = await loader.getGraph(true);
+      store.amf = model;
     });
 
     it('adds headers to the request', async () => {
-      const method = store.lookupOperation(model, '/people', 'get');
-      const element = await addHeadersFixture(model, method['@id']);
+      const method = loader.lookupOperation(model, '/people', 'get');
+      const element = await addHeadersFixture(method['@id']);
       const spy = sinon.spy();
       element.addEventListener(EventTypes.Request.apiRequest, spy);
       const editor = element.shadowRoot.querySelector('api-request-editor');
@@ -163,8 +175,8 @@ describe('ApiRequestElement', () => {
     });
 
     it('replaces headers in the request', async () => {
-      const method = store.lookupOperation(model, '/people', 'get');
-      const element = await addHeadersFixture(model, method['@id']);
+      const method = loader.lookupOperation(model, '/people', 'get');
+      const element = await addHeadersFixture(method['@id']);
       appendRequestData(element, {
         headers: 'x-test: other-value',
       });
@@ -216,7 +228,7 @@ describe('ApiRequestElement', () => {
 
     it('Changing selection clears response', () => {
       propagate(element);
-      element.selected = 'test';
+      element.domainId = 'test';
       assert.isUndefined(element.request);
       assert.isUndefined(element.response);
     });
@@ -236,30 +248,16 @@ describe('ApiRequestElement', () => {
       element = await navigationFixture();
     });
 
-    function dispatch(selected, type) {
-      // eslint-disable-next-line no-param-reassign
-      type = type || 'method';
-      document.body.dispatchEvent(
-        new CustomEvent('api-navigation-selection-changed', {
-          detail: {
-            selected,
-            type,
-          },
-          bubbles: true,
-        })
-      );
-    }
-
-    it('Sets "selected" when type is "method"', () => {
+    it('sets the "domainId" when the domainType is "operation"', () => {
       const id = '%2Ftest-parameters%2F%7Bfeature%7D/get';
-      dispatch(id);
-      assert.equal(element.selected, id);
+      NavigationEvents.apiNavigate(document.body, id, 'operation');
+      assert.equal(element.domainId, id);
     });
 
-    it('"selected" is undefined when type is not "method"', () => {
+    it('"does not set the "domainId" when type is not "operation"', () => {
       const id = '%2Ftest-parameters%2F%7Bfeature%7D';
-      dispatch(id, 'endpoint');
-      assert.isUndefined(element.selected);
+      NavigationEvents.apiNavigate(document.body, id, 'resource');
+      assert.isUndefined(element.domainId);
     });
   });
 
@@ -316,23 +314,24 @@ describe('ApiRequestElement', () => {
     /** @type AmfDocument */
     let model;
     before(async () => {
-      model = await store.getGraph(true);
+      model = await loader.getGraph(true);
+      store.amf = model;
     });
 
     it('dispatches the change event when the selected change', async () => {
-      const method = store.lookupOperation(model, '/people', 'get');
-      const panel = await basicFixture(model, method['@id']);
+      const method = loader.lookupOperation(model, '/people', 'get');
+      const panel = await basicFixture(method['@id']);
       const spy = sinon.spy();
       panel.addEventListener('change', spy);
-      const other = store.lookupOperation(model, '/people', 'post');
-      panel.selected = other['@id'];
-      await nextFrame();
+      const other = loader.lookupOperation(model, '/people', 'post');
+      panel.domainId = other['@id'];
+      await aTimeout(2);
       assert.isTrue(spy.called);
     });
 
     it('dispatches the change event when a value change', async () => {
-      const method = store.lookupOperation(model, '/people', 'get');
-      const panel = await basicFixture(model, method['@id']);
+      const method = loader.lookupOperation(model, '/people', 'get');
+      const panel = await basicFixture(method['@id']);
       const spy = sinon.spy();
       panel.addEventListener('change', spy);
       const editor = panel.shadowRoot.querySelector('api-request-editor');
@@ -348,12 +347,13 @@ describe('ApiRequestElement', () => {
     /** @type AmfDocument */
     let model;
     before(async () => {
-      model = await store.getGraph(true);
+      model = await loader.getGraph(true);
+      store.amf = model;
     });
 
     it('serializes the current request', async () => {
-      const method = store.lookupOperation(model, '/people', 'get');
-      const panel = await basicFixture(model, method['@id']);
+      const method = loader.lookupOperation(model, '/people', 'get');
+      const panel = await basicFixture(method['@id']);
       const result = panel.serialize();
       assert.include(result.url, '/people');
     });

@@ -1,31 +1,28 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
+import '@anypoint-web-components/awc/anypoint-radio-button.js';
+import '@anypoint-web-components/awc/anypoint-radio-group.js';
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiRequest.js';
 import { 
   ApiDocumentationBase, 
   paramsSectionTemplate, 
   schemaItemTemplate,
-  // descriptionTemplate,
-  // customDomainPropertiesTemplate,
-  serializerValue,
 } from './ApiDocumentationBase.js';
 import { QueryParameterProcessor } from '../lib/QueryParameterProcessor.js';
-import '../../api-payload-document.js';
-import '../../api-parameter-document.js';
+import { Events } from '../events/Events.js';
+import '../../define/api-payload-document.js';
+import '../../define/api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiRequest} ApiRequest */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').Request} Request */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
+/** @typedef {import('../helpers/api').ApiRequest} ApiRequest */
+/** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('@anypoint-web-components/awc').AnypointRadioGroupElement} AnypointRadioGroupElement */
 /** @typedef {import('../types').OperationParameter} OperationParameter */
 
 export const queryRequest = Symbol('queryRequest');
@@ -204,8 +201,6 @@ export default class ApiRequestDocumentElement extends ApiDocumentationBase {
     this.cookiesOpened = undefined;
     /** @type {boolean} */
     this.parametersOpened = undefined;
-    /** @type {Request} */
-    this.domainModel = undefined;
     /** @type {ApiServer} */
     this.server = undefined;
     /** @type {ApiEndPoint} */
@@ -218,15 +213,36 @@ export default class ApiRequestDocumentElement extends ApiDocumentationBase {
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel } = this;
-    if (domainModel) {
-      this[requestValue] = this[serializerValue].request(domainModel);
-    }
     this.mimeType = undefined;
+    await this[queryRequest]();
     await this[queryPayloads]();
     await this[processQueryParameters]();
     this[preselectMime]();
     await this.requestUpdate();
+  }
+
+  /**
+   * Queries the store for the request data, when needed.
+   * @returns {Promise<void>}
+   */
+  async [queryRequest]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[requestValue] = undefined;
+      return;
+    }
+    if (this[requestValue] && this[requestValue].id === domainId) {
+      // in case the request model was provided via the property setter.
+      return;
+    }
+    try {
+      const info = await Events.Request.get(this, domainId);
+      this[requestValue] = info;
+    } catch (e) {
+      this[requestValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API request data: ${e.message}`, this.localName);
+    }
   }
 
   async [queryPayloads]() {
@@ -378,7 +394,7 @@ export default class ApiRequestDocumentElement extends ApiDocumentationBase {
     }
     const content = html`
     ${this[payloadSelectorTemplate]()}
-    <api-payload-document .amf="${this.amf}" .payload="${payload}" ?anypoint="${this.anypoint}"></api-payload-document>
+    <api-payload-document .domainId="${payload.id}" .payload="${payload}" ?anypoint="${this.anypoint}"></api-payload-document>
     `;
     return this[paramsSectionTemplate]('Request body', 'payloadOpened', content);
   }

@@ -1,11 +1,25 @@
-import { CSSResult, TemplateResult } from 'lit-element';
-import { ResponseViewElement } from '@advanced-rest-client/arc-response';
-import { ArcExportFilesystemEvent } from '@advanced-rest-client/arc-events';
+import { TemplateResult } from 'lit-element';
+import { ResponseViewElement } from '@advanced-rest-client/app';
+import { ArcExportFilesystemEvent } from '@advanced-rest-client/events';
 
 export declare const saveFileHandler: unique symbol;
 
 export declare class ApiResponseViewElement extends ResponseViewElement {
-  get styles(): CSSResult;
+  /** 
+   * Whether the response details view is opened.
+   * @attribute
+   */
+  details: boolean;
+  /** 
+   * Whether the source ("raw") view is opened.
+   * @attribute
+   */
+  source: boolean;
+  /**
+   * Enables Anypoint platform styles.
+   * @attribute
+   */
+  anypoint: boolean;
 
   constructor();
 

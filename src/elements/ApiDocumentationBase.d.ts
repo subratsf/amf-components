@@ -1,14 +1,13 @@
 import { LitElement, TemplateResult } from 'lit-element';
-import { AmfHelperMixin, AmfSerializer, DomainElement, ApiParameter, ApiCustomDomainProperty, ApiExample } from '@api-components/amf-helper-mixin';
-import { SchemaExample } from '@api-components/api-schema';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
+import { ApiParameter, ApiCustomDomainProperty, ApiExample } from '../helpers/api';
+import { SchemaExample } from '../types';
 
 export declare const sectionToggleClickHandler: unique symbol;
 export declare const processDebounce: unique symbol;
 export declare const queryDebounce: unique symbol;
 export declare const debounceValue: unique symbol;
 export declare const domainIdValue: unique symbol;
-export declare const serializerValue: unique symbol;
-export declare const domainModelValue: unique symbol;
 export declare const sectionToggleTemplate: unique symbol;
 export declare const paramsSectionTemplate: unique symbol;
 export declare const schemaItemTemplate: unique symbol;
@@ -23,14 +22,14 @@ export declare const evaluateExample: unique symbol;
 /**
  * A base class for the documentation components with common templates and functions.
  */
-export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
+export class ApiDocumentationBase extends EventsTargetMixin(LitElement) {
   /** 
    * The domain id of the object to render.
    * @attribute
    */
   domainId: string;
   /** 
-   * Enabled compatibility with the Anypoint platform.
+   * Enables Anypoint platform styles.
    * @attribute
    */
   anypoint: boolean;
@@ -39,13 +38,6 @@ export class ApiDocumentationBase extends AmfHelperMixin(LitElement) {
    * in the debouncer.
    */
   queryDebouncerTimeout: number;
-  [serializerValue]: AmfSerializer;
-
-  /** 
-   * The domain object read from the AMF graph model.
-   */
-  domainModel: DomainElement|undefined;
-  [domainModelValue]: DomainElement|undefined;
 
   [examplesValue]: SchemaExample[];
 

@@ -2,12 +2,13 @@
 import { html } from 'lit-html';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@api-components/api-navigation/api-navigation.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-schema-document.js';
+import '../define/api-schema-document.js';
+import '../define/api-navigation.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
+/** @typedef {import('../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {
@@ -29,10 +30,10 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive } = e.detail;
+    const { domainId, domainType, passive } = e.detail;
     if (passive) {
       return;
     }
@@ -42,10 +43,10 @@ class ComponentPage extends AmfDemoBase {
     this.mediaTypes = undefined;
     this.mediaType = undefined;
 
-    if (type === 'type') {
-      this.setTypeData(selected);
-    } else if (type === 'method') {
-      this.setBodyData(selected);
+    if (domainType === 'schema') {
+      this.setTypeData(domainId);
+    } else if (domainType === 'operation') {
+      this.setBodyData(domainId);
     }
   }
 
@@ -65,7 +66,7 @@ class ComponentPage extends AmfDemoBase {
     const webApi = this._computeWebApi(this.amf);
     const method = this._computeMethodModel(webApi, id);
     const expects = this._computeExpects(method);
-    const payload = /** @type DomainElement */ (expects ? this._computePayload(expects)[0] : {});
+    const payload = /** @type DomainElement */ (expects ? expects[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)][0] : {});
     const mt = this._getValue(payload, this.ns.aml.vocabularies.core.mediaType);
     const key = this._getAmfKey(this.ns.aml.vocabularies.shapes.schema);
     let schema = payload && payload[key];
@@ -123,7 +124,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   _componentTemplate() {
-    const { demoStates, darkThemeActive, selectedId, amf, forceExamples, shape, mediaType, noReadOnly } = this;
+    const { demoStates, darkThemeActive, selectedId, forceExamples, shape, mediaType, noReadOnly } = this;
     if (!selectedId && !shape) {
       return html`<p>Select API object in the navigation</p>`;
     }
@@ -135,8 +136,7 @@ class ComponentPage extends AmfDemoBase {
     >
       <api-schema-document 
         slot="content"
-        .amf="${amf}"
-        .domainModel="${shape}"
+        .domainId="${shape['@id']}"
         domainId="${ifDefined(selectedId)}"
         mimeType="${ifDefined(mediaType)}"
         ?forceExamples="${forceExamples}"

@@ -1,12 +1,12 @@
 import { fixture, assert, aTimeout, nextFrame, html } from '@open-wc/testing';
-import { oauth2GrantTypes } from '@advanced-rest-client/authorization/src/lib/ui/OAuth2.js'
+import { oauth2GrantTypes } from '@advanced-rest-client/app/src/elements/authorization/ui/OAuth2.js'
 import { AmfLoader } from "../AmfLoader.js";
-import '../../api-authorization-method.js';
+import '../../define/api-authorization-method.js';
 
 /** @typedef {import('../../').ApiAuthorizationMethodElement} ApiAuthorizationMethodElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('../../src/helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('@anypoint-web-components/awc').AnypointInputElement} AnypointInput */
 
 describe('OAuth 2', () => {
   /**
@@ -83,38 +83,38 @@ describe('OAuth 2', () => {
     });
 
     it('selects first available grant type', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2-with-grant-list', 'get');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2-with-grant-list', 'get');
       const element = await methodFixture(model, scheme);
       assert.equal(element.grantType, 'authorization_code');
     });
 
     it('sets authorizationUri', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2', 'post');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2', 'post');
       const element = await methodFixture(model, scheme);
       assert.equal(element.authorizationUri, 'https://auth.com');
     });
 
     it('sets accessTokenUri', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2', 'post');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2', 'post');
       const element = await methodFixture(model, scheme);
       assert.equal(element.accessTokenUri, 'https://token.com');
     });
 
     it('sets scopes', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2', 'post');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2', 'post');
       const element = await methodFixture(model, scheme);
       assert.deepEqual(element.scopes, ['profile', 'email']);
     });
 
     it('automatically hides advanced properties when filled', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2', 'post');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2', 'post');
       const element = await methodFixture(model, scheme);
       const node = element.shadowRoot.querySelector('.advanced-section');
       assert.isTrue(node.hasAttribute('hidden'));
     });
 
     it('should not show pkce checkbox if selected grant type is not authorization_code', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2', 'post');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2', 'post');
       const element = await methodFixture(model, scheme);
       /* Default grant type selected is Access Token for this endpoint */
       /* Check it just in case */
@@ -127,7 +127,7 @@ describe('OAuth 2', () => {
     });
 
     it('should show pkce checkbox unchecked by default in advanced settings with authorization_code selected', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2', 'post');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2', 'post');
       const element = await methodFixture(model, scheme);
       element.grantType = 'authorization_code';
       const node = /** @type HTMLInputElement */ (element.shadowRoot.querySelector('.adv-toggle anypoint-switch'));
@@ -141,28 +141,28 @@ describe('OAuth 2', () => {
     const customSelector = '[data-binding="authQuery"],[data-binding="tokenQuery"],[data-binding="tokenHeader"],[data-binding="tokenBody"]';
 
     it('does not render annotation inputs when are not defined', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2', 'post');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2', 'post');
       const element = await methodFixture(model, scheme);
       const node = element.shadowRoot.querySelector(customSelector);
       assert.notOk(node);
     });
 
     it('renders annotation inputs when defined', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2-with-annotations', 'get');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2-with-annotations', 'get');
       const element = await methodFixture(model, scheme);
       const nodes = element.shadowRoot.querySelectorAll(customSelector);
       assert.lengthOf(nodes, 8);
     });
 
     it('sets oauthDeliveryMethod to header when available', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2-header-delivery', 'get');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2-header-delivery', 'get');
       const element = await methodFixture(model, scheme);
       assert.equal(element.oauthDeliveryMethod, 'header');
-      assert.equal(element.oauthDeliveryName, 'token');
+      assert.equal(element.oauthDeliveryName, 'authorization');
     });
 
     it('sets oauthDeliveryMethod to query when available', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2-query-delivery', 'get');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2-query-delivery', 'get');
       const element = await methodFixture(model, scheme);
 
       assert.equal(element.oauthDeliveryMethod, 'query');
@@ -170,7 +170,7 @@ describe('OAuth 2', () => {
     });
 
     it('sets default oauthDeliveryMethod', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2-no-delivery', 'get');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2-no-delivery', 'get');
       const element = await methodFixture(model, scheme);
 
       assert.equal(element.oauthDeliveryMethod, 'header');
@@ -178,7 +178,7 @@ describe('OAuth 2', () => {
     });
 
     it('resets state when incompatible settings', async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/basic', 'get');
+      const scheme = getApiParametrizedSecurityScheme('/basic', 'get');
       const element = await methodFixture(model, scheme);
       assert.deepEqual(element.grantTypes, oauth2GrantTypes, 'grant types are set');
       assert.equal(element.oauthDeliveryMethod, 'header', 'oauthDeliveryMethod is set');
@@ -191,7 +191,7 @@ describe('OAuth 2', () => {
     let element;
 
     beforeEach(async () => {
-      const scheme = await getApiParametrizedSecurityScheme('/oauth2-with-annotations', 'get');
+      const scheme = getApiParametrizedSecurityScheme('/oauth2-with-annotations', 'get');
       element = await methodFixture(model, scheme);
       element.grantType = 'authorization_code';
       await nextFrame();

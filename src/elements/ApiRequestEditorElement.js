@@ -16,25 +16,22 @@ the License.
 */
 import { html, LitElement } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map.js';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
-import { TelemetryEvents, RequestEventTypes } from '@advanced-rest-client/arc-events';
-import { v4 } from '@advanced-rest-client/uuid-generator';
-import { HeadersParser } from '@advanced-rest-client/arc-headers';
-import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import '@api-components/api-server-selector/api-server-selector.js';
-import '@advanced-rest-client/body-editor/body-formdata-editor.js';
-import '@advanced-rest-client/body-editor/body-multipart-editor.js';
-import '@advanced-rest-client/body-editor/body-raw-editor.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
-import '@anypoint-web-components/anypoint-switch/anypoint-switch.js';
-import { ifProperty } from "@advanced-rest-client/body-editor";
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
+import { RequestEventTypes } from '@advanced-rest-client/events';
+import { v4 } from '@advanced-rest-client/uuid';
+import { HeadersParser, ifProperty } from '@advanced-rest-client/app';
+import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import '@anypoint-web-components/awc/anypoint-item-body.js';
+import '@anypoint-web-components/awc/anypoint-radio-button.js';
+import '@anypoint-web-components/awc/anypoint-radio-group.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import '@anypoint-web-components/awc/anypoint-switch.js';
+import '@advanced-rest-client/app/define/body-formdata-editor.js';
+import '@advanced-rest-client/app/define/body-multipart-editor.js';
+import '@advanced-rest-client/app/define/body-raw-editor.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import elementStyles from './styles/Editor.styles.js';
 import { ensureContentType, generateHeaders } from "../lib/Utils.js";
 import { cachePayloadValue, getPayloadValue, readCachePayloadValue } from "../lib/PayloadUtils.js";
@@ -43,26 +40,27 @@ import { SecurityProcessor } from '../lib/SecurityProcessor.js';
 import { AmfParameterMixin } from '../lib/AmfParameterMixin.js';
 import { AmfInputParser } from '../lib/AmfInputParser.js';
 import * as InputCache from '../lib/InputCache.js';
-import { RequestEvents } from '../events/RequestEvents.js';
+import { Events } from '../events/Events.js';
 import { EventTypes } from '../events/EventTypes.js';
-import '../../api-authorization-editor.js';
+import '../../define/api-authorization-editor.js';
+import '../../define/api-server-selector.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
-/** @typedef {import('@advanced-rest-client/authorization').Oauth2Credentials} Oauth2Credentials */
-/** @typedef {import('@advanced-rest-client/body-editor').BodyRawEditorElement} BodyRawEditorElement */
-/** @typedef {import('@advanced-rest-client/body-editor').BodyFormdataEditorElement} BodyFormdataEditorElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiOperation} ApiOperation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
-/** @typedef {import('@api-components/amf-helper-mixin').Operation} Operation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
-/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioGroupElement} AnypointRadioGroupElement */
-/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */
+/** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
+/** @typedef {import('@advanced-rest-client/app').BodyRawEditorElement} BodyRawEditorElement */
+/** @typedef {import('@advanced-rest-client/app').BodyFormdataEditorElement} BodyFormdataEditorElement */
+/** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
+/** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../helpers/amf').Operation} Operation */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
+/** @typedef {import('@anypoint-web-components/awc').AnypointRadioGroupElement} AnypointRadioGroupElement */
+/** @typedef {import('@anypoint-web-components/awc').AnypointInputElement} AnypointInput */
 /** @typedef {import('../elements/ApiAuthorizationEditorElement').default} ApiAuthorizationEditorElement */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 /** @typedef {import('../types').PopulationInfo} PopulationInfo */
@@ -74,7 +72,6 @@ export const EventCategory = 'API Request editor';
 export const domainIdValue = Symbol('domainIdValue');
 export const operationValue = Symbol('currentModel');
 export const endpointValue = Symbol('endpointValue');
-export const serializerValue = Symbol('serializerValue');
 export const loadingRequestValue = Symbol('loadingRequestValue');
 export const requestIdValue = Symbol('requestIdValue');
 export const baseUriValue = Symbol('baseUriValue');
@@ -84,15 +81,12 @@ export const processOperation = Symbol('processOperation');
 export const processEndpoint = Symbol('processEndpoint');
 export const processSecurity = Symbol('processSecurity');
 export const processPayload = Symbol('processPayload');
-export const processServers = Symbol('processServers');
 export const appendToParams = Symbol('appendToParams');
 export const securityList = Symbol('securityList');
 export const updateServer = Symbol('updateServer');
 export const updateServerParameters = Symbol('updateServerParameters');
 export const updateEndpointParameters = Symbol('updateEndpointParameters');
-export const computeMethodAmfModel = Symbol('computeMethodAmfModel');
 export const computeUrlValue = Symbol('computeUrlValue');
-export const processSelection = Symbol('processSelection');
 export const getOrderedPathParams = Symbol('getOrderedPathParams');
 export const validateUrl = Symbol('validateUrl');
 export const readUrlValidity = Symbol('readUrlValidity');
@@ -134,8 +128,19 @@ export const urlSearchRegexpValue = Symbol('urlSearchRegexpValue');
 export const applyUriValues = Symbol('applyUriValues');
 export const applyQueryParamsValues = Symbol('applyQueryParamsValues');
 export const orderPathParameters = Symbol('orderPathParameters');
+export const queryOperation = Symbol('queryOperation');
+export const queryEndpoint = Symbol('queryEndpoint');
+export const queryServers = Symbol('queryServers');
+export const queryProtocols = Symbol('queryProtocols');
+export const protocolsValue = Symbol('protocolsValue');
+export const serversValue = Symbol('serversValue');
+export const queryVersion = Symbol('queryVersion');
+export const versionValue = Symbol('versionValue');
+export const graphChangeHandler = Symbol('graphChangeHandler');
+export const debounceValue = Symbol('debounceValue');
+export const processDebounce = Symbol('processDebounce');
 
-export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelperMixin(EventsTargetMixin(LitElement))) {
+export default class ApiRequestEditorElement extends AmfParameterMixin(EventsTargetMixin(LitElement)) {
   get styles() {
     return [
       elementStyles,
@@ -149,10 +154,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
        */
       mimeType: { type: String, reflect: true, },
       /**
-       * An `@id` of selected AMF shape. When changed it computes
-       * method model for the selection.
+       * The domain id (AMF's id) of an API operation.
        */
-      selected: { type: String },
+      domainId: { type: String },
       /**
        * When set it renders a label with the computed URL.
        */
@@ -180,9 +184,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
        */
       allowCustom: { type: Boolean },
       /**
-       * Enables compatibility with Anypoint styling
+       * Enables Anypoint platform styles.
        */
-      compatibility: { type: Boolean, reflect: true },
+      anypoint: { type: Boolean, reflect: true },
       /**
        * Enables Material Design outlined style
        */
@@ -254,28 +258,54 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
        * These values are stored in memory only. Listen to the `change` event to learn that something changed.
        */
       globalCache: { type: Boolean, reflect: true },
+      /** 
+       * Optional. The parent endpoint id. When set it uses this value to query for the endpoint
+       * instead of querying for a parent through the operation id.
+       * Also, when `endpoint` is set and the `endpointId` match then it ignores querying for 
+       * the endpoint.
+       */
+      endpointId: { type: String },
     };
   }
 
   /**
    * @returns {string} The domain id (AMF id) of the rendered operation.
    */
-  get selected() {
+  get domainId() {
     return this[domainIdValue];
   }
 
   /**
    * @param {string} value The domain id (AMF id) of the rendered operation.
    */
-  set selected(value) {
+  set domainId(value) {
     const old = this[domainIdValue];
     /* istanbul ignore if */
     if (old === value) {
       return;
     }
     this[domainIdValue] = value;
-    this.requestUpdate('selected', old);
-    this[processSelection]();
+    this.requestUpdate('domainId', old);
+    this[processDebounce]();
+  }
+
+  /**
+   * @returns {ApiEndPoint|undefined}
+   */
+  get endpoint() {
+    return this[endpointValue];
+  }
+
+  /**
+   * @param {ApiEndPoint} value
+   */
+  set endpoint(value) {
+    const old = this[endpointValue];
+    if (old === value) {
+      return;
+    }
+    this[endpointValue] = value;
+    this.requestUpdate();
     this.readUrlData();
     this.notifyChange();
   }
@@ -323,6 +353,13 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     this[baseUriValue] = value;
     this.readUrlData();
     this.requestUpdate('baseUri', old);
+  }
+
+  /**
+   * @returns {ApiServer[]|undefined} The computed list of servers.
+   */
+  get servers() {
+    return this[serversValue];
   }
 
   /**
@@ -431,10 +468,29 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   }
 
   /**
+   * @returns {string[]|undefined} The API's protocols.
+   */
+  get protocols() {
+    return this[protocolsValue];
+  }
+
+  /**
+   * @returns {string|undefined} The API's version.
+   */
+  get version() {
+    return this[versionValue];
+  }
+
+  /**
    * @constructor
    */
   constructor() {
     super();
+    /** 
+     * The timeout after which the `queryGraph()` function is called 
+     * in the debouncer.
+     */
+    this.queryDebouncerTimeout = 1;
     this[responseHandler] = this[responseHandler].bind(this);
     this[authRedirectChangedHandler] = this[authRedirectChangedHandler].bind(this);
     this[populateAnnotatedFieldsHandler] = this[populateAnnotatedFieldsHandler].bind(this);
@@ -446,7 +502,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     /** @type boolean */
     this.outlined = undefined;
     /** @type boolean */
-    this.compatibility = undefined;
+    this.anypoint = undefined;
     /** @type boolean */
     this.noServerSelector = undefined;
     /** @type boolean */
@@ -479,7 +535,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
      */
     this[securityList] = undefined;
     /** @type ApiServer[] */
-    this.servers = undefined;
+    this[serversValue] = undefined;
     /** @type ApiServer */
     this[serverLocalValue] = undefined;
     /** @type boolean */
@@ -488,9 +544,6 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     this.globalCache = undefined;
     /** @type string */
     this.mimeType = undefined;
-    /** @type AmfSerializer */
-    this[serializerValue] = new AmfSerializer();
-
     // for the AmfParameterMixin
     this.target = this;
     /**
@@ -509,7 +562,10 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
      * @type {string[]}
      */
     this.openedOptional = [];
+    /** @type {string} */
+    this.endpointId = undefined;
     InputCache.registerLocal(this);
+    this[graphChangeHandler] = this[graphChangeHandler].bind(this);
   }
 
   // for the AmfParameterMixin
@@ -517,10 +573,24 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     this.dispatchEvent(new Event('change'));
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    this[processDebounce]();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this[debounceValue]) {
+      clearTimeout(this[debounceValue]);
+      this[debounceValue] = undefined;
+    }
+  }
+
   /**
    * @param {EventTarget} node
    */
   _attachListeners(node) {
+    node.addEventListener(EventTypes.Store.graphChange, this[graphChangeHandler]);
     node.addEventListener(EventTypes.Request.apiResponse, this[responseHandler]);
     node.addEventListener(EventTypes.Request.apiResponseLegacy, this[responseHandler]);
     node.addEventListener(EventTypes.Request.redirectUriChange, this[authRedirectChangedHandler]);
@@ -528,12 +598,14 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     node.addEventListener(EventTypes.Request.populateAnnotatedFields, this[populateAnnotatedFieldsHandler]);
     node.addEventListener(EventTypes.Request.populateAnnotatedFieldsLegacy, this[populateAnnotatedFieldsHandler]);
     this.addEventListener(RequestEventTypes.send, this[internalSendHandler]);
+    super._attachListeners(node);
   }
 
   /**
    * @param {EventTarget} node
    */
   _detachListeners(node) {
+    node.removeEventListener(EventTypes.Store.graphChange, this[graphChangeHandler]);
     node.removeEventListener(EventTypes.Request.apiResponse, this[responseHandler]);
     node.removeEventListener(EventTypes.Request.apiResponseLegacy, this[responseHandler]);
     node.removeEventListener(EventTypes.Request.redirectUriChange, this[authRedirectChangedHandler]);
@@ -541,19 +613,27 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     node.removeEventListener(EventTypes.Request.populateAnnotatedFields, this[populateAnnotatedFieldsHandler]);
     node.removeEventListener(EventTypes.Request.populateAnnotatedFieldsLegacy, this[populateAnnotatedFieldsHandler]);
     this.removeEventListener(RequestEventTypes.send, this[internalSendHandler]);
+    super._detachListeners(node);
   }
 
   /**
-   * Overrides `AmfHelperMixin.__amfChanged`.
-   * It updates selection and clears cache in the model generator, per APIC-229
-   * @param {any} amf 
+   * Handler for the event dispatched by the store when the graph model change.
    */
-  __amfChanged(amf) {
-    this[serializerValue].amf = amf;
-    this[processServers]();
-    this[processSelection]();
-    this.readUrlData();
-    this.notifyChange();
+  [graphChangeHandler]() {
+    this[processDebounce]()
+  }
+
+  /**
+   * Calls the `queryGraph()` function in a debouncer.
+   */
+  [processDebounce]() {
+    if (this[debounceValue]) {
+      clearTimeout(this[debounceValue]);
+    }
+    this[debounceValue] = setTimeout(() => {
+      this[debounceValue] = undefined;
+      this.processGraph();
+    }, this.queryDebouncerTimeout);
   }
 
   /**
@@ -595,14 +675,14 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * Computes the URL value for the current serves, selected server, and endpoint's path.
    */
   [computeUrlValue]() {
-    const { effectiveBaseUri, server } = this;
-    const wa = this._computeWebApi(this.amf);
-    const schemes = /** @type string[] */ (this._getValueArray(wa, this.ns.aml.vocabularies.apiContract.scheme));
+    const { effectiveBaseUri, server, protocols, version } = this;
+    const endpoint = this[endpointValue];
     const result = computeEndpointUri({
       baseUri: effectiveBaseUri, 
       server, 
-      endpoint: this[endpointValue], 
-      protocols: schemes,
+      endpoint, 
+      protocols,
+      version,
       forceHttpProtocol: true,
     });
     const params = this.parametersValue.map(p => p.parameter);
@@ -676,42 +756,122 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     this.parametersValue = /** @type {OperationParameter[]} */ ([]);
   }
 
-  [processSelection]() {
-    const { amf, selected } = this;
-    if (!amf || !selected) {
-      this.reset();
-      return;
-    }
-    const model = this[computeMethodAmfModel](amf, selected);
-    if (!model) {
-      this.reset();
-      return;
-    }
-    const operation = this[serializerValue].operation(model);
-    this[operationValue] = operation;
-    this[processServers]();
+  /**
+   * Processes the selection of the domain id for an operation.
+   */
+  async processGraph() {
+    await this[queryEndpoint]();
+    await this[queryOperation]();
+    await this[queryServers]();
+    await this[queryProtocols]();
     this[processEndpoint]();
     this[processOperation]();
     this[processSecurity]();
     this[processPayload]();
+    this[computeUrlValue]();
+    this.readUrlData();
+    this.notifyChange();
+  }
+
+  /**
+   * Queries the store for the operation data, when needed.
+   * @returns {Promise<void>}
+   */
+  async [queryOperation]() {
+    const { domainId } = this;
+    if (!domainId || domainId === 'undefined') {
+      // this[operationValue] = undefined;
+      return;
+    }
+    if (this[operationValue] && this[operationValue].id === domainId) {
+      // in case the operation model was provided via the property setter.
+      return;
+    }
+    try {
+      const endpointId = this[endpointValue] && this[endpointValue].id;
+      const info = await Events.Operation.get(this, domainId, endpointId);
+      this[operationValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API operation data: ${e.message}`, this.localName);
+    }
+  }
+
+  /**
+   * Queries the store for the endpoint data.
+   * @returns {Promise<void>}
+   */
+  async [queryEndpoint]() {
+    const { domainId, endpointId } = this;
+    if (!domainId || domainId === 'undefined') {
+      // this[endpointValue] = undefined;
+      return;
+    }
+    if (this[endpointValue] && this[endpointValue].id === endpointId) {
+      // in case the endpoint model was provided via the property setter.
+      return;
+    }
+    this[endpointValue] = undefined;
+    try {
+      const info = await (endpointId ? Events.Endpoint.get(this, endpointId) : Events.Operation.getParent(this, domainId));
+      this[endpointValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API endpoint data: ${e.message}`, this.localName);
+    }
+  }
+
+  /**
+   * Queries for the current servers value.
+   */
+  async [queryServers]() {
+    const { domainId } = this;
+    const endpointId = this[endpointValue] && this[endpointValue].id;
+    try {
+      const info = await Events.Server.query(this, {
+        endpointId,
+        methodId: domainId,
+      });
+      this[serversValue] = info || undefined;
+    } catch (e) {
+      this[serversValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API servers: ${e.message}`, this.localName);
+    }
+  }
+
+  /**
+   * Queries the API store for the API protocols list.
+   */
+  async [queryProtocols]() {
+    this[protocolsValue] = undefined;
+    try {
+      const info = await Events.Api.protocols(this);
+      this[protocolsValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API protocols list: ${e.message}`, this.localName);
+    }
+  }
+
+  /**
+   * Queries the API store for the API version value.
+   */
+  async [queryVersion]() {
+    this[versionValue] = undefined;
+    try {
+      const info = await Events.Api.version(this);
+      this[versionValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API version value: ${e.message}`, this.localName);
+    }
   }
 
   /**
    * Searches for the current operation endpoint and sets variables from the endpoint definition.
    */
   [processEndpoint]() {
-    const { amf, selected } = this;
-    if (!selected) {
-      this[endpointValue] = undefined;
-      this[updateEndpointParameters]();
-      this[computeUrlRegexp]();
-      return;
-    }
-    const wa = this._computeWebApi(amf);
-    const model = this._computeMethodEndpoint(wa, this.selected);
-    const factory = new AmfSerializer(amf);
-    const endpoint = factory.endPoint(model);
-    this[endpointValue] = endpoint;
     this[updateEndpointParameters]();
     this[computeUrlRegexp]();
   }
@@ -724,6 +884,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     const operation = this[operationValue];
     // clears previously set request parameters (query, path, headers)
     this.parametersValue = this.parametersValue.filter(item => item.source !== source);
+    if (!operation) {
+      return;
+    }
     const { request } = operation;
     if (!request) {
       return;
@@ -756,6 +919,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    */
   [processSecurity]() {
     const operation = this[operationValue];
+    if (!operation) {
+      return;
+    }
     const { security } = operation;
     this[securityList] = SecurityProcessor.readSecurityList(security);
     this.selectedSecurity = 0;
@@ -766,6 +932,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    */
   [processPayload]() {
     const operation = this[operationValue];
+    if (!operation) {
+      return;
+    }
     const { request } = operation;
     if (!request) {
       return;
@@ -852,48 +1021,6 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   }
 
   /**
-   * Computes the list of servers to be rendered by this operation.
-   * This should be called after the `[processEndpoint]()` function, when the 
-   * endpoint model is set.
-   */
-  [processServers]() {
-    const { selected: methodId } = this;
-    const endpoint = this[endpointValue];
-    const endpointId = endpoint ? endpoint.id : '';
-    const servers = this._getServers({ endpointId, methodId });
-    if (Array.isArray(servers)) {
-      this.servers = servers.map(s => this[serializerValue].server(s));
-    } else {
-      this.servers = undefined;
-    }
-  }
-
-  /**
-   * @param {any} model
-   * @param {string} selected
-   * @returns {Operation|undefined} AMF graph model for an operation
-   */
-  [computeMethodAmfModel](model, selected) {
-    if (!model || !selected) {
-      return undefined;
-    }
-    let api = model;
-    if (Array.isArray(api)) {
-      [api] = api;
-    }
-    if (this._hasType(api, this.ns.aml.vocabularies.document.Document)) {
-      const webApi = this._computeWebApi(api);
-      return this._computeMethodModel(webApi, selected);
-    }
-    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation);
-    const methods = this._ensureArray(api[key]);
-    if (!methods) {
-      return undefined;
-    }
-    return methods.find((item) => item['@id'] === selected);
-  }
-
-  /**
    * Handles send button click.
    * Depending on authorization validity it either sends the
    * request or forces authorization and sends the request.
@@ -939,9 +1066,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     this[requestIdValue] = uuid;
     request.id = uuid;
     this[loadingRequestValue] = true;
-    RequestEvents.apiRequest(this, request);
-    RequestEvents.apiRequestLegacy(this, request);
-    TelemetryEvents.event(this, {
+    Events.Request.apiRequest(this, request);
+    Events.Request.apiRequestLegacy(this, request);
+    Events.Telemetry.event(this, {
       category: EventCategory,
       action: 'request-execute',
       label: 'true'
@@ -959,9 +1086,9 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
       url: this.url,
       id: this.requestId,
     };
-    RequestEvents.abortApiRequest(this, detail);
-    RequestEvents.abortApiRequestLegacy(this, detail);
-    TelemetryEvents.event(this, {
+    Events.Request.abortApiRequest(this, detail);
+    Events.Request.abortApiRequestLegacy(this, detail);
+    Events.Telemetry.event(this, {
       category: EventCategory,
       action: 'request-abort',
       label: 'true'
@@ -986,7 +1113,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   serialize() {
     const op = this[operationValue];
     if (!op) {
-      throw new Error(`No API is operation defined on the editor`);
+      throw new Error(`No API operation defined on the editor`);
     }
     const method = (op.method || 'get').toUpperCase();
     const params = [];
@@ -998,14 +1125,11 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
       params.push(parameter);
     });
     const report = AmfInputParser.reportRequestInputs(params, InputCache.getStore(this, this.globalCache), this.nilValues);
-
-    const wa = this._computeWebApi(this.amf);
-    const schemes = /** @type string[] */ (this._getValueArray(wa, this.ns.aml.vocabularies.apiContract.scheme));
     const serverUrl = computeEndpointUri({
       baseUri: this.effectiveBaseUri, 
       server: this.server, 
       endpoint: this[endpointValue], 
-      protocols: schemes,
+      protocols: this.protocols,
       forceHttpProtocol: true,
     });
     let url = applyUrlVariables(serverUrl, report.path, true);
@@ -1129,6 +1253,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     this.serverType = type;
     this.serverValue = value;
     this[updateServer]();
+    this[computeUrlRegexp]();
   }
 
   /**
@@ -1407,7 +1532,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     if (!urlLabel) {
       return '';
     }
-    return html`<div class="url-label" title="Current request URL">${url}</div>`;
+    return html`<div class="url-label text-selectable" title="Current request URL">${url}</div>`;
   }
 
   [authorizationTemplate]() {
@@ -1415,16 +1540,15 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     if (!security) {
       return '';
     }
-    const { selectedSecurity = 0, amf, compatibility, outlined, redirectUri, credentialsSource, globalCache } = this;
+    const { selectedSecurity = 0, anypoint, outlined, redirectUri, credentialsSource, globalCache } = this;
     const rendered = security[selectedSecurity];
     return html`
     <section class="authorization params-section">
       <div class="section-title"><span class="label">Credentials</span></div>
       ${security.length > 1 ? this[authorizationSelectorTemplate](security, selectedSecurity) : ''}
       <api-authorization-editor 
-        .amf="${amf}"
         .security="${rendered.security}"
-        .compatibility="${compatibility}"
+        .anypoint="${anypoint}"
         .outlined="${outlined}"
         .oauth2RedirectUri="${redirectUri}"
         .credentialsSource="${credentialsSource}"
@@ -1439,18 +1563,18 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * @returns {TemplateResult} The template for the security drop down selector.
    */
   [authorizationSelectorTemplate](security, selected) {
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html`
     <anypoint-dropdown-menu
       name="selected"
-      .compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       class="auth-selector"
     >
       <label slot="label">Authorization method</label>
       <anypoint-listbox slot="dropdown-content"
         .selected="${selected}"
-        @selected-changed="${this[authSelectorHandler]}"
-        .compatibility="${compatibility}"
+        @selectedchange="${this[authSelectorHandler]}"
+        .anypoint="${anypoint}"
         attrForItemTitle="data-label"
       >
         ${security.map((item) => this[authorizationSelectorItemTemplate](item))}
@@ -1470,7 +1594,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
     const single = !type;
     return html`
     <anypoint-item
-      .compatibility="${this.compatibility}"
+      ?anypoint="${this.anypoint}"
       data-label="${label}"
     >
       <anypoint-item-body ?twoline="${!single}">
@@ -1496,12 +1620,12 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * @return {TemplateResult}
    */
   [abortButtonTemplate]() {
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html`
     <anypoint-button
       class="send-button abort"
       emphasis="high"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       @click="${this[abortHandler]}"
     >Abort</anypoint-button>`;
   }
@@ -1513,13 +1637,13 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    */
   [sendButtonTemplate]() {
     const {
-      compatibility,
+      anypoint,
     } = this;
     return html`
     <anypoint-button
       class="send-button"
       emphasis="high"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       @click="${this[sendHandler]}"
     >Send</anypoint-button>`;
   }
@@ -1529,26 +1653,24 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    */
   [serverSelectorTemplate]() {
     const {
-      amf,
       serverType,
       serverValue,
       allowCustomBaseUri,
       outlined,
-      compatibility,
+      anypoint,
       serverSelectorHidden,
-      selected,
+      domainId,
     } = this;
     return html`
     <api-server-selector
       ?hidden="${serverSelectorHidden}"
       ?allowCustom="${allowCustomBaseUri}"
-      .amf="${amf}"
       .value="${serverValue}"
       .type="${serverType}"
-      .selectedShape="${selected}"
-      selectedShapeType="method"
+      .domainId="${domainId}"
+      domainType="operation"
       autoSelect
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       @serverscountchanged="${this[serverCountHandler]}"
       @apiserverchanged="${this[serverHandler]}"
@@ -1793,7 +1915,7 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
         required
         invalidMessage="The URL is invalid"
         .value="${url}"
-        ?compatibility="${this.compatibility}"
+        ?anypoint="${this.anypoint}"
         ?outlined="${this.outlined}"
         @change="${this[urlEditorChangeHandler]}"
         @blur="${this[validateUrl]}"

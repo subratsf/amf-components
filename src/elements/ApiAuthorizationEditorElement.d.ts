@@ -1,11 +1,7 @@
 import { TemplateResult, LitElement } from 'lit-element';
-import {
-  ApiParametrizedSecurityScheme,
-  ApiSecurityRequirement,
-  AmfDocument,
-} from '@api-components/amf-helper-mixin';
-import { Oauth2Credentials } from '@advanced-rest-client/authorization';
-import { RequestAuthorization } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
+import { ApiParametrizedSecurityScheme, ApiSecurityRequirement, } from '../helpers/api';
+import { Oauth2Credentials } from '@advanced-rest-client/app';
+import { RequestAuthorization } from '@advanced-rest-client/events/src/request/ArcRequest';
 import { default as ApiAuthorizationMethodElement } from './ApiAuthorizationMethodElement';
 
 declare interface SecurityMethods {
@@ -34,16 +30,20 @@ export const createSettings: unique symbol;
 
 export default class ApiAuthorizationEditorElement extends LitElement {
   security: ApiSecurityRequirement;
-
-  /** 
-   * The AMF graph model of the API.
+  /**
+   * Current HTTP method. Passed by digest method.
+   * @attribute
    */
-  amf: AmfDocument;
-  // Current HTTP method. Passed by digest method.
   httpMethod: string;
-  // Current request URL. Passed by digest method.
+  /**
+   * Current request URL. Passed by digest method.
+   * @attribute
+   */
   requestUrl: string;
-  // Current request body. Passed by digest method.
+  /**
+   * Current request body. Passed by digest method.
+   * @attribute
+   */
   requestBody: string;
   /**
   * Whether or not the element is invalid. The validation state changes
@@ -75,10 +75,10 @@ export default class ApiAuthorizationEditorElement extends LitElement {
   */
   oauth2AccessTokenUri: string;
   /** 
-  * Enabled compatibility with the Anypoint platform.
-  * @attribute
-  */
-  compatibility: boolean;
+   * Enables Anypoint platform styles.
+   * @attribute
+   */
+  anypoint: boolean;
   /** 
    * Enabled Material Design outlined theme
    * @attribute

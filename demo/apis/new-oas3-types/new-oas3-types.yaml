@@ -74,11 +74,11 @@ paths:
     get:
       description: Returns all available pets
       responses:
-        200:
+        '200':
           description: List of pets
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  - $ref: '#/components/schemas/Pet'
+                  $ref: '#/components/schemas/Pet'

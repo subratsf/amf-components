@@ -1,14 +1,17 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog-scrollable.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@api-components/api-server-selector/api-server-selector.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-dialog.js';
+import '@anypoint-web-components/awc/anypoint-dialog-scrollable.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-request.js';
-import '../xhr-simple-request.js';
-import '../api-documentation.js';
+import '../define/api-request.js';
+import '../define/xhr-simple-request.js';
+import '../define/api-server-selector.js';
+import '../define/api-documentation.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+/** @typedef {import('../src/types').SelectionType} SelectionType */
 
 class ComponentDemo extends AmfDemoBase {
   constructor() {
@@ -23,10 +26,10 @@ class ComponentDemo extends AmfDemoBase {
       'renderCustomServer',
     ]);
     this.componentName = 'api-documentation';
-    this.compatibility = false;
     this.editorOpened = false;
     this.editorOperation = undefined;
     this.domainId = undefined;
+    /** @type SelectionType */
     this.domainType = undefined;
     this.operationId = undefined;
     this.tryItButton = true;
@@ -40,22 +43,35 @@ class ComponentDemo extends AmfDemoBase {
     this.demoStates = ['Material', 'Anypoint'];
   }
 
+  /** @param {Event} e */
+  _apiChanged(e) {
+    this.domainId = 'summary';
+    this.domainType = 'summary';
+    super._apiChanged(e);
+  }
+
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, endpointId, passive } = e.detail;
+    const { domainId, domainType, parentId, passive } = e.detail;
     if (passive === true) {
       return;
     }
-    this.domainType = type;
-    if (type === 'method') {
-      this.operationId = selected;
-      this.domainId = endpointId;  
+    this.domainType = domainType;
+    if (domainType === 'operation') {
+      this.operationId = domainId;
+      this.domainId = parentId;  
     } else {
       this.operationId = undefined;
-      this.domainId = selected;
+      this.domainId = domainId;
     }
+
+    // 
+    // Here your application can be smart and determine
+    // the domainId and type for fragments and partial models
+    // so when the API is loaded it shows a specific value.
+    // 
   }
 
   /**
@@ -104,7 +120,7 @@ class ComponentDemo extends AmfDemoBase {
   }
 
   componentTemplate() {
-    const { demoStates, darkThemeActive, amf, } = this;
+    const { demoStates, darkThemeActive, } = this;
     let finalBaseUri;
     if (this.overrideBaseUri) {
       finalBaseUri = 'https://custom.api.com';
@@ -117,17 +133,16 @@ class ComponentDemo extends AmfDemoBase {
     >
       <api-documentation
         slot="content"
-        .amf="${amf}"
         .domainId="${this.domainId}"
         .operationId="${this.operationId}"
         .domainType="${this.domainType}"
         .redirectUri="${this.redirectUri}"
         .tryItPanel="${this.tryItPanel}"
         .tryItButton="${this.tryItButton}"
-        .httpNoServerSelector="${this.noServerSelector}"
-        .httpAllowCustomBaseUri="${this.allowCustomBaseUri}"
+        .noServerSelector="${this.noServerSelector}"
+        .allowCustomBaseUri="${this.allowCustomBaseUri}"
         .baseUri="${finalBaseUri}"
-        ?anypoint="${this.compatibility}"
+        ?anypoint="${this.anypoint}"
         @tryit="${this.tryitHandler}"
       >
         ${this._addCustomServers()}
@@ -207,6 +222,7 @@ class ComponentDemo extends AmfDemoBase {
       ['SE-10469', 'SE-10469'],
       ['SE-11415', 'SE-11415'],
       ['async-api', 'async-api'],
+      ['APIC-711', 'APIC-711: switching to a library']
     ].forEach(([file, label]) => {
       result[result.length] = html`
       <anypoint-item data-src="models/${file}-compact.json">${label}</anypoint-item>`;
@@ -218,18 +234,18 @@ class ComponentDemo extends AmfDemoBase {
     if (!this.renderCustomServer) {
       return '';
     }
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html`
     <div class="other-section" slot="custom-base-uri">Other options</div>
     <anypoint-item
       slot="custom-base-uri"
       data-value="http://mocking.com"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
     >Mocking service</anypoint-item>
     <anypoint-item
       slot="custom-base-uri"
       data-value="http://customServer.com2"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
     >Custom instance</anypoint-item>`;
   }
 
@@ -239,9 +255,8 @@ class ComponentDemo extends AmfDemoBase {
       <h2>API request</h2>
       <anypoint-dialog-scrollable>
         <api-request
-          .amf="${this.amf}"
-          .selected="${this.editorOperation}"
-          ?compatibility="${this.compatibility}"
+          .domainId="${this.editorOperation}"
+          ?anypoint="${this.anypoint}"
           urlLabel
           applyAuthorization
           globalCache

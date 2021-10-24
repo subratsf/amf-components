@@ -36,6 +36,18 @@ export default css`
     border-bottom-left-radius: var(--property-border-width);
   }
 
+  .and-union-member:not(:last-of-type) .property-container:last-of-type .property-border {
+    align-self: stretch;
+    height: auto;
+    border-bottom-left-radius: 0;
+  }
+
+  .inheritance-label {
+    border-left: var(--property-border-width) var(--property-border-color) dashed;
+    padding: 24px 12px;
+    margin: 0;
+  }
+
   .shape-children .property-container:first-of-type .property-border {
     border-top-right-radius: var(--property-border-width);
   }

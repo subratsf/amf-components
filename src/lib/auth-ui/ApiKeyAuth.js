@@ -1,22 +1,22 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-html';
-import { ns } from '@api-components/amf-helper-mixin';
+import { ns } from '../../helpers/Namespace.js';
 import ApiUiBase from './ApiUiBase.js';
 import * as InputCache from '../InputCache.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
+/** @typedef {import('../../helpers/api').ApiSecurityApiKeySettings} ApiSecurityApiKeySettings */
+/** @typedef {import('@advanced-rest-client/events').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
 /** @typedef {import('../../types').OperationParameter} OperationParameter */
 
 export default class ApiKeyAuth extends ApiUiBase {
   async initializeApiModel() {
-    const { amf, security } = this;
+    const { security } = this;
     const source = 'settings';
     const list = /** @type OperationParameter[] */ (this.parametersValue);
     this.parametersValue = list.filter(item => item.source !== source);
 
-    if (!amf || !security) {
+    if (!security) {
       return;
     }
     if (!security.types.includes(ns.aml.vocabularies.security.ParametrizedSecurityScheme)) {

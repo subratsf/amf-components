@@ -12,16 +12,14 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { TemplateResult, LitElement } from 'lit-element';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
-import { AmfDocument } from '@api-components/amf-helper-mixin';
-import { ArcResponse, ArcRequest, ApiTypes } from '@advanced-rest-client/arc-types';
-import { Oauth2Credentials } from '@advanced-rest-client/authorization';
-import { ServerType } from '@api-components/api-server-selector';
-import { ApiConsoleResponse, ApiConsoleRequest } from '../types';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
+import { ArcResponse, ArcRequest, ApiTypes } from '@advanced-rest-client/events';
+import { Oauth2Credentials } from '@advanced-rest-client/app';
+import { ServerType, ApiConsoleResponse, ApiConsoleRequest } from '../types';
 import { ApiRequestEvent, ApiResponseEvent } from '../events/RequestEvents';
 
-export const selectedValue: unique symbol;
-export const selectedChanged: unique symbol;
+export const domainIdValue: unique symbol;
+export const domainIdChanged: unique symbol;
 export const appendProxy: unique symbol;
 export const propagateResponse: unique symbol;
 export const responseHandler: unique symbol;
@@ -37,78 +35,73 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
    * True when the panel render the response.
    */
   get hasResponse(): boolean;
-
   /**
-   * The `amf` property that passes amf model to the request editor.
+  * The domain id (AMF's id) of an API operation.
+  * @attribute
+  */
+  domainId: string;
+  [domainIdValue]: string;
+  /**
+   * By default application hosting the element must set `domainId`
+   * property. When using `api-navigation` element
+   * by setting this property the element listens for navigation events
+   * and updates the state
+   * @attribute
    */
-  amf: AmfDocument;
-  /**
-  * AMF HTTP method (operation in AMF vocabulary) ID.
-  * @attribute
-  */
-  selected: string;
-  [selectedValue]: string;
-  /**
-  * By default application hosting the element must set `selected`
-  * property. When using `api-navigation` element
-  * by setting this property the element listens for navigation events
-  * and updates the state
-  * @attribute
-  */
   handleNavigationEvents: boolean;
   /**
-  * When set it renders the URL input above the URL parameters.
-  * @attribute
-  */
+   * When set it renders the URL input above the URL parameters.
+   * @attribute
+   */
   urlEditor: boolean;
   /**
-  * When set it renders a label with the computed URL.
-  * @attribute
-  */
+   * When set it renders a label with the computed URL.
+   * @attribute
+   */
   urlLabel: boolean;
   /**
-  * A base URI for the API. To be set if RAML spec is missing `baseUri`
-  * declaration and this produces invalid URL input. This information
-  * is passed to the URL editor that prefixes the URL with `baseUri` value
-  * if passed URL is a relative URL.
-  * @attribute
-  */
+   * A base URI for the API. To be set if RAML spec is missing `baseUri`
+   * declaration and this produces invalid URL input. This information
+   * is passed to the URL editor that prefixes the URL with `baseUri` value
+   * if passed URL is a relative URL.
+   * @attribute
+   */
   baseUri: string;
   /**
-  * OAuth2 redirect URI.
-  * This value **must** be set in order for OAuth 1/2 to work properly.
-  * @attribute
-  */
+   * OAuth2 redirect URI.
+   * This value **must** be set in order for OAuth 1/2 to work properly.
+   * @attribute
+   */
   redirectUri: string;
   /**
-  * Enables compatibility with Anypoint styling
-  * @attribute
-  */
-  compatibility: boolean;
+   * Enables Anypoint platform styles.
+   * @attribute
+   */
+  anypoint: boolean;
   /**
-  * Enables Material Design outlined style
-  * @attribute
-  */
+   * Enables Material Design outlined style
+   * @attribute
+   */
   outlined: boolean;
   /**
-  * Created by the transport ARC `request` object
-  */
+   * Created by the transport ARC `request` object
+   */
   request: ArcRequest.TransportRequest;
   /**
-  * Created by the transport ARC `response` object.
-  */
-  response: ArcResponse.Response|ArcResponse.ErrorResponse;
+   * Created by the transport ARC `response` object.
+   */
+  response: ArcResponse.Response | ArcResponse.ErrorResponse;
   /**
-  * Forces the console to send headers defined in this string overriding any used defined
-  * header.
-  * This should be an array of headers with `name` and `value` keys, e.g.:
-  * ```
-  * [{
-  *   name: "x-token",
-  *   value: "value"
-  * }]
-  * ```
-  */
+   * Forces the console to send headers defined in this string overriding any used defined
+   * header.
+   * This should be an array of headers with `name` and `value` keys, e.g.:
+   * ```
+   * [{
+   *   name: "x-token",
+   *   value: "value"
+   * }]
+   * ```
+   */
   appendHeaders: ApiTypes.ApiType[];
   /**
   * If set every request made from the console will be proxied by the service provided in this
@@ -130,7 +123,6 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   * @attribute
   */
   proxyEncodeUrl: boolean;
-  
   /**
   * ID of latest request.
   * It is received from the `api-request-editor` when `api-request`
@@ -258,9 +250,9 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   [propagateResponse](data: ApiConsoleResponse): void;
 
   /**
-   * Clears response panel when selected id changed.
+   * Clears response panel when the `domainId` change.
    */
-  [selectedChanged](id: string): void;
+  [domainIdChanged](id: string): void;
 
   /**
    * Clears response panel.
@@ -289,5 +281,5 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   /**
    * @returns A template for the response view
    */
-  [responseTemplate](): TemplateResult|string;
+  [responseTemplate](): TemplateResult | string;
 }

@@ -1,18 +1,18 @@
 import { html, fixture, assert, nextFrame } from '@open-wc/testing';
 import sinon from 'sinon';
 import { AmfLoader } from "../AmfLoader.js";
-import '../../api-authorization-editor.js';
+import '../../define/api-authorization-editor.js';
 import { methodsValue } from '../../src/elements/ApiAuthorizationEditorElement.js';
 
 /** @typedef {import('../../index').ApiAuthorizationEditorElement} ApiAuthorizationEditorElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth1Authorization} OAuth1Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.DigestAuthorization} DigestAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('@advanced-rest-client/events').Authorization.BasicAuthorization} BasicAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2Authorization} OAuth2Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth1Authorization} OAuth1Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.DigestAuthorization} DigestAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.BearerAuthorization} BearerAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
 
 describe('ApiAuthorizationEditorElement OAS tests', () => {
   /**

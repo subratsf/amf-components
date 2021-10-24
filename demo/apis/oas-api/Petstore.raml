@@ -2,41 +2,11 @@
 title: Swagger Petstore
 description: A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification
 version: 1.0.0
-(oas-info):
-  termsOfService: 'http://swagger.io/terms/'
-  contact:
-    name: Swagger API Team
-    url: 'http://swagger.io'
-    email: apiteam@swagger.io
-  license:
-    name: Apache 2.0
-    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
-annotationTypes:
-  oas-info:
-    properties:
-      termsOfService?: string
-      contact?:
-        properties:
-          name?: string
-          url?: string
-          email?: string
-      license?:
-        properties:
-          name?: string
-          url?: string
-    allowedTargets: API
-  oas-responses-default:
-    type: any
-    allowedTargets: Method
-  oas-collectionFormat:
-    type: string
-  oas-body-name:
-    type: string
-    allowedTargets: TypeDeclaration
 mediaType: application/json
 protocols:
   - HTTP
 baseUri: 'http://petstore.swagger.io/api'
+
 types:
   Pet:
     type: NewPet
@@ -58,12 +28,12 @@ types:
         format: int32
       message:
         type: string
+
 /pets:
   get:
     description: |
       Returns all pets from the system that the user has access to
     displayName: findPets
-    (oas-responses-default):
       description: unexpected error
       body:
         application/json:
@@ -83,7 +53,6 @@ types:
         type: array
         items:
           type: string
-        (oas-collectionFormat): csv
       limit:
         description: maximum number of results to return
         required: false
@@ -92,7 +61,6 @@ types:
   post:
     description: Creates a new pet in the store.  Duplicates are allowed
     displayName: addPet
-    (oas-responses-default):
       description: unexpected error
       body:
         application/json:
@@ -107,12 +75,10 @@ types:
       application/json:
         description: Pet to add to the store
         type: NewPet
-        (oas-body-name): pet
   '/{id}':
     get:
       description: 'Returns a user based on a single ID, if the user does not have access to the pet'
       displayName: find pet by id
-      (oas-responses-default):
         description: unexpected error
         body:
           application/json:
@@ -126,7 +92,6 @@ types:
     delete:
       description: deletes a single pet based on the ID supplied
       displayName: deletePet
-      (oas-responses-default):
         description: unexpected error
         body:
           application/json:

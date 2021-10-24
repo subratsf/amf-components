@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { fixture, assert, nextFrame, html } from '@open-wc/testing';
 import { MockServer } from './server.js';
-import '../../xhr-simple-request.js';
+import '../../define/xhr-simple-request.js';
 import { EventTypes } from '../../src/events/EventTypes.js';
 
 /** @typedef {import('../../').XhrSimpleRequestElement} XhrSimpleRequestElement */

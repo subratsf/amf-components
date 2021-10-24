@@ -1,19 +1,19 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import AuthUiBase from "@advanced-rest-client/authorization/src/lib/ui/AuthUiBase.js";
-import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
-import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import '@anypoint-web-components/anypoint-input/anypoint-input.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-button/anypoint-button.js';
-import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
+import AuthUiBase from "@advanced-rest-client/app/src/elements/authorization/ui/AuthUiBase.js";
+import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import '@anypoint-web-components/awc/anypoint-input.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-button.js';
+import '@anypoint-web-components/awc/anypoint-icon-button.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import { AmfParameterMixin } from '../AmfParameterMixin.js';
 
-/** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
+/** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 
 const securityValue = Symbol("securityValue");
 const apiValue = Symbol("apiValue");
@@ -39,34 +39,8 @@ export default class ApiUiBase extends AmfParameterMixin(AuthUiBase) {
   }
 
   /**
-   * @returns {DomainElement}
-   */
-  get amf() {
-    return this[apiValue];
-  }
-
-  /**
-   * @param {DomainElement} value
-   */
-  set amf(value) {
-    const old = this[apiValue];
-    if (old === value) {
-      return;
-    }
-    this[apiValue] = value;
-    this.initializeApiModel();
-  }
-
-  // /**
-  //  * @param {AuthUiInit=} init
-  //  */
-  // constructor(init) {
-  //   super(init);
-  // }
-
-  /**
    * To be implemented by the child classes.
-   * Called when `amf` or `security` value change. Should be used
+   * Called when the `security` value change. Should be used
    * to initialize the UI after setting AMF models.
    */
   initializeApiModel() {

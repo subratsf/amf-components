@@ -1,9 +1,11 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-security-document.js';
+import '../define/api-security-document.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {
@@ -21,16 +23,16 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive } = e.detail;
+    const { domainId, domainType, passive } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'security') {
-      this.selectedId = selected;
-      this.selectedType = type;
+    if (domainType === 'security') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;
@@ -61,7 +63,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   _componentTemplate() {
-    const { demoStates, darkThemeActive, selectedId, amf, settingsOpened } = this;
+    const { demoStates, darkThemeActive, selectedId, settingsOpened } = this;
     if (!selectedId) {
       return html`<p>Select API documentation in the navigation</p>`;
     }
@@ -72,7 +74,6 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-security-document
-        .amf="${amf}"
         .domainId="${selectedId}"
         ?settingsOpened="${settingsOpened}"
         slot="content"
@@ -102,9 +103,10 @@ class ComponentPage extends AmfDemoBase {
       ['oauth-pkce', 'OAuth 2 PKCE'],
       ['secured-unions', 'Secured unions'],
       ['secured-api', 'Secured API'],
+      ['security-api', 'security-api API'],
     ].forEach(([file, label]) => {
       result[result.length] = html`
-      <anypoint-item data-src="models/${file}-compact.json">${label} - compact model</anypoint-item>`;
+      <anypoint-item data-src="models/${file}-compact.json">${label}</anypoint-item>`;
     });
     return result;
   }

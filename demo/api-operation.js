@@ -1,14 +1,16 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog-scrollable.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@api-components/api-server-selector/api-server-selector.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-dialog.js';
+import '@anypoint-web-components/awc/anypoint-dialog-scrollable.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-operation-document.js';
-import '../api-request.js';
-import '../xhr-simple-request.js';
+import '../define/api-operation-document.js';
+import '../define/api-request.js';
+import '../define/api-server-selector.js';
+import '../define/xhr-simple-request.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {
@@ -30,7 +32,6 @@ class ComponentPage extends AmfDemoBase {
     this.overrideBaseUri = false;
     this.renderSecurity = true;
     this.renderCodeSnippets = true;
-    this.compatibility = false;
     this.componentName = 'api-operation-document';
     this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
   }
@@ -72,17 +73,17 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive, endpointId } = e.detail;
+    const { domainId, domainType, passive, parentId } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'method') {
-      this.selectedId = selected;
-      this.selectedType = type;
-      this.parentEndpoint = endpointId;
+    if (domainType === 'operation') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
+      this.parentEndpoint = parentId;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;
@@ -138,7 +139,7 @@ class ComponentPage extends AmfDemoBase {
 
   componentTemplate() {
     const { 
-        demoStates, darkThemeActive, selectedId, amf, tryIt, overrideBaseUri, baseUri, serverId,
+        demoStates, darkThemeActive, selectedId, tryIt, overrideBaseUri, baseUri, serverId,
         renderSecurity, renderCodeSnippets,
     } = this;
     if (!selectedId) {
@@ -157,7 +158,6 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-operation-document
-        .amf="${amf}"
         .domainId="${selectedId}"
         .baseUri="${finalBaseUri}"
         .serverId="${serverId}"
@@ -165,7 +165,7 @@ class ComponentPage extends AmfDemoBase {
         ?tryItButton="${tryIt}"
         ?renderCodeSnippets="${renderCodeSnippets}"
         ?renderSecurity="${renderSecurity}"
-        ?anypoint="${this.compatibility}"
+        ?anypoint="${this.anypoint}"
         @tryit="${this.tryitHandler}"
       >
       </api-operation-document>
@@ -256,9 +256,8 @@ class ComponentPage extends AmfDemoBase {
       <h2>API request</h2>
       <anypoint-dialog-scrollable>
         <api-request
-          .amf="${this.amf}"
-          .selected="${this.selectedId}"
-          ?compatibility="${this.compatibility}"
+          .domainId="${this.selectedId}"
+          ?anypoint="${this.anypoint}"
           urlLabel
           applyAuthorization
           globalCache
@@ -279,19 +278,17 @@ class ComponentPage extends AmfDemoBase {
    */
   serverSelectorTemplate() {
     const {
-      amf,
       serverType,
       serverValue,
-      compatibility,
+      anypoint,
     } = this;
     return html`
     <api-server-selector
-      .amf="${amf}"
       .value="${serverValue}"
       .type="${serverType}"
       autoSelect
       allowCustom
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       @apiserverchanged="${this._serverHandler}"
     ></api-server-selector>`;
   }

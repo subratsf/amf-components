@@ -1,7 +1,10 @@
 /* eslint-disable max-classes-per-file */
 import {EventTypes} from './EventTypes.js';
+import { ApiStoreContextEvent } from './BaseEvents.js';
 
 /** @typedef {import('../types').ServerType} ServerType */
+/** @typedef {import('../helpers/api').ServersQueryOptions} ServersQueryOptions */
+/** @typedef {import('../helpers/api').ApiServer} ApiServer */
 
 /**
  * The event dispatched when a server selection change.
@@ -57,5 +60,16 @@ export const ServerEvents = {
   serverCountChange: (target, count) => {
     const e = new ServerCountChangeEvent(count);
     target.dispatchEvent(e);
+  },
+  /**
+   * Queries for the list of servers for method, if defined, or endpoint, if defined, or root level 
+   * @param {EventTarget} target The node on which to dispatch the event.
+   * @param {ServersQueryOptions=} query Server query options
+   * @returns {Promise<ApiServer[]>} The list of servers for given query.
+   */
+  query: (target, query) => {
+    const e = new ApiStoreContextEvent(EventTypes.Server.query, query);
+    target.dispatchEvent(e);
+    return e.detail.result;
   },
 };

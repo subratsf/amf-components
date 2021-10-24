@@ -12,32 +12,32 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { html, LitElement } from 'lit-element';
-import { ArcHeaders } from '@advanced-rest-client/arc-headers';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
+import { ArcHeaders } from '@advanced-rest-client/app';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import elementStyles from './styles/Panel.styles.js';
 import { EventTypes } from '../events/EventTypes.js';
-import '../../api-request-editor.js';
-import '../../api-response-view.js';
+import '../../define/api-request-editor.js';
+import '../../define/api-response-view.js';
 
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.Response} ArcResponse */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.ErrorResponse} ErrorResponse */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.ArcBaseRequest} ArcBaseRequest */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.TransportRequest} TransportRequest */
-/** @typedef {import('@advanced-rest-client/arc-types').ApiTypes.ApiType} ApiType */
-/** @typedef {import('@advanced-rest-client/authorization').Oauth2Credentials} Oauth2Credentials */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/api-server-selector').ServerType} ServerType */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.Response} ArcResponse */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.ErrorResponse} ErrorResponse */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.ArcBaseRequest} ArcBaseRequest */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.TransportRequest} TransportRequest */
+/** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */
+/** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
+/** @typedef {import('../types').ServerType} ServerType */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 /** @typedef {import('../types').ApiConsoleResponse} ApiConsoleResponse */
 /** @typedef {import('../events/RequestEvents').ApiRequestEvent} ApiRequestEvent */
 /** @typedef {import('../events/RequestEvents').ApiResponseEvent} ApiResponseEvent */
+/** @typedef {import('../events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
-export const selectedValue = Symbol('selectedValue');
-export const selectedChanged = Symbol('selectedChanged');
+export const domainIdValue = Symbol('domainIdValue');
+export const domainIdChanged = Symbol('domainIdChanged');
 export const appendProxy = Symbol('appendProxy');
 export const propagateResponse = Symbol('propagateResponse');
 export const responseHandler = Symbol('responseHandler');
@@ -64,15 +64,11 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   static get properties() {
     return {
       /**
-       * The `amf` property that passes amf model to the request editor.
+       * The domain id (AMF's id) of an API operation.
        */
-      amf: { type: Object },
+      domainId: { type: String },
       /**
-       * AMF HTTP method (operation in AMF vocabulary) ID.
-       */
-      selected: { type: String },
-      /**
-       * By default application hosting the element must set `selected`
+       * By default application hosting the element must set `domainId`
        * property. When using `api-navigation` element
        * by setting this property the element listens for navigation events
        * and updates the state
@@ -99,9 +95,9 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
        */
       redirectUri: { type: String },
       /**
-       * Enables compatibility with Anypoint styling
+       * Enables Anypoint platform styles.
        */
-      compatibility: { type: Boolean, reflect: true },
+      anypoint: { type: Boolean, reflect: true },
       /**
        * Enables Material Design outlined style
        */
@@ -222,19 +218,19 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     };
   }
 
-  get selected() {
-    return this[selectedValue];
+  get domainId() {
+    return this[domainIdValue];
   }
 
-  set selected(value) {
-    const old = this[selectedValue];
+  set domainId(value) {
+    const old = this[domainIdValue];
     /* istanbul ignore if */
     if (old === value) {
       return;
     }
-    this[selectedValue] = value;
-    this.requestUpdate('selected', old);
-    this[selectedChanged](value);
+    this[domainIdValue] = value;
+    this.requestUpdate('domainId', old);
+    this[domainIdChanged](value);
   }
 
   constructor() {
@@ -250,8 +246,6 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     this.proxyEncodeUrl = false;
     /** @type boolean */
     this.handleNavigationEvents = false;
-    /** @type AmfDocument */
-    this.amf = undefined;
     /** @type boolean */
     this.urlEditor = undefined;
     /** @type boolean */
@@ -264,7 +258,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     /** @type boolean */
     this.allowCustom = false;
     /** @type boolean */
-    this.compatibility = false;
+    this.anypoint = false;
     /** @type boolean */
     this.outlined = false;
     /** @type string */
@@ -295,10 +289,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     this.addEventListener(EventTypes.Request.apiRequest, this[requestHandler]);
     node.addEventListener(EventTypes.Request.apiResponse, this[responseHandler]);
     node.addEventListener(EventTypes.Request.apiResponseLegacy, this[responseHandler]);
-    node.addEventListener(
-      'api-navigation-selection-changed',
-      this[navigationHandler]
-    );
+    node.addEventListener(EventTypes.Navigation.apiNavigate, this[navigationHandler]);
   }
 
   /**
@@ -308,10 +299,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     this.removeEventListener(EventTypes.Request.apiRequest, this[requestHandler]);
     node.removeEventListener(EventTypes.Request.apiResponse, this[responseHandler]);
     node.removeEventListener(EventTypes.Request.apiResponseLegacy, this[responseHandler]);
-    node.removeEventListener(
-      'api-navigation-selection-changed',
-      this[navigationHandler]
-    );
+    node.removeEventListener(EventTypes.Navigation.apiNavigate, this[navigationHandler]);
   }
 
   /**
@@ -444,10 +432,10 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   }
 
   /**
-   * Clears response panel when selected id changed.
-   * @param {String} id
+   * Clears response panel when the `domainId` change.
+   * @param {string} id
    */
-  [selectedChanged](id) {
+  [domainIdChanged](id) {
     if (!id) {
       return;
     }
@@ -471,12 +459,12 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
    *
    * When `handleNavigationEvents` is set then it also manages the selection.
    *
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   [navigationHandler](e) {
     if (this.handleNavigationEvents) {
-      const { selected: id, type } = e.detail;
-      this.selected = type === 'method' ? id : undefined;
+      const { domainId, domainType } = e.detail;
+      this.domainId = domainType === 'operation' ? domainId : undefined;
     }
   }
 
@@ -497,15 +485,14 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
   [requestTemplate]() {
     const {
       redirectUri,
-      selected,
-      amf,
+      domainId,
       urlEditor,
       urlLabel,
       baseUri,
       eventsTarget,
       allowHideOptional,
       allowCustom,
-      compatibility,
+      anypoint,
       outlined,
       serverValue,
       serverType,
@@ -519,8 +506,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     return html`
     <api-request-editor
       .redirectUri="${redirectUri}"
-      .selected="${selected}"
-      .amf="${amf}"
+      domainId="${domainId}"
       ?urlEditor="${urlEditor}"
       ?urlLabel="${urlLabel}"
       .baseUri="${baseUri}"
@@ -528,7 +514,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
       ?allowHideOptional="${allowHideOptional}"
       ?allowCustom="${allowCustom}"
       ?outlined="${outlined}"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       .serverValue="${serverValue}"
       .serverType="${serverType}"
       ?noServerSelector="${noServerSelector}"
@@ -553,7 +539,7 @@ export default class ApiRequestElement extends EventsTargetMixin(LitElement) {
     return html`<api-response-view
       .request="${this.request}"
       .response="${this.response}"
-      .compatibility="${this.compatibility}"
+      ?anypoint="${this.anypoint}"
     ></api-response-view>`;
   }
 }

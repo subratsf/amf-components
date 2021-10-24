@@ -1,15 +1,15 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-param-reassign */
 import { LitElement, html } from 'lit-element';
-import { AmfHelperMixin, AmfSerializer, ns } from '@api-components/amf-helper-mixin';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
+import '@advanced-rest-client/icons/arc-icon.js';
 import elementStyles from './styles/ApiAnnotation.js';
+import { ns } from '../helpers/Namespace.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDomainProperty} ApiDomainProperty */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiCustomDomainProperty} ApiCustomDomainProperty */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiObjectNode} ApiObjectNode */
+/** @typedef {import('../helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../helpers/api').ApiDomainProperty} ApiDomainProperty */
+/** @typedef {import('../helpers/api').ApiCustomDomainProperty} ApiCustomDomainProperty */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../helpers/api').ApiObjectNode} ApiObjectNode */
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 
 export const shapeValue = Symbol('shapeValue');
@@ -30,28 +30,9 @@ export const objectScalarPropertyTemplate = Symbol('objectScalarPropertyTemplate
  * Annotations are part of RAML language and API console supports it.
  * The element looks for annotations in model and renders them.
  */
-export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElement) {
+export default class ApiAnnotationDocumentElement extends LitElement {
   get styles() {
     return elementStyles;
-  }
-
-  /**
-   * @returns {DomainElement|undefined}
-   */
-  get shape() {
-    return this[shapeValue];
-  }
-
-  /**
-   * @param {DomainElement} value
-   */
-  set shape(value) {
-    const oldValue = this[shapeValue];
-    if (oldValue === value) {
-      return;
-    }
-    this[shapeValue] = value;
-    this[processShape]();
   }
 
   /**
@@ -111,20 +92,14 @@ export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElem
 
   /**
    * Called when the shape property change.
-   * Sets `hasCustomProperties` and `customList` properties.
-   *
-   * Note that for performance reasons, if the element determine that there's
-   * no custom properties wit will not clear `customList`.
-   * It will be updated only if the value actually change.
    */
   [processShape]() {
-    const shape = /** @type DomainElement */ (this[shapeValue]);
+    const shape = /** @type ApiDomainProperty */ (this[shapeValue]);
     this[propertiesValue] = undefined;
     if (!shape) {
       return;
     }
-    const serializer = new AmfSerializer(this.amf);
-    const result = serializer.customDomainProperties(shape);
+    const result = shape.customDomainProperties;
     if (Array.isArray(result) && result.length) {
       this[propertiesValue] = result;
     }
@@ -193,7 +168,7 @@ export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElem
     <div class="custom-property">
       <arc-icon class="info-icon" icon="infoOutline"></arc-icon>
       <div class="info-value">
-        <span class="name">${name}</span>
+        <span class="name text-selectable">${name}</span>
         ${content || ''}
       </div>
     </div>
@@ -206,7 +181,7 @@ export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElem
    * @returns {TemplateResult} The template for the custom property.
    */
   [scalarTemplate](name, scalar) {
-    const content = html`<span class="scalar-value">${this[scalarValue](scalar)}</span>`;
+    const content = html`<span class="scalar-value text-selectable">${this[scalarValue](scalar)}</span>`;
     return this[annotationWrapperTemplate](name, content);
   }
 
@@ -237,8 +212,8 @@ export default class ApiAnnotationDocumentElement extends AmfHelperMixin(LitElem
     const value = this[scalarValue](scalar);
     return html`
     <div class="object-property">
-      <span class="object-name">${name}</span>
-      <span class="object-value">${value}</span>
+      <span class="object-name text-selectable">${name}</span>
+      <span class="object-value text-selectable">${value}</span>
     </div>
     `;
   }

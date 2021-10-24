@@ -57,7 +57,7 @@ api-url-editor {
   margin: var(--arc-font-subhead-margin, 0.83em 8px);
   letter-spacing: var(--arc-font-subhead-letter-spacing, initial);
   font-size: var(--arc-font-subhead-font-size, 20px);
-  font-weight: var(--arc-font-subhead-font-weight, 200);
+  font-weight: var(--arc-font-subhead-font-weight, 400);
   line-height: var(--arc-font-subhead-line-height);
 }
 
@@ -65,7 +65,7 @@ api-url-editor {
   margin: 8px 0;
 }
 
-:host([compatibility]) .section-title {
+:host([anypoint]) .section-title {
   font-size: var(--anypoint-subhead-font-size, var(--arc-font-subhead-font-size, 18px));
   font-weight: var(--anypoint-subhead-font-weight, var(--arc-font-subhead-font-weight, 400));
   letter-spacing: var(--anypoint-subhead-letter-spacing, var(--arc-font-subhead-letter-spacing, initial));
@@ -114,7 +114,7 @@ api-url-editor {
   flex-direction: row;
 }
 
-:host([compatibility]) .form-item {
+:host([anypoint]) .form-item {
   margin: 20px 0 28px 0;
 }
 

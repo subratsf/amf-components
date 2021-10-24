@@ -1,13 +1,15 @@
 import { html } from 'lit-html';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@api-components/api-navigation/api-navigation.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@advanced-rest-client/authorization/oauth1-authorization.js';
-import '@advanced-rest-client/authorization/oidc-authorization.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
+import '@advanced-rest-client/app/define/oauth1-authorization.js';
+import '@advanced-rest-client/app/define/oidc-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../xhr-simple-request.js';
-import '../api-request.js';
+import '../define/api-navigation.js';
+import '../define/xhr-simple-request.js';
+import '../define/api-request.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentDemo extends AmfDemoBase {
   constructor() {
@@ -48,8 +50,8 @@ class ComponentDemo extends AmfDemoBase {
   _demoStateHandler(e) {
     const state = e.detail.value;
     this.outlined = state === 1;
-    this.compatibility = state === 2;
-    this._updateCompatibility();
+    this.anypoint = state === 2;
+    this._updateAnypoint();
   }
 
   _authSettingsChanged(e) {
@@ -58,11 +60,14 @@ class ComponentDemo extends AmfDemoBase {
     this.authSettingsValue = value ? JSON.stringify(value, null, 2) : '';
   }
 
+  /**
+   * @param {ApiNavigationEvent} e
+   */
   _navChanged(e) {
     this.selectedAmfId = undefined;
-    const { selected, type } = e.detail;
-    if (type === 'method') {
-      this.selectedAmfId = selected;
+    const { domainId, domainType } = e.detail;
+    if (domainType === 'operation') {
+      this.selectedAmfId = domainId;
       this.hasData = true;
     } else {
       this.hasData = false;
@@ -90,6 +95,7 @@ class ComponentDemo extends AmfDemoBase {
       ['secured-api', 'Security demo'],
       ['21143', '21143'],
       ['annotated-parameters', 'annotated-parameters'],
+      ['secured-unions', 'Secured unions']
     ].map(
       ([file, label]) => html`
         <anypoint-item data-src="models/${file}-compact.json">${label}</anypoint-item>
@@ -160,8 +166,7 @@ class ComponentDemo extends AmfDemoBase {
       demoStates,
       darkThemeActive,
       outlined,
-      compatibility,
-      amf,
+      anypoint,
       redirectUri,
       allowCustom,
       allowHideOptional,
@@ -182,12 +187,11 @@ class ComponentDemo extends AmfDemoBase {
     >
       <div slot="content">
         <api-request
-          .amf="${amf}"
-          .selected="${selectedAmfId}"
+          .domainId="${selectedAmfId}"
           ?allowCustom="${allowCustom}"
           ?allowHideOptional="${allowHideOptional}"
           ?outlined="${outlined}"
-          ?compatibility="${compatibility}"
+          ?anypoint="${anypoint}"
           ?urlEditor="${urlEditor}"
           ?urlLabel="${urlLabel}"
           ?noServerSelector="${noServerSelector}"

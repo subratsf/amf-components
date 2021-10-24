@@ -1,14 +1,16 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog-scrollable.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@api-components/api-server-selector/api-server-selector.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-dialog.js';
+import '@anypoint-web-components/awc/anypoint-dialog-scrollable.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-resource-document.js';
-import '../api-request.js';
-import '../xhr-simple-request.js';
+import '../define/api-resource-document.js';
+import '../define/api-request.js';
+import '../define/xhr-simple-request.js';
+import '../define/api-server-selector.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {
@@ -18,7 +20,6 @@ class ComponentPage extends AmfDemoBase {
       'editorOpened', 'editorOperation', 'overrideBaseUri',
       'serverType', 'serverValue',
     ]);
-    this.compatibility = false;
     this.editorOpened = false;
     this.editorOperation = undefined;
     this.selectedId = undefined;
@@ -68,21 +69,21 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive, endpointId } = e.detail;
+    const { domainId, domainType, passive, parentId } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'endpoint') {
-      this.selectedId = selected;
-      this.selectedType = type;
+    if (domainType === 'resource') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
       this.selectedOperation = undefined;
-    } else if (type === 'method') {
-      this.selectedId = endpointId;
+    } else if (domainType === 'operation') {
+      this.selectedId = parentId;
       this.selectedType = 'endpoint';
-      this.selectedOperation = selected;
+      this.selectedOperation = domainId;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;
@@ -138,7 +139,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   componentTemplate() {
-    const { demoStates, darkThemeActive, selectedId, selectedOperation, amf, tryItButton, tryItPanel, overrideBaseUri, baseUri, serverId } = this;
+    const { demoStates, darkThemeActive, selectedId, selectedOperation, tryItButton, tryItPanel, overrideBaseUri, baseUri, serverId } = this;
     if (!selectedId) {
       return html`<p>Select API operation in the navigation</p>`;
     }
@@ -156,7 +157,6 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-resource-document
-        .amf="${amf}"
         .domainId="${selectedId}"
         .operationId="${selectedOperation}"
         .serverId="${serverId}"
@@ -165,7 +165,7 @@ class ComponentPage extends AmfDemoBase {
         .serverValue="${this.serverValue}"
         ?tryItButton="${tryItButton}"
         ?tryItPanel="${tryItPanel}"
-        ?anypoint="${this.compatibility}"
+        ?anypoint="${this.anypoint}"
         .baseUri="${finalBaseUri}"
         slot="content"
         @tryit="${this.tryitHandler}"
@@ -224,7 +224,8 @@ class ComponentPage extends AmfDemoBase {
       ['secured-api', 'Secured API'],
       ['SE-12957', 'SE-12957: OAS query parameters documentation'],
       ['SE-12959', 'SE-12959: OAS summary field'],
-      ['SE-12752', 'SE-12752: Query string (SE-12752)'],
+      ['SE-12752', 'SE-12752: Query string'],
+      ['SE-12957', 'SE-12957: Path in an operation'],
       ['oas-callbacks', 'OAS 3 callbacks'],
       ['APIC-553', 'APIC-553'],
       ['APIC-560', 'APIC-560'],
@@ -243,9 +244,8 @@ class ComponentPage extends AmfDemoBase {
       <h2>API request</h2>
       <anypoint-dialog-scrollable>
         <api-request
-          .amf="${this.amf}"
-          .selected="${this.selectedOperation}"
-          ?compatibility="${this.compatibility}"
+          .domainId="${this.selectedOperation}"
+          ?anypoint="${this.anypoint}"
           urlLabel
           applyAuthorization
           globalCache
@@ -266,19 +266,17 @@ class ComponentPage extends AmfDemoBase {
    */
   serverSelectorTemplate() {
     const {
-      amf,
       serverType,
       serverValue,
-      compatibility,
+      anypoint,
     } = this;
     return html`
     <api-server-selector
-      .amf="${amf}"
       .value="${serverValue}"
       .type="${serverType}"
       autoSelect
       allowCustom
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       @apiserverchanged="${this._serverHandler}"
     ></api-server-selector>`;
   }

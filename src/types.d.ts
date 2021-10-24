@@ -1,5 +1,5 @@
-import { HTTPRequest, RequestAuthorization } from '@advanced-rest-client/arc-types/src/request/ArcRequest';
-import { ApiParameter, ApiShapeUnion, ApiSecurityRequirement, ApiServer, ApiEndPoint } from '@api-components/amf-helper-mixin';
+import { HTTPRequest, RequestAuthorization } from '@advanced-rest-client/events/src/request/ArcRequest';
+import { ApiParameter, ApiShapeUnion, ApiSecurityRequirement, ApiServer, ApiEndPoint, ApiExample, ApiDocumentation } from './helpers/api';
 import { default as XhrSimpleRequestTransportElement } from './elements/XhrSimpleRequestTransportElement';
 
 export declare interface ApiConsoleRequest extends HTTPRequest {
@@ -34,6 +34,13 @@ export declare interface ApiConsoleResponse {
   loadingTime: number;
 }
 
+export declare interface ApiConsoleHTTPResponse {
+  status: number;
+  statusText?: string;
+  payload?: any;
+  headers?: string;
+}
+
 export declare interface AbortRequestEventDetail {
   /**
    * The URL of the request
@@ -43,13 +50,6 @@ export declare interface AbortRequestEventDetail {
    * The id of the request.
    */
   id: string;
-}
-
-export declare interface ApiConsoleHTTPResponse {
-  status: number;
-  statusText?: string;
-  payload?: any;
-  headers?: string;
 }
 
 export declare interface XHRQueueItem {
@@ -163,17 +163,6 @@ export interface OperationParameter {
   source: string;
 }
 
-export interface ApiSummaryEndpoint {
-  id: string;
-  path: string;
-  name?: string;
-  ops?: ApiSummaryOperation[];
-}
-export interface ApiSummaryOperation {
-  id: string;
-  method: string;
-}
-
 export declare interface SelectionInfo {
   /**
    * Type of the detected selection
@@ -208,3 +197,213 @@ export declare interface UpdateServersOptions {
  * - `extra`: an application controlled server value selected by the user.
  */
 export type ServerType = 'server' | 'custom' | 'extra';
+export type SelectionType = 'summary' | 'resource' | 'operation' | 'schema' | 'security' | 'documentation';
+/**
+ * API navigation layout options.
+ * 
+ * - tree - creates a tree structure from the endpoints list
+ * - natural - behavior consistent with the previous version of the navigation. Creates a tree structure based on the previous endpoints.
+ * - natural-sort - as `natural` but endpoints are sorted by name.
+ * - off (or none) - just like in the API spec.
+ */
+export type NavigationLayout = 'tree' | 'natural' | 'natural-sort' | 'off';
+
+interface SelectableMenuItem {
+  /**
+   * Whether the item is a selected menu item.
+   */
+  selected?: boolean;
+  /**
+   * Whether the item has secondary selection.
+   * This happens when a "passive" selection has been applied to the item.
+   */
+  secondarySelected?: boolean;
+}
+
+interface EditableMenuItem {
+  /**
+   * When set the name editor for the item is enabled.
+   */
+  nameEditor?: boolean;
+}
+
+
+export interface ApiEndPointListItem {
+  /**
+   * The domain id of the endpoint.
+   * It may be undefined when the endpoint is created "abstract" endpoint vor the visualization.
+   */
+  id?: string;
+  path: string;
+  name?: string;
+}
+
+export interface ApiEndPointWithOperationsListItem extends ApiEndPointListItem {
+  operations: ApiOperationListItem[];
+}
+
+export interface ApiOperationListItem {
+  id: string;
+  method: string;
+  name?: string;
+}
+
+export interface ApiEndpointsTreeItem extends ApiEndPointWithOperationsListItem {
+  label: string;
+  indent: number;
+  hasShortPath?: boolean;
+  hasChildren?: boolean;
+}
+
+export interface ApiSecuritySchemeListItem {
+  id: string;
+  type: string;
+  name?: string;
+  displayName?: string;
+}
+
+export declare interface ApiNodeShapeListItem {
+  id: string;
+  name?: string;
+  displayName?: string;
+}
+
+export declare interface EndpointItem extends ApiEndpointsTreeItem, SelectableMenuItem, EditableMenuItem {
+  operations: OperationItem[];
+}
+
+export declare interface OperationItem extends ApiOperationListItem, SelectableMenuItem, EditableMenuItem {}
+export declare interface NodeShapeItem extends ApiNodeShapeListItem, SelectableMenuItem, EditableMenuItem {}
+export declare interface SecurityItem extends ApiSecuritySchemeListItem, SelectableMenuItem {}
+export declare interface DocumentationItem extends ApiDocumentation, SelectableMenuItem, EditableMenuItem {}
+export declare type SchemaAddType = 'scalar'|'object'|'file'|'array'|'union';
+
+export declare interface TargetModel {
+  documentation?: DocumentationItem[];
+  types?: NodeShapeItem[];
+  securitySchemes?: SecurityItem[];
+  endpoints?: EndpointItem[];
+  _typeIds?: string[];
+  _basePaths?: string[];
+}
+
+export declare interface SchemaExample extends ApiExample {
+  /**
+   * The value to render as the example value.
+   */
+  renderValue?: string;
+  label?: string;
+}
+
+export declare interface ShapeRenderOptions {
+  /**
+   * All selected unions in the current view.
+   * When the processor encounter an union it checks this array
+   * to pick the selected union.
+   * When the selected union cannot be determined it picks the first union.
+   */
+  selectedUnions?: string[];
+  /**
+   * Whether to include optional fields into the schema.
+   * @default false
+   */
+  renderOptional?: boolean;
+  /**
+   * When set it uses the data mocking library to generate the values
+   * when examples and default are not set.
+   */
+  renderMocked?: boolean;
+  /**
+   * The library **always** uses default values in the schema.
+   * When a default value is not set by default it inserts an empty value for 
+   * the given data type ('', false, null, random date). When this is set
+   * it includes examples in the generated value.
+   */
+  renderExamples?: boolean;
+}
+
+export interface MonacoSchema {
+  uri: string;
+  schema: MonacoProperty;
+  fileMatch?: string[];
+}
+
+export interface MonacoProperty {
+  $id?: string;
+  title: string;
+  type: string;
+  description?: string;
+  readOnly?: boolean;
+  writeOnly?: boolean;
+}
+
+export interface MonacoScalarProperty extends MonacoProperty {
+  default?: string;
+  pattern?: string;
+  format?: string;
+  exclusiveMaximum?: boolean;
+  exclusiveMinimum?: boolean;
+  maxLength?: number;
+  minLength?: number;
+  minimum?: number;
+  maximum?: number;
+  multipleOf?: number;
+  enum?: string[];
+}
+
+export interface MonacoObjectProperty extends MonacoProperty {
+  properties: Record<string, MonacoProperty>;
+  required: string[];
+  additionalProperties?: boolean;
+  minProperties?: number;
+  maxProperties?: number;
+}
+
+export interface MonacoArrayProperty extends MonacoProperty {
+  additionalItems?: boolean;
+  items: {
+    anyOf: MonacoProperty[]
+  }
+  uniqueItems?: boolean;
+  minItems?: number;
+  maxItems?: number;
+  required: string[];
+}
+
+export interface ApiSchemaReadOptions {
+  /**
+   * Whether the value should be read only when the required property is set.
+   */
+  requiredOnly?: boolean;
+  /**
+   * Whether to read the examples to generate the value.
+   */
+  fromExamples?: boolean;
+}
+
+export interface DocumentMeta {
+  /**
+   * True when the loaded document represent an API (in an opposite to a fragment or a partial model).
+   */
+  isApi: boolean;
+  /**
+   * Whether the loaded document represent an Async API.
+   */
+  isAsync: boolean;
+  /**
+   * Whether the loaded document represent a RAML fragment / OAS reference.
+   */
+  isFragment: boolean;
+  /**
+   * A special type of fragment that is a RAML library.
+   */
+  isLibrary: boolean;
+  /**
+   * The list of types of the loaded document.
+   */
+  types: string[];
+  /**
+   * The domain id of the `encodes` property.
+   */
+  encodesId?: string;
+}

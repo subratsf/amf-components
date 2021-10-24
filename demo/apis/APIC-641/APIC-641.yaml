@@ -24,3 +24,6 @@ paths:
     get:
       operationId: getPartyById
       summary: Gets the specific parties in the system.
+      responses:
+        default:
+          description: A default response

@@ -1,5 +1,5 @@
 import { fixture, assert, html } from '@open-wc/testing';
-import '../../api-authorization-method.js';
+import '../../define/api-authorization-method.js';
 
 /** @typedef {import('../../').ApiAuthorizationMethodElement} ApiAuthorizationMethodElement */
 

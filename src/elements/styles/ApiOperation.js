@@ -16,6 +16,7 @@ export default css`
 }
 
 .operation-title .label {
+  color: var(--operation-title-color, inherit);
   font-size: var(--operation-title-size, 26px);
   font-weight: var(--operation-title-weight, 400);
   margin: 8px 0px;

@@ -1,49 +1,48 @@
 import { fixture, assert, nextFrame, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 import { 
   schemaValue,
   expandedValue,
   selectedUnionsValue,
 } from '../../src/elements/ApiSchemaDocumentElement.js';
-import '../../api-schema-document.js';
+import '../../define/api-schema-document.js';
 
 /** @typedef {import('../../').ApiSchemaDocumentElement} ApiSchemaDocumentElement */
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@anypoint-web-components/anypoint-radio-button/index').AnypointRadioButtonElement} AnypointRadioButtonElement */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').DomainElement} DomainElement */
+/** @typedef {import('../../src/helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('@anypoint-web-components/awc').AnypointRadioButtonElement} AnypointRadioButtonElement */
 
 describe('ApiSchemaDocumentElement', () => {
   const loader = new AmfLoader();
+  const store = new DomEventsAmfStore(window);
+  store.listen();
   const JsonType = 'application/json';
 
   /**
-   * @param {AmfDocument} amf
-   * @param {DomainElement=} shape
+   * @param {ApiShapeUnion=} shape
    * @param {string=} mime
    * @returns {Promise<ApiSchemaDocumentElement>}
    */
-  async function basicFixture(amf, shape, mime) {
+  async function basicFixture(shape, mime) {
     const element = await fixture(html`<api-schema-document 
-      .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
-      .domainModel="${shape}"
+      .queryDebouncerTimeout="${0}"
+      .schema="${shape}"
       .mimeType="${mime}"></api-schema-document>`);
     await aTimeout(0);
     return /** @type ApiSchemaDocumentElement */ (element);
   }
 
   /**
-   * @param {AmfDocument} amf
-   * @param {DomainElement=} shape
+   * @param {ApiShapeUnion=} shape
    * @param {string=} mime
    * @returns {Promise<ApiSchemaDocumentElement>}
    */
-  async function examplesFixture(amf, shape, mime) {
+  async function examplesFixture(shape, mime) {
     const element = await fixture(html`<api-schema-document 
-      .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
-      .domainModel="${shape}"
+      .queryDebouncerTimeout="${0}"
+      .schema="${shape}"
       .mimeType="${mime}"
       forceExamples></api-schema-document>`);
     await aTimeout(0);
@@ -51,15 +50,13 @@ describe('ApiSchemaDocumentElement', () => {
   }
 
   /**
-   * @param {AmfDocument} amf
    * @param {ApiShapeUnion} shape
    * @param {string=} mime
    * @returns {Promise<ApiSchemaDocumentElement>}
    */
-  async function schemaFixture(amf, shape, mime) {
+  async function schemaFixture(shape, mime) {
     const element = await fixture(html`<api-schema-document 
-      .queryDebouncerTimeout="${0}" 
-      .amf="${amf}" 
+      .queryDebouncerTimeout="${0}"
       .mimeType="${mime}"
       .schema="${shape}"
       forceExamples></api-schema-document>`);
@@ -74,57 +71,58 @@ describe('ApiSchemaDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiSchemaDocumentElement */
         let element;
         beforeEach(async () => {
-          element = await basicFixture(model);
+          element = await basicFixture();
         });
 
         it('is accessible for scalar type', async () => {
-          const data = loader.lookupShape(model, 'ScalarType');
-          element.domainModel = data;
+          const data = loader.getShape(model, 'ScalarType');
+          element.schema = data;
           element.processGraph();
           await nextFrame();
           await assert.isAccessible(element);
         });
 
         it('is accessible for NilShape type', async () => {
-          const data = loader.lookupShape(model, 'NilType');
-          element.domainModel = data;
+          const data = loader.getShape(model, 'NilType');
+          element.schema = data;
           element.processGraph();
           await nextFrame();
           await assert.isAccessible(element);
         });
 
         it('is accessible for AnyShape type', async () => {
-          const data = loader.lookupShape(model, 'AnyType');
-          element.domainModel = data;
+          const data = loader.getShape(model, 'AnyType');
+          element.schema = data;
           element.processGraph();
           await nextFrame();
           await assert.isAccessible(element);
         });
 
         it('is accessible for UnionShape type', async () => {
-          const data = loader.lookupShape(model, 'Unionable');
-          element.domainModel = data;
+          const data = loader.getShape(model, 'Unionable');
+          element.schema = data;
           element.processGraph();
           await nextFrame();
           await assert.isAccessible(element);
         });
 
         it('is accessible for ArrayShape type', async () => {
-          const data = loader.lookupShape(model, 'ArrayType');
-          element.domainModel = data;
+          const data = loader.getShape(model, 'ArrayType');
+          element.schema = data;
           element.processGraph();
           await nextFrame();
           await assert.isAccessible(element);
         });
 
         it('is accessible for ArrayShape type', async () => {
-          const data = loader.lookupShape(model, 'ComplexRecursive');
-          element.domainModel = data;
+          const data = loader.getShape(model, 'ComplexRecursive');
+          element.schema = data;
           element.processGraph();
           await nextFrame();
           await assert.isAccessible(element);
@@ -136,13 +134,14 @@ describe('ApiSchemaDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact);
+          store.amf = model;
         });
 
         /** @type ApiSchemaDocumentElement */
         let element;
         beforeEach(async () => {
-          const data = loader.lookupShape(model, 'ScalarType');
-          element = await basicFixture(model, data);
+          const data = loader.getShape(model, 'ScalarType');
+          element = await basicFixture(data);
         });
 
         it('sets the [schemaValue]', async () => {
@@ -163,11 +162,11 @@ describe('ApiSchemaDocumentElement', () => {
           assert.deepEqual(element[selectedUnionsValue], {});
         });
 
-        it('computes the schema from the domainId property', () => {
-          const id = element.domainModel['@id'];
+        it('computes the schema from the domainId property', async () => {
+          const { id } = element.schema;
           element[schemaValue] = undefined;
           element.domainId = id;
-          element.processGraph();
+          await element.processGraph();
           assert.ok(element[schemaValue], 'has the value');
           assert.equal(element[schemaValue].name, 'ScalarType', 'has the processed shape');
         });
@@ -179,14 +178,15 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact);
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
           let element;
 
           it('renders a scalar with properties', async () => {
-            const data = loader.lookupShape(model, 'DescribedScalar');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'DescribedScalar');
+            element = await basicFixture(data);
             const titleLabel = element.shadowRoot.querySelector('.schema-header .schema-title .label');
             assert.equal(titleLabel.textContent.trim(), 'DescribedScalar', 'has the schema title');
             const markdown = element.shadowRoot.querySelector('.api-description arc-marked');
@@ -199,8 +199,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders a simple scalar without properties', async () => {
-            const data = loader.lookupShape(model, 'BooleanType');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'BooleanType');
+            element = await basicFixture(data);
             const titleLabel = element.shadowRoot.querySelector('.schema-header .schema-title .label');
             assert.equal(titleLabel.textContent.trim(), 'BooleanType', 'has the schema title');
             const markdown = element.shadowRoot.querySelector('.api-description arc-marked');
@@ -217,14 +217,15 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact);
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
           let element;
 
           it('renders the NIL type description', async () => {
-            const data = loader.lookupShape(model, 'NilType');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'NilType');
+            element = await basicFixture(data);
             const titleLabel = element.shadowRoot.querySelector('.schema-header .schema-title .label');
             assert.equal(titleLabel.textContent.trim(), 'NilType', 'has the schema title');
             const markdown = element.shadowRoot.querySelector('.api-description arc-marked');
@@ -240,14 +241,15 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact);
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
           let element;
 
           it('renders the base properties', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data, JsonType);
             const titleLabel = element.shadowRoot.querySelector('.schema-header .schema-title .label');
             assert.equal(titleLabel.textContent.trim(), 'A person resource', 'has the schema title');
             const markdown = element.shadowRoot.querySelector('.api-description arc-marked');
@@ -260,8 +262,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders the example', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data, JsonType);
 
             const examples = element.shadowRoot.querySelectorAll('.schema-example');
             assert.lengthOf(examples, 1, 'has a single example');
@@ -276,8 +278,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders object properties', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data, JsonType);
 
             const properties = element.shadowRoot.querySelectorAll('.property-container');
             // this is to be changed if the # of properties in the AppPerson type change.
@@ -285,8 +287,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders the name and the display name', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data, JsonType);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="favouriteTime"]');
             const name = property.querySelector('.param-name');
@@ -296,8 +298,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders a required property', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data, JsonType);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="favouriteTime"]');
             const name = property.querySelector('.param-name');
@@ -312,8 +314,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders a property type', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data, JsonType);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="favouriteTime"]');
             const type = property.querySelector('.param-type');
@@ -323,8 +325,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('rendering complex properties', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data);
 
             const complexProperty = element.shadowRoot.querySelector('.property-container.complex');
             assert.ok(complexProperty, 'has a complex property');
@@ -338,8 +340,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('toggling complex properties', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data);
 
             const complexProperty = element.shadowRoot.querySelector('.property-container.complex');
             const decorator = /** @type HTMLElement */ (complexProperty.querySelector('.property-decorator'));
@@ -354,8 +356,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders a closed detail with a property properties', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="favouriteNumber"]');
             const detail = /** @type HTMLDetailsElement */ (property.querySelector('.property-details'));
@@ -372,8 +374,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders properties inline when less than 3', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="name"]');
             const detail = /** @type HTMLDetailsElement */ (property.querySelector('.property-details'));
@@ -384,8 +386,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders the description', async () => {
-            const data = loader.lookupShape(model, 'AppPerson');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'AppPerson');
+            element = await basicFixture(data);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="favouriteTime"]');
             const desc = property.querySelector('.api-description');
@@ -393,8 +395,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders array properties', async () => {
-            const data = loader.lookupShape(model, 'PropertyArray');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'PropertyArray');
+            element = await basicFixture(data);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="data"]');
 
@@ -403,8 +405,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders array property that is an complex', async () => {
-            const data = loader.lookupShape(model, 'PropertyArray');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'PropertyArray');
+            element = await basicFixture(data);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="complex"]');
 
@@ -413,8 +415,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders a union property', async () => {
-            const data = loader.lookupShape(model, 'PropertyArray');
-            element = await basicFixture(model, data);
+            const data = loader.getShape(model, 'PropertyArray');
+            element = await basicFixture(data);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="complex"]');
             const decorator = /** @type HTMLElement */ (property.querySelector('.property-decorator'));
@@ -449,13 +451,14 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact);
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
           let element;
           beforeEach(async () => {
-            const data = loader.lookupShape(model, 'Unionable');
-            element = await basicFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'Unionable');
+            element = await basicFixture(data, JsonType);
           });
 
           it('renders the union selector', () => {
@@ -543,6 +546,7 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact);
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
@@ -550,8 +554,8 @@ describe('ApiSchemaDocumentElement', () => {
           /** @type HTMLElement */
           let container;
           beforeEach(async () => {
-            const data = loader.lookupShape(model, 'PropertyArray');
-            element = await basicFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'PropertyArray');
+            element = await basicFixture(data, JsonType);
 
             const property = element.shadowRoot.querySelector('.property-container[data-name="complex"]');
             const decorator = /** @type HTMLElement */ (property.querySelector('.property-decorator'));
@@ -635,13 +639,14 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact);
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
           let element;
           beforeEach(async () => {
-            const data = loader.lookupShape(model, 'ArrayType');
-            element = await examplesFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'ArrayType');
+            element = await examplesFixture(data, JsonType);
           });
 
           it('renders array example', () => {
@@ -688,13 +693,14 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact, 'Petstore-v2');
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
           let element;
           beforeEach(async () => {
-            const data = loader.lookupShape(model, 'Pet');
-            element = await examplesFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'Pet');
+            element = await examplesFixture(data, JsonType);
           });
 
           it('renders a group for each member', () => {
@@ -737,13 +743,14 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact);
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
           let element;
           beforeEach(async () => {
-            const data = loader.lookupShape(model, 'RecursiveShape');
-            element = await examplesFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'RecursiveShape');
+            element = await examplesFixture(data, JsonType);
           });
 
           it('renders the recursive pill in the property', () => {
@@ -770,14 +777,15 @@ describe('ApiSchemaDocumentElement', () => {
           let model;
           before(async () => {
             model = await loader.getGraph(compact);
+            store.amf = model;
           });
 
           /** @type ApiSchemaDocumentElement */
           let element;
 
           it('renders the file shape', async () => {
-            const data = loader.lookupShape(model, 'FileType');
-            element = await examplesFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'FileType');
+            element = await examplesFixture(data, JsonType);
             
             const detail = /** @type HTMLDetailsElement */ (element.shadowRoot.querySelector('.property-details'));
             assert.notOk(detail, 'has no detail element');
@@ -796,8 +804,8 @@ describe('ApiSchemaDocumentElement', () => {
           });
 
           it('renders the file property', async () => {
-            const data = loader.lookupShape(model, 'FilePropertyType');
-            element = await examplesFixture(model, data, JsonType);
+            const data = loader.getShape(model, 'FilePropertyType');
+            element = await examplesFixture(data, JsonType);
 
             const container = element.shadowRoot.querySelector('.property-container[data-name="filetype"]');
 
@@ -824,13 +832,14 @@ describe('ApiSchemaDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'read-only-properties');
+          store.amf = model;
         });
 
         /** @type ApiSchemaDocumentElement */
         let element;
         beforeEach(async () => {
-          const data = loader.lookupShape(model, 'Article');
-          element = await basicFixture(model, data);
+          const data = loader.getShape(model, 'Article');
+          element = await basicFixture(data);
         });
 
         it('renders the readonly property by default', () => {
@@ -856,33 +865,34 @@ describe('ApiSchemaDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'APIC-631');
+          store.amf = model;
         });
 
         /** @type ApiSchemaDocumentElement */
         let element;
 
         it('renders first union options as "List of String"', async () => {
-          const data = loader.lookupShape(model, 'test2');
-          element = await basicFixture(model, data);
+          const data = loader.getShape(model, 'test2');
+          element = await basicFixture(data);
           
           const firstToggle = element.shadowRoot.querySelector('.union-toggle');
           assert.equal(firstToggle.textContent.trim().toLowerCase(), 'list of string');
         });
 
         it('does not render name for inline type', async () => {
-          const data = loader.lookupShape(model, 'test3');
-          element = await basicFixture(model, data);
+          const data = loader.getShape(model, 'test3');
+          element = await basicFixture(data);
 
           const propertyName = element.shadowRoot.querySelector('.param-label');
           assert.notExists(propertyName);
 
-          const propertyType = element.shadowRoot.querySelector('.schema-property-label');
+          const propertyType = element.shadowRoot.querySelector('.param-type');
           assert.equal(propertyType.textContent.trim(), 'List of String');
         });
 
         it('renders "List of Number" data type', async () => {
-          const data = loader.lookupShape(model, 'test8');
-          element = await basicFixture(model, data);
+          const data = loader.getShape(model, 'test8');
+          element = await basicFixture(data);
 
           const property = element.shadowRoot.querySelector('.property-container[data-name="names8"]');
           const dataType = property.querySelector('.param-type');
@@ -895,6 +905,7 @@ describe('ApiSchemaDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'aap-1698');
+          store.amf = model;
         });
 
         /** @type ApiSchemaDocumentElement */
@@ -902,7 +913,7 @@ describe('ApiSchemaDocumentElement', () => {
         beforeEach(async () => {
           const [payload] = loader.getPayloads(model, '/not-working', 'post');
           const { schema } = payload;
-          element = await schemaFixture(model, schema, JsonType);
+          element = await schemaFixture(schema, JsonType);
         });
 
         it('renders enum values with the array property', () => {
@@ -929,6 +940,7 @@ describe('ApiSchemaDocumentElement', () => {
         let model;
         before(async () => {
           model = await loader.getGraph(compact, 'APIC-332');
+          store.amf = model;
         });
 
         /** @type ApiSchemaDocumentElement */
@@ -936,7 +948,7 @@ describe('ApiSchemaDocumentElement', () => {
         beforeEach(async () => {
           const [payload] = loader.getPayloads(model, '/organization', 'post');
           const { schema } = payload;
-          element = await schemaFixture(model, schema, JsonType);
+          element = await schemaFixture(schema, JsonType);
         });
 
         it('renders description for an example', () => {

@@ -2,13 +2,13 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
 import { classMap } from "lit-html/directives/class-map";
-import { ns } from '@api-components/amf-helper-mixin';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
-import { ApiSchemaGenerator } from '@api-components/api-schema';
 import '@advanced-rest-client/highlight/arc-marked.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-button.js';
-import '@anypoint-web-components/anypoint-radio-button/anypoint-radio-group.js';
-import { chevronRight } from '@advanced-rest-client/arc-icons';
+import '@anypoint-web-components/awc/anypoint-radio-button.js';
+import '@anypoint-web-components/awc/anypoint-radio-group.js';
+import { chevronRight } from '@advanced-rest-client/icons';
+import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
+import { ns } from '../helpers/Namespace.js';
 import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiSchema.js';
 import schemaStyles from './styles/SchemaCommon.js';
@@ -24,29 +24,28 @@ import {
 } from './SchemaCommonTemplates.js';
 import { 
   ApiDocumentationBase,
-  serializerValue,
   descriptionTemplate,
   customDomainPropertiesTemplate,
   evaluateExamples,
   examplesTemplate,
   examplesValue,
 } from './ApiDocumentationBase.js';
+import { Events } from '../events/Events.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').Shape} Shape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShape} ApiShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiExample} ApiExample */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiUnionShape} ApiUnionShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiFileShape} ApiFileShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSchemaShape} ApiSchemaShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiAnyShape} ApiAnyShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiTupleShape} ApiTupleShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPropertyShape} ApiPropertyShape */
-/** @typedef {import('@api-components/api-schema').SchemaExample} SchemaExample */
+/** @typedef {import('../helpers/api').ApiShape} ApiShape */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiExample} ApiExample */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../helpers/api').ApiUnionShape} ApiUnionShape */
+/** @typedef {import('../helpers/api').ApiFileShape} ApiFileShape */
+/** @typedef {import('../helpers/api').ApiSchemaShape} ApiSchemaShape */
+/** @typedef {import('../helpers/api').ApiAnyShape} ApiAnyShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiTupleShape} ApiTupleShape */
+/** @typedef {import('../helpers/api').ApiPropertyShape} ApiPropertyShape */
+/** @typedef {import('../types').SchemaExample} SchemaExample */
 
 export const mimeTypeValue = Symbol('mimeTypeValue');
 export const querySchema = Symbol('querySchema');
@@ -188,32 +187,40 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     this.schemaTitle = undefined;
     /** @type boolean */
     this.noReadOnly = undefined;
-    /** @type Shape */
-    this.domainModel = undefined;
   }
 
   /**
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel, domainId, amf } = this;
-    if (domainModel) {
-      this[schemaValue] = this[serializerValue].unknownShape(domainModel);
-    }
     this[expandedValue] = [];
     this[selectedUnionsValue] = {};
-
-    if (domainId && amf) {
-      const declares = this._computeDeclares(amf);
-      const references = this._computeReferences(amf);
-      const model = this._computeType(declares, references, domainId);
-      if (model) {
-        this[schemaValue] = this[serializerValue].unknownShape(model);
-      }
-    }
-    
+    await this[querySchema]();
     this[processSchema]();
     await this.requestUpdate();
+  }
+
+  /**
+   * Queries the store for the schema data, when needed.
+   * @returns {Promise<void>}
+   */
+  async [querySchema]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[schemaValue] = undefined;
+      return;
+    }
+    if (this[schemaValue] && this[schemaValue].id === domainId) {
+      // in case the schema model was provided via the property setter.
+      return;
+    }
+    try {
+      const info = await Events.Type.get(this, domainId);
+      this[schemaValue] = info;
+    } catch (e) {
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API schema data: ${e.message}`, this.localName);
+    }
   }
 
   /**
@@ -422,8 +429,8 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     return html`
     <div class="schema-header">
       <div class="${classMap(headerCss)}">
-        <span class="label">${prefix}${label}</span>
-        ${typeName ? html`<span class="type-name" title="Schema name">(${typeName})</span>` : ''}
+        <span class="label text-selectable">${prefix}${label}</span>
+        ${typeName ? html`<span class="type-name text-selectable" title="Schema name">(${typeName})</span>` : ''}
       </div>
     </div>
     `;
@@ -598,7 +605,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     const { name='' } = shape;
     const hasName = !!name && !name.startsWith('item');
     if (hasName) {
-      return html`<p class="inheritance-label">Properties inherited from <b>${name}</b>.</p>`;
+      return html`<p class="inheritance-label text-selectable">Properties inherited from <b>${name}</b>.</p>`;
     }
     return '';
     // return html`<p class="inheritance-label">Properties defined inline.</p>`;
@@ -696,7 +703,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     }
     return html`
     <div class="schema-content">
-    <pre class="code-value"><code>${raw}</code></pre>
+    <pre class="code-value text-selectable"><code>${raw}</code></pre>
     </div>
     `;
   }
@@ -718,9 +725,12 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
       const label = readPropertyTypeLabel(schema, true);
       labelTemplate = html`
       <div class="schema-property-item">
-        <div class="schema-property-label">${label}</div>
+        <div class="schema-property-label text-selectable">${label}</div>
       </div>
       `;
+    }
+    if (items.types.includes(ns.aml.vocabularies.shapes.ScalarShape)) {
+      return this[scalarShapeTemplate](schema);
     }
     return html`
     <div class="params-section">
@@ -740,7 +750,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
       return '';
     }
     if (!items) {
-      return html`<div class="empty-info">Items are not defined for this array.</div>`;
+      return html`<div class="empty-info text-selectable">Items are not defined for this array.</div>`;
     }
     return html`
     <div class="params-section">
@@ -761,7 +771,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     if (and.length || or.length || xone.length) {
       return this[unionShapeTemplate](/** @type ApiUnionShape */ (schema));
     }
-    return html`<p class="any-info">Any schema is accepted as the value here.</p>`;
+    return html`<p class="any-info text-selectable">Any schema is accepted as the value here.</p>`;
   }
 
   /**
@@ -772,7 +782,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     if (schema.readOnly && this.noReadOnly) {
       return '';
     }
-    return html`<p class="nil-info">The value of this property is <b>nil</b>.</p>`;
+    return html`<p class="nil-info text-selectable">The value of this property is <b>nil</b>.</p>`;
   }
 
   /**
@@ -884,7 +894,7 @@ export default class ApiSchemaDocumentElement extends ApiDocumentationBase {
     <div class="property-container">
       <div class="name-column">
         ${paramNameTemplate(label, required, deprecated)}
-        <div class="param-type">
+        <div class="param-type text-selectable">
           Unknown type
         </div>
       </div>

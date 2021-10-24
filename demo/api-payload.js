@@ -1,8 +1,10 @@
 import { html } from 'lit-html';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-payload-document.js';
+import '../define/api-payload-document.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').Payload} Payload */
+/** @typedef {import('../').Amf.Payload} Payload */
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+
 /** 
  * @typedef ResponsePayload 
  * @property {string} code
@@ -19,22 +21,21 @@ class ComponentPage extends AmfDemoBase {
     this.request = undefined;
     /** @type ResponsePayload[] */
     this.response = undefined;
-    this.compatibility = false;
     this.componentName = 'api-payload-document';
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive } = e.detail;
+    const { domainId, domainType, passive } = e.detail;
     if (passive) {
       return;
     }
     this.request = [];
     this.response = [];
-    if (type === 'method') {
-      this.setPayloads(selected);
+    if (domainType === 'operation') {
+      this.setPayloads(domainId);
     }
   }
 
@@ -49,7 +50,7 @@ class ComponentPage extends AmfDemoBase {
     }
     const expects = this._computeExpects(operation);
     if (expects) {
-      let payloads = this._computePayload(expects);
+      let payloads = expects[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)];
       if (payloads) {
         if (!Array.isArray(payloads)) {
           payloads = [payloads];
@@ -58,12 +59,12 @@ class ComponentPage extends AmfDemoBase {
       }
     }
 
-    const returns = this._computeReturns(operation);
+    const returns = operation[this._getAmfKey(this.ns.aml.vocabularies.apiContract.returns)];
     if (Array.isArray(returns)) {
       const result = [];
       returns.forEach((response) => {
         const code = this._getValue(response, this.ns.aml.vocabularies.apiContract.statusCode);
-        let payloads = this._computePayload(response);
+        let payloads = response[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)];
         if (payloads) {
           if (!Array.isArray(payloads)) {
             payloads = [payloads];
@@ -166,7 +167,7 @@ class ComponentPage extends AmfDemoBase {
    */
   payloadTemplate(payload) {
     return html`
-    <api-payload-document .amf="${this.amf}" .domainModel="${payload}"></api-payload-document>
+    <api-payload-document .domainId="${payload['@id']}"></api-payload-document>
     `;
   }
 

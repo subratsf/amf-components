@@ -25,6 +25,10 @@ body [role="main"].centered {
   margin: 20px;
 }
 
+[slot="options"] anypoint-radio-button {
+  display: block;
+}
+
 body.demo.styled {
   color: #000;
   --error-color: red;

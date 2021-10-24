@@ -1,23 +1,22 @@
 import { LitElement, TemplateResult } from 'lit-element';
-import { AmfHelperMixin, ApiServer, AmfDocument } from '@api-components/amf-helper-mixin';
-import { ServerType, SelectionInfo, UpdateServersOptions } from '../types';
+import { ApiServer } from '../helpers/api';
+import { ServerType, SelectionType } from '../types';
 
+export const domainIdValue: unique symbol;
+export const domainTypeValue: unique symbol;
+export const debounceValue: unique symbol;
+export const processDebounce: unique symbol;
 export const customNodesCount: unique symbol;
 export const allowCustomValue: unique symbol;
 export const baseUriValue: unique symbol;
 export const valueValue: unique symbol;
 export const customItems: unique symbol;
-export const serializerValue: unique symbol;
 export const serversValue: unique symbol;
 export const onServersCountChangeValue: unique symbol;
 export const onApiServerChange: unique symbol;
-export const selectedShapeValue: unique symbol;
-export const selectedShapeTypeValue: unique symbol;
 export const getServerIndexByUri: unique symbol;
 export const getSelectionInfo: unique symbol;
-export const getEndpointIdForMethod: unique symbol;
 export const getExtraServers: unique symbol;
-export const processShapeChange: unique symbol;
 export const resetSelection: unique symbol;
 export const updateServerSelection: unique symbol;
 export const notifyServersCount: unique symbol;
@@ -34,6 +33,8 @@ export const serverListTemplate: unique symbol;
 export const serverListItemTemplate: unique symbol;
 export const customUriTemplate: unique symbol;
 export const customUriInputTemplate: unique symbol;
+export const graphChangeHandler: unique symbol;
+export const queryServers: unique symbol;
 
 /**
  * An element that renders a selection of servers defined in AMF graph model for an API.
@@ -62,7 +63,7 @@ export const customUriInputTemplate: unique symbol;
  * @fires serverscountchanged
  * @fires apiserverchanged
  */
-export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement) {
+export default class ApiServerSelectorElement extends LitElement {
   /**
    * The baseUri to override any server definition
    * @attribute
@@ -82,7 +83,7 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
 
   /**
    * Currently selected type of the input.
-   * `server` | `uri` | `custom`
+   * `server` | `extra` | `custom`
    * @attribute
    */
   type: ServerType;
@@ -100,10 +101,10 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
   outlined: boolean;
 
   /**
-   * Enables compatibility with the anypoint platform
+   * Enables Anypoint platform styles.
    * @attribute
    */
-  compatibility: boolean;
+  anypoint: boolean;
 
   /**
    * When set it automatically selected the first server from the list
@@ -124,13 +125,13 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
    * When changed, it computes servers for the selection
    * @attribute
    */
-  selectedShape: string;
+  domainId: string;
   /**
    * The type of the selected AMF shape.
    * When changed, it computes servers for the selection
    * @attribute
    */
-  selectedShapeType: string;
+  domainType: SelectionType;
   /**
    * @returns Computed list of all URI values from both the servers
    * and the list of rendered custom items.
@@ -177,6 +178,11 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
    * @returns Total number of list items being rendered.
    */
   get serversCount(): number;
+  /** 
+     * The timeout after which the `queryGraph()` function is called 
+     * in the debouncer.
+     */
+  queryDebouncerTimeout: number;
 
   // /**
   //  * Async function to set value after component has finished updating
@@ -210,20 +216,16 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
   // [childrenHandler](): void;
 
   /**
-   * @override callback function when AMF change.
-   * This is asynchronous operation.
+   * Queries for the current API server data from the store.
    */
-  __amfChanged(amf: AmfDocument): Promise<void>;
+  processGraph(): Promise<void>;
 
   /**
    * Executes auto selection logic.
-   * It selects a fist available sever from the serves list when AMF or operation
-   * selection changed.
-   * If there are no servers, but there are custom slots available, then select
-   * first custom slot
-   * When there's already valid selection then it does nothing.
+   * 
+   * @param preferred The value that should be selected when possible.
    */
-  selectIfNeeded(): void;
+  selectIfNeeded(preferred?: string): void;
 
   // /**
   //  * Collects information about selection from the current value.
@@ -248,13 +250,6 @@ export default class ApiServerSelectorElement extends AmfHelperMixin(LitElement)
   //  * @returns The index of found server or -1 if none found.
   //  */
   // [getServerIndexByUri](servers: ApiServer[], value: string): number;
-
-  /**
-   * Update component's servers.
-   *
-   * @param selectedNodeParams The currently selected node parameters to set the servers for
-   */
-  updateServers(selectedNodeParams?: UpdateServersOptions): void;
 
   // /**
   //  * Handler for the listbox's change event

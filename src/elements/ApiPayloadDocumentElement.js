@@ -4,19 +4,18 @@ import commonStyles from './styles/Common.js';
 import elementStyles from './styles/ApiPayload.js';
 import { 
   ApiDocumentationBase,
-  serializerValue,
   evaluateExamples,
   examplesTemplate,
   examplesValue,
 } from './ApiDocumentationBase.js';
-import '../../api-schema-document.js';
+import { Events } from '../events/Events.js';
+import '../../define/api-schema-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').Payload} Payload */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiExample} ApiExample */
-/** @typedef {import('@api-components/api-schema').SchemaExample} SchemaExample */
+/** @typedef {import('../helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiExample} ApiExample */
+/** @typedef {import('../types').SchemaExample} SchemaExample */
 
 export const queryPayload = Symbol('queryPayload');
 export const queryExamples = Symbol('queryExamples');
@@ -56,8 +55,6 @@ export default class ApiPayloadDocumentElement extends ApiDocumentationBase {
      * @type {ApiPayload}
      */
     this[payloadValue] = undefined;
-    /** @type Payload */
-    this.domainModel = undefined;
   }
 
   /**
@@ -65,12 +62,33 @@ export default class ApiPayloadDocumentElement extends ApiDocumentationBase {
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel } = this;
-    if (domainModel) {
-      this[payloadValue] = this[serializerValue].payload(domainModel);
-    }
+    await this[queryPayload]();
     await this[processPayload]();
     await this.requestUpdate();
+  }
+
+  /**
+   * Queries the store for the payload data, when needed.
+   * @returns {Promise<void>}
+   */
+  async [queryPayload]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[requestValue] = undefined;
+      return;
+    }
+    if (this[payloadValue] && this[payloadValue].id === domainId) {
+      // in case the request model was provided via the property setter.
+      return;
+    }
+    try {
+      const info = await Events.Payload.get(this, domainId);
+      this[payloadValue] = info;
+    } catch (e) {
+      this[payloadValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API payload data: ${e.message}`, this.localName);
+    }
   }
 
   async [processPayload]() {
@@ -127,7 +145,7 @@ export default class ApiPayloadDocumentElement extends ApiDocumentationBase {
       return '';
     }
     return html`
-    <div class="payload-name">${name}</div>
+    <div class="payload-name text-selectable">${name}</div>
     `;
   }
 
@@ -141,7 +159,7 @@ export default class ApiPayloadDocumentElement extends ApiDocumentationBase {
       return html`<div class="empty-info">Schema is not defined for this payload.</div>`;
     }
     return html`
-    <api-schema-document class="schema-renderer" .amf="${this.amf}" .schema="${schema}" .mimeType="${mediaType}" ?anypoint="${this.anypoint}" forceExamples schemaTitle></api-schema-document>
+    <api-schema-document class="schema-renderer" .schema="${schema}" .mimeType="${mediaType}" ?anypoint="${this.anypoint}" forceExamples schemaTitle></api-schema-document>
     `;
   }
 }

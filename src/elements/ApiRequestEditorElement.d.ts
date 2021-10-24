@@ -12,20 +12,17 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { TemplateResult, LitElement } from 'lit-element';
-import { EventsTargetMixin } from '@advanced-rest-client/events-target-mixin';
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
-import { Oauth2Credentials } from '@advanced-rest-client/authorization';
-import { ApiEndPoint, ApiOperation, ApiPayload, ApiParameter, ApiServer, Operation, AmfDocument } from '@api-components/amf-helper-mixin';
-import { ServerType } from '@api-components/api-server-selector';
+import { EventsTargetMixin } from '@anypoint-web-components/awc';
+import { Oauth2Credentials } from '@advanced-rest-client/app';
+import { ApiEndPoint, ApiOperation, ApiPayload, ApiParameter, ApiServer } from '../helpers/api';
 import { AmfParameterMixin } from '../lib/AmfParameterMixin';
-import { SecuritySelectorListItem, ApiConsoleRequest, OperationParameter } from '../types';
+import { SecuritySelectorListItem, ApiConsoleRequest, OperationParameter, ServerType } from '../types';
 
 export const EventCategory: string;
 
 export const domainIdValue: unique symbol;
 export const operationValue: unique symbol;
 export const endpointValue: unique symbol;
-export const serializerValue: unique symbol;
 export const loadingRequestValue: unique symbol;
 export const requestIdValue: unique symbol;
 export const baseUriValue: unique symbol;
@@ -34,15 +31,13 @@ export const serverLocalValue: unique symbol;
 export const processOperation: unique symbol;
 export const processEndpoint: unique symbol;
 export const processSecurity: unique symbol;
-export const processServers: unique symbol;
+export const processPayload: unique symbol;
 export const appendToParams: unique symbol;
 export const securityList: unique symbol;
 export const updateServer: unique symbol;
 export const updateServerParameters: unique symbol;
 export const updateEndpointParameters: unique symbol;
-export const computeMethodAmfModel: unique symbol;
 export const computeUrlValue: unique symbol;
-export const processSelection: unique symbol;
 export const getOrderedPathParams: unique symbol;
 export const validateUrl: unique symbol;
 export const readUrlValidity: unique symbol;
@@ -82,25 +77,34 @@ export const computeUrlRegexp: unique symbol;
 export const urlSearchRegexpValue: unique symbol;
 export const applyUriValues: unique symbol;
 export const applyQueryParamsValues: unique symbol;
+export const orderPathParameters: unique symbol;
+export const queryOperation: unique symbol;
+export const queryEndpoint: unique symbol;
+export const queryServers: unique symbol;
+export const queryProtocols: unique symbol;
+export const protocolsValue: unique symbol;
+export const serversValue: unique symbol;
+export const queryVersion: unique symbol;
+export const versionValue: unique symbol;
+export const graphChangeHandler: unique symbol;
+export const debounceValue: unique symbol;
+export const processDebounce: unique symbol;
 
 /**
  * @fires apirequest
  * @fires apiabort
- * @fires api-request
- * @fires abort-api-request
  */
-export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelperMixin(EventsTargetMixin(LitElement))) {
+export default class ApiRequestEditorElement extends AmfParameterMixin(EventsTargetMixin(LitElement)) {
   /** 
    * The currently selected media type for the payloads.
    * @attribute
    */
   mimeType: string;
   /**
-  * An `@id` of selected AMF shape. When changed it computes
-  * method model for the selection.
+  * The domain id (AMF's id) of an API operation.
   * @attribute
   */
-  selected: string;
+  domainId: string;
   [domainIdValue]: string;
   /**
   * When set it renders a label with the computed URL.
@@ -135,10 +139,10 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   */
   allowCustom: boolean;
   /**
-  * Enables compatibility with Anypoint styling
+  * Enables Anypoint platform styles.
   * @attribute
   */
-  compatibility: boolean;
+  anypoint: boolean;
   /**
   * Enables Material Design outlined style
   * @attribute
@@ -279,6 +283,16 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * @returns True when the URL input is invalid.
    */
   get urlInvalid(): boolean;
+  /**
+   * The API's protocols.
+   */
+  get protocols(): string[]|undefined;
+  /**
+   * The API's version.
+   */
+  get version(): string|undefined
+  [protocolsValue]: string[]|undefined;
+  [versionValue]: string|undefined;
   /** 
    * Set when the selection change, this is a JS object created form the 
    * supportedOperation definition of the AMF graph.
@@ -291,7 +305,6 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    * This allows to render the selector to pick the current security.
    */
   [securityList]: SecuritySelectorListItem[];
-  [serializerValue]: AmfSerializer;
   /** 
    * The list of parameter groups that are opened when `allowHideOptional` is set.
    */
@@ -301,8 +314,23 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   /**
    * The list of computed servers for this AMF configuration.
    */
-  servers: ApiServer[];
-  
+  get servers(): ApiServer[];
+  /** 
+   * Optional. The parent endpoint id. When set it uses this value to query for the endpoint
+   * instead of querying for a parent through the operation id.
+   * Also, when `endpoint` is set and the `endpointId` match then it ignores querying for 
+   * the endpoint.
+   * @attribute
+   */
+  endpointId: string;
+  endpoint: ApiEndPoint|undefined;
+  /** 
+   * The timeout after which the `queryGraph()` function is called 
+   * in the debouncer.
+   */
+  queryDebouncerTimeout: number;
+  [serversValue]: ApiServer[];
+  [serverLocalValue]: ApiServer;
   constructor();
 
   // for the AmfParameterMixin
@@ -311,11 +339,14 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
   _detachListeners(node: EventTarget): void;
 
   /**
-   * Overrides `AmfHelperMixin.__amfChanged`.
-   * It updates selection and clears cache in the model generator, per APIC-229
+   * Handler for the event dispatched by the store when the graph model change.
    */
-  __amfChanged(amf: AmfDocument): void;
+  [graphChangeHandler](): void;
 
+  /**
+   * Calls the `queryGraph()` function in a debouncer.
+   */
+  [processDebounce](): void;
   /**
    * Reads the URL data from the ApiUrlDataModel library and sets local variables.
    */
@@ -343,7 +374,37 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
 
   reset(): void;
 
-  [processSelection](): void;
+  /**
+   * Processes the selection of the domain id for an operation.
+   */
+  processGraph(): Promise<void>;
+
+  /**
+   * Queries the store for the operation data, when needed.
+   * @returns {Promise<void>}
+   */
+  [queryOperation](): Promise<void>;
+
+  /**
+   * Queries the store for the endpoint data.
+   * @returns {Promise<void>}
+   */
+  [queryEndpoint](): Promise<void>;
+
+  /**
+   * Queries for the current servers value.
+   */
+  [queryServers](): Promise<void>;
+
+  /**
+   * Queries the API store for the API protocols list.
+   */
+  [queryProtocols](): Promise<void>;
+
+  /**
+   * Queries the API store for the API version value.
+   */
+  [queryVersion](): Promise<void>;
 
   /**
    * Searches for the current operation endpoint and sets variables from the endpoint definition.
@@ -377,18 +438,6 @@ export default class ApiRequestEditorElement extends AmfParameterMixin(AmfHelper
    */
   [modelBodyEditorChangeHandler](e: Event): void;
   [authSelectorHandler](e: Event): void;
-
-  /**
-   * Computes the list of servers to be rendered by this operation.
-   * This should be called after the `[processEndpoint]()` function, when the 
-   * endpoint model is set.
-   */
-  [processServers](): void;
-
-  /**
-   * @returns AMF graph model for an operation
-   */
-  [computeMethodAmfModel](model: AmfDocument, selected: string): Operation|undefined;
 
   /**
    * Handles send button click.

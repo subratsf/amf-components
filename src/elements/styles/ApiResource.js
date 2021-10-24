@@ -16,6 +16,7 @@ export default css`
 }
 
 .endpoint-title .label {
+  color: var(--resource-title-color, inherit);
   font-size: var(--resource-title-size, 32px);
   font-weight: var(--resource-title-weight, 400);
   margin: 12px 0px;

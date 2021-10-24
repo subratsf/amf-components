@@ -1,25 +1,32 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
-import { AmfHelperMixin, AmfSerializer } from '@api-components/amf-helper-mixin';
+import { AmfHelperMixin } from '../src/helpers/AmfHelperMixin.js';
+import { AmfSerializer } from '../src/helpers/AmfSerializer.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
-/** @typedef {import('@api-components/amf-helper-mixin').EndPoint} EndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').Operation} Operation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiOperation} ApiOperation */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiEndPoint} ApiEndPoint */
-/** @typedef {import('@api-components/amf-helper-mixin').Payload} Payload */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPayload} ApiPayload */
-/** @typedef {import('@api-components/amf-helper-mixin').SecurityRequirement} SecurityRequirement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@api-components/amf-helper-mixin').Shape} Shape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').CreativeWork} CreativeWork */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDocumentation} ApiDocumentation */
-/** @typedef {import('@api-components/amf-helper-mixin').WebApi} WebApi */
-/** @typedef {import('@api-components/amf-helper-mixin').Response} Response */
-/** @typedef {import('@api-components/amf-helper-mixin').Request} Request */
-/** @typedef {import('@api-components/amf-helper-mixin').Server} Server */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiServer} ApiServer */
+/** @typedef {import('../src/helpers/amf').AmfDocument} AmfDocument */
+/** @typedef {import('../src/helpers/amf').EndPoint} EndPoint */
+/** @typedef {import('../src/helpers/amf').Operation} Operation */
+/** @typedef {import('../src/helpers/amf').Payload} Payload */
+/** @typedef {import('../src/helpers/amf').SecurityRequirement} SecurityRequirement */
+/** @typedef {import('../src/helpers/amf').SecurityScheme} SecurityScheme */
+/** @typedef {import('../src/helpers/amf').Shape} Shape */
+/** @typedef {import('../src/helpers/amf').CreativeWork} CreativeWork */
+/** @typedef {import('../src/helpers/amf').WebApi} WebApi */
+/** @typedef {import('../src/helpers/amf').Response} Response */
+/** @typedef {import('../src/helpers/amf').Request} Request */
+/** @typedef {import('../src/helpers/amf').Server} Server */
+/** @typedef {import('../src/helpers/amf').Parameter} Parameter */
+/** @typedef {import('../src/helpers/api').ApiEndPoint} ApiEndPoint */
+/** @typedef {import('../src/helpers/api').ApiOperation} ApiOperation */
+/** @typedef {import('../src/helpers/api').ApiPayload} ApiPayload */
+/** @typedef {import('../src/helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../src/helpers/api').ApiSecurityScheme} ApiSecurityScheme */
+/** @typedef {import('../src/helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../src/helpers/api').ApiDocumentation} ApiDocumentation */
+/** @typedef {import('../src/helpers/api').ApiServer} ApiServer */
+/** @typedef {import('../src/helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../src/helpers/api').ApiRequest} ApiRequest */
+/** @typedef {import('../src/helpers/api').ApiResponse} ApiResponse */
 
 /**
  * @typedef EndpointOperation
@@ -57,7 +64,19 @@ export class AmfLoader extends AmfHelperMixin(Object) {
   lookupEndpoint(model, path) {
     this.amf = model;
     const webApi = this._computeApi(model);
-    return this._computeEndpointByPath(webApi, path);
+    if (!webApi) {
+      throw new Error('This AMF model does not contain API definition.');
+    }
+    const endpoints = webApi[this._getAmfKey(this.ns.aml.vocabularies.apiContract.endpoint)];
+    if (!Array.isArray(endpoints) || !endpoints.length) {
+      throw new Error('This API does not contain endpoints.');
+    }
+    const pathKey = this.ns.aml.vocabularies.apiContract.path;
+    const ep = endpoints.find(i => this._getValue(i, pathKey) === path);
+    if (!ep) {
+      throw new Error(`An endpoint with path ${path} does not exist in this API.`);
+    }
+    return ep;
   }
 
   /**
@@ -121,14 +140,34 @@ export class AmfLoader extends AmfHelperMixin(Object) {
 
   /**
    * @param {AmfDocument} model
+   * @param {string} path
+   * @param {string} operation
+   * @return {Request}
+   */
+  lookupExpects(model, path, operation) {
+    const op = this.lookupOperation(model, path, operation);
+    if (!op) {
+      throw new Error(`Unknown operation for path ${path} and method ${operation}`);
+    }
+    let expects = op[this._getAmfKey(this.ns.aml.vocabularies.apiContract.expects)];
+    if (!expects) {
+      throw new Error(`Operation has no "expects" value.`);
+    }
+    if (Array.isArray(expects)) {
+      [expects] = expects;
+    }
+    return expects;
+  }
+
+  /**
+   * @param {AmfDocument} model
    * @param {string} endpoint
    * @param {string} operation
    * @return {Payload[]}
    */
   lookupPayloads(model, endpoint, operation) {
-    const op = this.lookupOperation(model, endpoint, operation);
-    const expects = this._computeExpects(op);
-    let payloads = this._computePayload(expects);
+    const expects = this.lookupExpects(model, endpoint, operation);
+    let payloads = expects[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)];
     if (payloads && !Array.isArray(payloads)) {
       payloads = [payloads];
     }
@@ -153,21 +192,20 @@ export class AmfLoader extends AmfHelperMixin(Object) {
   /**
    * @param {AmfDocument} model 
    * @param {string} name 
-   * @returns {SecurityRequirement}
+   * @returns {SecurityScheme}
    */
   lookupSecurity(model, name) {
     this.amf = model;
-    const webApi = this._hasType(model, this.ns.aml.vocabularies.document.Document) ?
-      this._computeApi(model) :
-      model;
-    const declares = this._computeDeclares(webApi) || [];
+    const declares = this._computeDeclares(model) || [];
     let security = declares.find((item) => {
       if (Array.isArray(item)) {
         [item] = item;
       }
-      const result = this._getValue(item, this.ns.aml.vocabularies.core.name) === name;
-      if (result) {
-        return result;
+      if (this._getValue(item, this.ns.aml.vocabularies.core.displayName) === name) {
+        return true;
+      }
+      if (this._getValue(item, this.ns.aml.vocabularies.core.name) === name) {
+        return true;
       }
       return this._getValue(item, this.ns.aml.vocabularies.security.name) === name;
     });
@@ -192,7 +230,7 @@ export class AmfLoader extends AmfHelperMixin(Object) {
   /**
    * @param {AmfDocument} model
    * @param {string} name 
-   * @return {ApiSecurityRequirement}
+   * @return {ApiSecurityScheme}
    */
   getSecurity(model, name) {
     const security = this.lookupSecurity(model, name);
@@ -200,7 +238,7 @@ export class AmfLoader extends AmfHelperMixin(Object) {
       throw new Error(`No security named ${name}`);
     }
     const serializer = new AmfSerializer(model);
-    return serializer.securityRequirement(security);
+    return serializer.securityScheme(security);
   }
 
   /**
@@ -310,7 +348,19 @@ export class AmfLoader extends AmfHelperMixin(Object) {
    */
   lookupResponses(model, endpoint, operation) {
     const method = this.lookupOperation(model, endpoint, operation);
-    return this._computeReturns(method);
+    return method[this._getAmfKey(this.ns.aml.vocabularies.apiContract.returns)];
+  }
+
+  /**
+   * @param {AmfDocument} model
+   * @param {string} endpoint
+   * @param {string} operation
+   * @return {ApiResponse[]}
+   */
+  getResponses(model, endpoint, operation) {
+    const responses = this.lookupResponses(model, endpoint, operation);
+    const serializer = new AmfSerializer(model);
+    return responses.map(i => serializer.response(i));
   }
 
   /**
@@ -341,6 +391,19 @@ export class AmfLoader extends AmfHelperMixin(Object) {
    * @param {AmfDocument} model
    * @param {string} endpoint
    * @param {string} operation
+   * @param {string} code The response's status code
+   * @return {ApiResponse}
+   */
+  getResponse(model, endpoint, operation, code) {
+    const response = this.lookupResponse(model, endpoint, operation, code);
+    const serializer = new AmfSerializer(model);
+    return serializer.response(response);
+  }
+
+  /**
+   * @param {AmfDocument} model
+   * @param {string} endpoint
+   * @param {string} operation
    * @return {Request}
    */
   lookupRequest(model, endpoint, operation) {
@@ -353,6 +416,21 @@ export class AmfLoader extends AmfHelperMixin(Object) {
       throw new Error(`No request found in operation ${operation} and path ${endpoint}`);
     }
     return requests;
+  }
+
+  /**
+   * @param {AmfDocument} model
+   * @param {string} endpoint
+   * @param {string} operation
+   * @return {ApiRequest}
+   */
+  getRequest(model, endpoint, operation) {
+    const request = this.lookupRequest(model, endpoint, operation);
+    if (!request) {
+      throw new Error(`No request found in operation ${operation} and path ${endpoint}`);
+    }
+    const serializer = new AmfSerializer(model);
+    return serializer.request(request);
   }
 
   /**
@@ -388,7 +466,7 @@ export class AmfLoader extends AmfHelperMixin(Object) {
    */
    lookupServers(model) {
     this.amf = model;
-    const webApi = this._computeWebApi(model);
+    const webApi = this._computeApi(model);
     const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.server);
     let result = webApi[key];
     if (result && !Array.isArray(result)) {
@@ -408,5 +486,162 @@ export class AmfLoader extends AmfHelperMixin(Object) {
       return servers.map(s => serializer.server(s));
     }
     return undefined;
+  }
+
+  /**
+   * @param {Object} model
+   * @param {string} path
+   * @param {string} operation
+   * @return {Response[]}
+   */
+  lookupReturns(model, path, operation) {
+    const op = this.lookupOperation(model, path, operation);
+    if (!op) {
+      throw new Error(`Unknown operation for path ${path} and method ${operation}`);
+    }
+    let returns = op[this._getAmfKey(this.ns.aml.vocabularies.apiContract.returns)];
+    if (!returns) {
+      throw new Error(`Operation has no "returns" value.`);
+    }
+    if (!Array.isArray(returns)) {
+      returns = [returns];
+    }
+    return returns;
+  }
+
+  /**
+   * Lookups a shape object from the declares array
+   * @param {AmfDocument} model 
+   * @param {string} name 
+   * @returns {Shape}
+   */
+  lookupDeclaredShape(model, name) {
+    this.amf = model;
+    const items = this._computeDeclares(model);
+    return items.find((item) => {
+      const typed = /** @type Shape */ (item);
+      const objectName = this._getValue(typed, this.ns.w3.shacl.name);
+      return objectName === name;
+    });
+  }
+
+  /**
+   * @param {AmfDocument} model
+   * @param {string} path
+   * @param {string} operation
+   * @return {SecurityRequirement[]}
+   */
+  lookupOperationSecurity(model, path, operation) {
+    const op = this.lookupOperation(model, path, operation);
+    if (!op) {
+      throw new Error(`Unknown operation for path ${path} and method ${operation}`);
+    }
+    let security = op[this._getAmfKey(this.ns.aml.vocabularies.security.security)];
+    if (!security) {
+      throw new Error(`Operation has no "security" value.`);
+    }
+    if (!Array.isArray(security)) {
+      security = [security];
+    }
+    return security;
+  }
+
+  /**
+   * @param {AmfDocument} model
+   * @param {string} path
+   * @param {string} operation
+   * @return {Payload[]}
+   */
+  lookupRequestPayloads(model, path, operation) {
+    const request = this.lookupExpects(model, path, operation);
+    const payload = request[this._getAmfKey(this.ns.aml.vocabularies.apiContract.payload)];
+    if (!payload || !payload.length) {
+      throw new Error(`Operation ${operation} of endpoint ${payload} has no request payload.`);
+    }
+    return payload;
+  }
+
+  /**
+   * @param {AmfDocument} model
+   * @param {string} path
+   * @param {string} operation
+   * @param {string} mime
+   * @return {Payload}
+   */
+  lookupRequestPayload(model, path, operation, mime) {
+    const payloads = this.lookupRequestPayloads(model, path, operation);
+    const payload = payloads.find(i => this._getValue(i, this.ns.aml.vocabularies.core.mediaType) === mime);
+    if (!payload) {
+      throw new Error(`Operation ${operation} of endpoint ${payload} has no request payload for ${mime}.`);
+    }
+    return payload;
+  }
+
+  /**
+   * Reads a request parameter from an operation for: URI, query params, headers, and cookies.
+   * 
+   * @param {AmfDocument} model 
+   * @param {string} endpoint The endpoint path
+   * @param {string} operation The operation path
+   * @param {string} param The param name
+   * @returns {ApiParameter} 
+   */
+  getParameter(model, endpoint, operation, param) {
+    const expects = this.lookupExpects(model, endpoint, operation);
+    if (!expects) {
+      throw new Error(`The operation ${operation} of endpoint ${endpoint} has no request.`);
+    }
+
+    const serializer = new AmfSerializer(model);
+    const request = serializer.request(expects);
+    if (!request) {
+      throw new Error(`The operation ${operation} of endpoint ${endpoint} has no request.`);
+    }
+    /** @type ApiParameter[] */
+    let pool = [];
+    if (Array.isArray(request.uriParameters)) {
+      pool = pool.concat(request.uriParameters);
+    }
+    if (Array.isArray(request.cookieParameters)) {
+      pool = pool.concat(request.cookieParameters);
+    }
+    if (Array.isArray(request.queryParameters)) {
+      pool = pool.concat(request.queryParameters);
+    }
+    if (Array.isArray(request.headers)) {
+      pool = pool.concat(request.headers);
+    }
+    const result = pool.find(i => i.name === param);
+    if (!result) {
+      throw new Error(`Parameter ${param} not found.`);
+    }
+    return result;
+  }
+
+  /**
+   * @param {Request|Response} source 
+   * @returns {Parameter[]|undefined}
+   */
+  readHeaders(source) {
+    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.header);
+    let values = source[key];
+    if (values && !Array.isArray(values)) {
+      values = [values];
+    }
+    return values;
+  }
+
+  /**
+   * Computes a list of query parameters
+   * @param {Request} source 
+   * @returns {Parameter[]|undefined}
+   */
+  readQueryParameters(source) {
+    const key = this._getAmfKey(this.ns.aml.vocabularies.apiContract.parameter);
+    let values = source[key];
+    if (values && !Array.isArray(values)) {
+      values = [values];
+    }
+    return values;
   }
 }

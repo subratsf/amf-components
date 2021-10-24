@@ -1,4 +1,4 @@
-import { DomainElement } from '@api-components/amf-helper-mixin';
+import { DomainElement } from '../helpers/amf';
 import { AmfStore } from './AmfStore.js';
 
 /**
@@ -9,7 +9,11 @@ import { AmfStore } from './AmfStore.js';
  */
 export class AmfGraphStore {
   apis: Map<string, AmfStore>;
-  constructor();
+  target: EventTarget;
+  /**
+   * @param target The event target to dispatch the events on.
+   */
+  constructor(target?: EventTarget);
 
   /**
    * Creates a new store object.

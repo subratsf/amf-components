@@ -1,9 +1,11 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-channel-document.js';
+import '../define/api-channel-document.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {
@@ -11,7 +13,6 @@ class ComponentPage extends AmfDemoBase {
     this.initObservableProperties([ 
       'selectedId', 'selectedType', 'selectedOperation',
     ]);
-    this.compatibility = false;
     this.selectedId = undefined;
     this.selectedType = undefined;
     this.selectedOperation = undefined;
@@ -20,21 +21,21 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive, endpointId } = e.detail;
+    const { domainId, domainType, passive, parentId } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'endpoint') {
-      this.selectedId = selected;
-      this.selectedType = type;
+    if (domainType === 'resource') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
       this.selectedOperation = undefined;
-    } else if (type === 'method') {
-      this.selectedId = endpointId;
+    } else if (domainType === 'operation') {
+      this.selectedId = parentId;
       this.selectedType = 'endpoint';
-      this.selectedOperation = selected;
+      this.selectedOperation = domainId;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;
@@ -77,7 +78,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   componentTemplate() {
-    const { demoStates, darkThemeActive, selectedId, selectedOperation, amf } = this;
+    const { demoStates, darkThemeActive, selectedId, selectedOperation } = this;
     if (!selectedId) {
       return html`<p>Select API operation in the navigation</p>`;
     }
@@ -88,7 +89,6 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-channel-document
-        .amf="${amf}"
         .domainId="${selectedId}"
         .operationId="${selectedOperation}"
         slot="content"

@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
-import { ResponseViewElement } from '@advanced-rest-client/arc-response';
+import { ResponseViewElement } from '@advanced-rest-client/app';
 import { 
   responseTemplate, 
   rawTemplate, 
@@ -9,16 +9,16 @@ import {
   contentActionHandler,
   responsePrefixTemplate,
   clearResponseHandler,
-} from '@advanced-rest-client/arc-response/src/internals.js';
-import { DataExportEventTypes } from '@advanced-rest-client/arc-events';
-import { dataValue, providerOptionsValue } from '@advanced-rest-client/arc-events/src/dataexport/Events.js';
-import '@anypoint-web-components/anypoint-item/anypoint-icon-item.js';
-import '@advanced-rest-client/arc-icons/arc-icon.js';
-import '@advanced-rest-client/arc-headers/headers-list.js';
+} from '@advanced-rest-client/app/src/elements/http/internals.js';
+import { DataExportEventTypes } from '@advanced-rest-client/events';
+import { dataValue, providerOptionsValue } from '@advanced-rest-client/events/src/dataexport/Events.js';
+import '@anypoint-web-components/awc/anypoint-icon-item.js';
+import '@advanced-rest-client/icons/arc-icon.js';
+import '@advanced-rest-client/app/define/headers-list.js';
 import elementStyles from './styles/Response.styles.js';
 
-/** @typedef {import('@advanced-rest-client/arc-events').ArcExportFilesystemEvent} ArcExportFilesystemEvent */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcResponse.Response} Response */
+/** @typedef {import('@advanced-rest-client/events').ArcExportFilesystemEvent} ArcExportFilesystemEvent */
+/** @typedef {import('@advanced-rest-client/events').ArcResponse.Response} Response */
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 
 export const saveFileHandler = Symbol('saveFileHandler');
@@ -39,6 +39,10 @@ export class ApiResponseViewElement extends ResponseViewElement {
        * Whether the source ("raw") view is opened.
        */
       source: { type: Boolean },
+      /**
+       * Enables Anypoint platform styles.
+       */
+      anypoint: { type: Boolean, reflect: true },
     };
   }
 
@@ -46,6 +50,8 @@ export class ApiResponseViewElement extends ResponseViewElement {
     super();
     this.details = false;
     this.source = false;
+    /** @type boolean */
+    this.anypoint = undefined;
     this[saveFileHandler] = this[saveFileHandler].bind(this);
   }
 
@@ -127,14 +133,14 @@ export class ApiResponseViewElement extends ResponseViewElement {
     const icon = details ? 'toggleOn' : 'toggleOff';
     const sourceLabel = source ? 'Formatted view' : 'Source view';
     return html`
-    <anypoint-icon-item data-id="clear" ?compatibility="${this.compatibility}">
+    <anypoint-icon-item data-id="clear" ?anypoint="${this.anypoint}">
       <arc-icon icon="clear" slot="item-icon"></arc-icon> Clear response
     </anypoint-icon-item>
     ${super[responseOptionsItemsTemplate]()}
-    <anypoint-icon-item data-id="toggle-details" ?compatibility="${this.compatibility}">
+    <anypoint-icon-item data-id="toggle-details" ?anypoint="${this.anypoint}">
       <arc-icon icon="${icon}" slot="item-icon"></arc-icon> Response details
     </anypoint-icon-item>
-    <anypoint-icon-item data-id="toggle-raw" ?compatibility="${this.compatibility}">
+    <anypoint-icon-item data-id="toggle-raw" ?anypoint="${this.anypoint}">
       <arc-icon icon="code" slot="item-icon"></arc-icon> ${sourceLabel}
     </anypoint-icon-item>
     `;

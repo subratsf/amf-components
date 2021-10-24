@@ -1,17 +1,18 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog.js';
-import '@anypoint-web-components/anypoint-dialog/anypoint-dialog-scrollable.js';
-import '@advanced-rest-client/authorization/oauth2-authorization.js';
-import '@api-components/api-server-selector/api-server-selector.js';
+import '@anypoint-web-components/awc/anypoint-checkbox.js';
+import '@anypoint-web-components/awc/anypoint-dialog.js';
+import '@anypoint-web-components/awc/anypoint-dialog-scrollable.js';
+import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import { AmfPartialGraphStore } from './lib/AmfPartialGraphStore.js';
-import '../api-documentation.js';
-import '../api-request.js';
-import '../xhr-simple-request.js';
+import '../define/api-documentation.js';
+import '../define/api-server-selector.js';
+import '../define/api-request.js';
+import '../define/xhr-simple-request.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 /**
  * @param {Event} e
@@ -35,17 +36,18 @@ class ComponentDemo extends AmfDemoBase {
       'renderCustomServer',
       'summaryModel', 'partialModelDocs'
     ]);
-    // @ts-ignore
+    this.store.unlisten();
     this.store = new AmfPartialGraphStore();
+    this.store.listen();
     this.componentName = 'api-documentation';
-    this.compatibility = false;
     this.editorOpened = false;
     this.editorOperation = undefined;
     this.domainId = undefined;
+    /** @type any */
     this.domainType = undefined;
     this.operationId = undefined;
     this.tryItButton = true;
-    this.tryItPanel = false;
+    this.tryItPanel = true;
     this.overrideBaseUri = false;
     this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
     // this.redirectUri = 'https://auth.advancedrestclient.com/oauth-popup.html';
@@ -67,63 +69,78 @@ class ComponentDemo extends AmfDemoBase {
     if (Array.isArray(amf)) {
       [amf] = amf;
     }
-    this.store.amf = amf;
+    /** @type AmfPartialGraphStore */ (this.store).amf = amf;
     this.context = amf['@context'];
     await this.loadSummary();
   }
   
   async loadSummary() {
     // debugger
-    const model = this.store.summary();
+    const model = await this.store.apiSummary();
     this.summaryModel = model;
     this.partialModelDocs = model;
     console.log(model);
     this.render();
   }
 
+  /** @param {Event} e */
+  _apiChanged(e) {
+    this.domainId = 'summary';
+    this.domainType = 'summary';
+    super._apiChanged(e);
+  }
+
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, endpointId, passive } = e.detail;
+    const { domainId, domainType, parentId, passive } = e.detail;
     if (passive === true) {
       return;
     }
-    this.operationId = undefined;
-    if (type === 'type') {
-      this.partialModelDocs = this.store.schema(selected, this.context);
-      this.domainId = selected;
-      this.domainType = type;
-      return;
+    this.domainType = domainType;
+    if (domainType === 'operation') {
+      this.operationId = domainId;
+      this.domainId = parentId;  
+    } else {
+      this.operationId = undefined;
+      this.domainId = domainId;
     }
-    if (type === 'security') {
-      this.partialModelDocs = this.store.securityRequirement(selected, this.context);
-      this.domainId = selected;
-      this.domainType = type;
-      return;
-    }
-    if (type === 'endpoint') {
-      this.partialModelDocs = this.store.endpoint(selected, this.context);
-      this.domainId = selected;
-      this.domainType = type;
-      return
-    }
-    if (type === 'method') {
-      if (!this.partialModelDocs || this.partialModelDocs['@id'] !== endpointId) {
-        this.partialModelDocs = this.store.endpoint(endpointId, this.context);
-      }
-      this.domainId = endpointId;
-      this.operationId = selected;
-      this.domainType = type;
-      return
-    }
-    if (type === 'summary') {
-      this.partialModelDocs = this.summaryModel;
-      this.domainId = selected;
-      this.domainType = type;
-      return;
-    }
-    console.log(selected, type, endpointId, passive);
+    // this.operationId = undefined;
+    // if (domainType === 'schema') {
+    //   this.partialModelDocs = this.partialStore.schema(domainId, this.context);
+    //   this.domainId = domainId;
+    //   this.domainType = domainType;
+    //   return;
+    // }
+    // if (domainType === 'security') {
+    //   this.partialModelDocs = this.partialStore.securityRequirement(domainId, this.context);
+    //   this.domainId = domainId;
+    //   this.domainType = domainType;
+    //   return;
+    // }
+    // if (domainType === 'resource') {
+    //   this.partialModelDocs = this.partialStore.endpoint(domainId, this.context);
+    //   this.domainId = domainId;
+    //   this.domainType = domainType;
+    //   return
+    // }
+    // if (domainType === 'operation') {
+    //   if (!this.partialModelDocs || this.partialModelDocs['@id'] !== parentId) {
+    //     this.partialModelDocs = this.partialStore.endpoint(parentId, this.context);
+    //   }
+    //   this.domainId = parentId;
+    //   this.operationId = domainId;
+    //   this.domainType = domainType;
+    //   return
+    // }
+    // if (domainType === 'summary') {
+    //   this.partialModelDocs = this.summaryModel;
+    //   this.domainId = domainId;
+    //   this.domainType = domainType;
+    //   return;
+    // }
+    // console.log(domainId, domainType, parentId, passive);
     // this.domainType = type;
     // if (type === 'method') {
     //   this.operationId = selected;
@@ -193,17 +210,16 @@ class ComponentDemo extends AmfDemoBase {
     >
       <api-documentation
         slot="content"
-        .amf="${this.partialModelDocs}"
         .domainId="${this.domainId}"
         .operationId="${this.operationId}"
         .domainType="${this.domainType}"
         .redirectUri="${this.redirectUri}"
         .tryItPanel="${this.tryItPanel}"
         .tryItButton="${this.tryItButton}"
-        .httpNoServerSelector="${this.noServerSelector}"
-        .httpAllowCustomBaseUri="${this.allowCustomBaseUri}"
+        .noServerSelector="${this.noServerSelector}"
+        .allowCustomBaseUri="${this.allowCustomBaseUri}"
         .baseUri="${finalBaseUri}"
-        ?anypoint="${this.compatibility}"
+        ?anypoint="${this.anypoint}"
         @tryit="${this.tryitHandler}"
       >
         ${this._addCustomServers()}
@@ -293,18 +309,18 @@ class ComponentDemo extends AmfDemoBase {
     if (!this.renderCustomServer) {
       return '';
     }
-    const { compatibility } = this;
+    const { anypoint } = this;
     return html`
     <div class="other-section" slot="custom-base-uri">Other options</div>
     <anypoint-item
       slot="custom-base-uri"
       data-value="http://mocking.com"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
     >Mocking service</anypoint-item>
     <anypoint-item
       slot="custom-base-uri"
       data-value="http://customServer.com2"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
     >Custom instance</anypoint-item>`;
   }
 
@@ -314,9 +330,8 @@ class ComponentDemo extends AmfDemoBase {
       <h2>API request</h2>
       <anypoint-dialog-scrollable>
         <api-request
-          .amf="${this.summaryModel}"
-          .selected="${this.editorOperation}"
-          ?compatibility="${this.compatibility}"
+          .domainId="${this.editorOperation}"
+          ?anypoint="${this.anypoint}"
           urlLabel
           applyAuthorization
           globalCache
@@ -342,7 +357,7 @@ class ComponentDemo extends AmfDemoBase {
     return html`
     <api-navigation
       summary
-      .amf="${this.summaryModel}"
+      .amf="${this.amf}"
       endpointsOpened
     ></api-navigation>`;
   }

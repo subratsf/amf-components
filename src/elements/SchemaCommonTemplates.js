@@ -1,19 +1,19 @@
 import { html } from "lit-element";
-import { ns } from '@api-components/amf-helper-mixin';
 import { classMap } from "lit-html/directives/class-map";
 import { ifDefined } from "lit-html/directives/if-defined";
-import '../../api-annotation-document.js';
+import { ns } from '../helpers/Namespace.js';
+import '../../define/api-annotation-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarShape} ApiScalarShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiArrayShape} ApiArrayShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiScalarNode} ApiScalarNode */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiUnionShape} ApiUnionShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiFileShape} ApiFileShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDataNodeUnion} ApiDataNodeUnion */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiRecursiveShape} ApiRecursiveShape */
+/** @typedef {import('../helpers/api').ApiShapeUnion} ApiShapeUnion */
+/** @typedef {import('../helpers/api').ApiScalarShape} ApiScalarShape */
+/** @typedef {import('../helpers/api').ApiArrayShape} ApiArrayShape */
+/** @typedef {import('../helpers/api').ApiScalarNode} ApiScalarNode */
+/** @typedef {import('../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../helpers/api').ApiUnionShape} ApiUnionShape */
+/** @typedef {import('../helpers/api').ApiFileShape} ApiFileShape */
+/** @typedef {import('../helpers/api').ApiDataNodeUnion} ApiDataNodeUnion */
+/** @typedef {import('../helpers/api').ApiRecursiveShape} ApiRecursiveShape */
 
 /**
  * @param {string} label The label to render.
@@ -25,6 +25,7 @@ export function pillTemplate(label, title, css=[]) {
   const classes = {
     'param-pill': true,
     'pill': true,
+    // 'text-selectable': true,
   };
   css.forEach((item) => { classes[item] = true });
   return html`
@@ -69,7 +70,7 @@ function enumValuesTemplate(values) {
   <div class="schema-property-item">
   <div class="schema-property-label">Enum:</div>
     <ul class="enum-items">
-      ${values.map((item) => html`<li class="code-value inline">${/** @type ApiScalarNode */ (item).value}</li>`)}
+      ${values.map((item) => html`<li class="code-value inline text-selectable">${/** @type ApiScalarNode */ (item).value}</li>`)}
     </ul>
   </div>
   `;
@@ -91,9 +92,9 @@ export function paramNameTemplate(name, required=false, deprecated=false, paramN
   };
   return html`
   <div class="${classMap(classes)}">
-    <span class="param-label">${label}</span>
+    <span class="param-label text-selectable">${label}</span>
   </div>
-  ${paramName ? html`<span class="param-name-secondary" title="Schema property name">${paramName}</span>` : ''}
+  ${paramName ? html`<span class="param-name-secondary text-selectable" title="Schema property name">${paramName}</span>` : ''}
   `;
 }
 
@@ -106,9 +107,7 @@ export function typeValueTemplate(type) {
     return '';
   }
   return html`
-  <div class="param-type">
-    ${type}
-  </div>
+  <div class="param-type text-selectable">${type}</div>
   `;
 }
 
@@ -123,7 +122,7 @@ export function descriptionValueTemplate(description) {
   return html`
   <div class="api-description">
     <arc-marked .markdown="${description}" sanitize>
-      <div slot="markdown-html" class="markdown-body"></div>
+      <div slot="markdown-html" class="markdown-body text-selectable"></div>
     </arc-marked>
   </div>
   `;
@@ -137,7 +136,7 @@ export function descriptionValueTemplate(description) {
  */
 export function tablePropertyTemplate(label, value, name) {
   return html`
-  <div class="schema-property-item" data-name="${ifDefined(name)}">
+  <div class="schema-property-item text-selectable" data-name="${ifDefined(name)}">
     <div class="schema-property-label">${label}:</div>
     <div class="schema-property-value code-value inline">${value}</div>
   </div>
@@ -205,7 +204,7 @@ export function scalarDetailsTemplate(schema, noDetail) {
     <div class="schema-property-item">
       <div class="schema-property-label example">Examples:</div>
       <ul class="example-items">
-        ${examples.map((item) => html`<li>${item.value}</li>`)}
+        ${examples.map((item) => html`<li class="text-selectable">${item.value}</li>`)}
       </ul>
     </div>
     `;

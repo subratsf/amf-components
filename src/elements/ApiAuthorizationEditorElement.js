@@ -1,19 +1,18 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import { html, LitElement } from 'lit-element';
-import '@advanced-rest-client/authorization/authorization-method.js';
+import '@advanced-rest-client/app/define/authorization-method.js';
 import elementStyles from './styles/AuthorizationEditor.js';
-import '../../api-authorization-method.js';
+import '../../define/api-authorization-method.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityScheme} ApiSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityHttpSettings} ApiSecurityHttpSettings */
+/** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
+/** @typedef {import('../helpers/api').ApiSecurityScheme} ApiSecurityScheme */
+/** @typedef {import('../helpers/api').ApiSecurityHttpSettings} ApiSecurityHttpSettings */
 /** @typedef {import('./ApiAuthorizationMethodElement').default} ApiAuthorizationMethodElement */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.RequestAuthorization} RequestAuthorization */
-/** @typedef {import('@advanced-rest-client/authorization').Oauth2Credentials} Oauth2Credentials */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.RequestAuthorization} RequestAuthorization */
+/** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
 
 /** 
  * @typedef SecurityMethods
@@ -39,6 +38,7 @@ export const ramlCustomAuthTemplate = Symbol('ramlCustomAuthTemplate');
 export const methodTitleTemplate = Symbol('methodTitleTemplate');
 export const changeHandler = Symbol('changeHandler');
 export const createSettings = Symbol('createSettings');
+export const openIdConnectTemplate = Symbol('openIdConnectTemplate');
 
 export default class ApiAuthorizationEditorElement extends LitElement {
   get styles() {
@@ -67,10 +67,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
 
   static get properties() {
     return {
-      /** 
-       * The AMF graph model of the API.
-       */
-      amf: { type: Object },
       // Current HTTP method. Passed by digest method.
       httpMethod: { type: String },
       // Current request URL. Passed by digest method.
@@ -103,9 +99,9 @@ export default class ApiAuthorizationEditorElement extends LitElement {
        */
       oauth2AccessTokenUri: { type: String },
       /** 
-       * Enabled compatibility with the Anypoint platform.
+       * Enables Anypoint platform styles.
        */
-      compatibility: { type: Boolean, reflect: true },
+      anypoint: { type: Boolean, reflect: true },
       /** 
        * Enabled Material Design outlined theme
        */
@@ -130,8 +126,6 @@ export default class ApiAuthorizationEditorElement extends LitElement {
 
   constructor() {
     super();
-    /** @type {DomainElement} */
-    this.amf = undefined;
     /** @type {ApiSecurityRequirement} */
     this[securityValue] = undefined;
     /** @type string */
@@ -149,7 +143,7 @@ export default class ApiAuthorizationEditorElement extends LitElement {
     /** @type Oauth2Credentials[] */
     this.credentialsSource = undefined;
     /** @type boolean */
-    this.compatibility = undefined;
+    this.anypoint = undefined;
     /** @type boolean */
     this.outlined = undefined;
     /** @type {boolean} */
@@ -350,6 +344,8 @@ export default class ApiAuthorizationEditorElement extends LitElement {
         return this[bearerAuthTemplate](scheme, true);
       case 'Api Key':
         return this[apiKeyTemplate](scheme);
+      case 'openIdConnect':
+        return this[openIdConnectTemplate](scheme);
       default:
         if (String(type).indexOf('x-') === 0) {
           return this[ramlCustomAuthTemplate](scheme);
@@ -378,12 +374,11 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [basicAuthTemplate](security) {
-    const { compatibility, outlined, amf, globalCache } = this;
+    const { anypoint, outlined, globalCache } = this;
     return html`
     ${this[methodTitleTemplate](security)}
     <api-authorization-method
-      .amf="${amf}"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
       type="basic"
@@ -400,21 +395,19 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    */
   [digestAuthTemplate](security, renderTitle) {
     const {
-      compatibility,
+      anypoint,
       outlined,
       httpMethod,
       requestUrl,
       requestBody,
-      amf,
       globalCache,
     } = this;
     return html`
     ${renderTitle ? this[methodTitleTemplate](security) : ''}
     <api-authorization-method
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
-      .amf="${amf}"
       .httpMethod="${httpMethod}"
       .requestUrl="${requestUrl}"
       .requestBody="${requestBody}"
@@ -431,14 +424,13 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [passThroughAuthTemplate](security, renderTitle) {
-    const { compatibility, outlined, amf, globalCache, } = this;
+    const { anypoint, outlined, globalCache, } = this;
     return html`
     ${renderTitle ? this[methodTitleTemplate](security) : ''}
     <api-authorization-method
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
-      .amf="${amf}"
       .security="${security}"
       type="pass through"
       @change="${this[changeHandler]}"
@@ -452,12 +444,11 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [ramlCustomAuthTemplate](security) {
-    const { compatibility, outlined, amf, globalCache, } = this;
+    const { anypoint, outlined, globalCache, } = this;
     return html`<api-authorization-method
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
-      .amf="${amf}"
       .security="${security}"
       type="custom"
       @change="${this[changeHandler]}"
@@ -472,15 +463,14 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [bearerAuthTemplate](security, renderTitle) {
-    const { compatibility, outlined, amf, globalCache, } = this;
+    const { anypoint, outlined, globalCache, } = this;
     return html`
     ${renderTitle ? this[methodTitleTemplate](security) : ''}
     <api-authorization-method
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
       type="bearer"
-      .amf="${amf}"
       .security="${security}"
       @change="${this[changeHandler]}"
     ></api-authorization-method>`;
@@ -494,16 +484,15 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [oa1AuthTemplate](security, renderTitle) {
-    const { compatibility, outlined, oauth2RedirectUri, amf, globalCache, } = this;
+    const { anypoint, outlined, oauth2RedirectUri, globalCache, } = this;
     return html`
     ${renderTitle ? this[methodTitleTemplate](security) : ''}
     <api-authorization-method
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
       type="oauth 1"
       .redirectUri="${oauth2RedirectUri}"
-      .amf="${amf}"
       .security="${security}"
       @change="${this[changeHandler]}"
     ></api-authorization-method>`;
@@ -517,26 +506,56 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    */
   [oa2AuthTemplate](security) {
     const {
-      compatibility,
+      anypoint,
       outlined,
       oauth2RedirectUri,
       credentialsSource,
       oauth2AuthorizationUri,
       oauth2AccessTokenUri,
-      amf,
       globalCache,
     } = this;
     return html`
     ${this[methodTitleTemplate](security)}
     <api-authorization-method
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       ?globalCache="${globalCache}"
       type="oauth 2"
       .redirectUri="${oauth2RedirectUri}"
       .overrideAuthorizationUri="${oauth2AuthorizationUri}"
       .overrideAccessTokenUri="${oauth2AccessTokenUri}"
-      .amf="${amf}"
+      .security="${security}"
+      .credentialsSource="${credentialsSource}"
+      @change="${this[changeHandler]}"
+    ></api-authorization-method>`;
+  }
+
+  /**
+   * Renders a template for OAuth 2 authorization.
+   *
+   * @param {ApiParametrizedSecurityScheme} security Security scheme
+   * @return {TemplateResult}
+   */
+  [openIdConnectTemplate](security) {
+    const {
+      anypoint,
+      outlined,
+      oauth2RedirectUri,
+      credentialsSource,
+      oauth2AuthorizationUri,
+      oauth2AccessTokenUri,
+      globalCache,
+    } = this;
+    return html`
+    ${this[methodTitleTemplate](security)}
+    <api-authorization-method
+      ?anypoint="${anypoint}"
+      ?outlined="${outlined}"
+      ?globalCache="${globalCache}"
+      type="open id"
+      .redirectUri="${oauth2RedirectUri}"
+      .overrideAuthorizationUri="${oauth2AuthorizationUri}"
+      .overrideAccessTokenUri="${oauth2AccessTokenUri}"
       .security="${security}"
       .credentialsSource="${credentialsSource}"
       @change="${this[changeHandler]}"
@@ -550,15 +569,14 @@ export default class ApiAuthorizationEditorElement extends LitElement {
    * @return {TemplateResult}
    */
   [apiKeyTemplate](security) {
-    const { compatibility, outlined, amf, globalCache, } = this;
+    const { anypoint, outlined, globalCache, } = this;
     return html`
     ${this[methodTitleTemplate](security)}
     <api-authorization-method
       ?globalCache="${globalCache}"
-      ?compatibility="${compatibility}"
+      ?anypoint="${anypoint}"
       ?outlined="${outlined}"
       type="api key"
-      .amf="${amf}"
       .security="${security}"
       @change="${this[changeHandler]}"
     ></api-authorization-method>

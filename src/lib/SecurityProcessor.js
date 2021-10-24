@@ -1,6 +1,5 @@
 /* eslint-disable no-continue */
-import { ArcHeaders } from '@advanced-rest-client/arc-headers';
-import { UrlParser } from '@advanced-rest-client/arc-url';
+import { ArcHeaders, UrlParser } from '@advanced-rest-client/app';
 import { 
   normalizeType,
   METHOD_OAUTH2,
@@ -8,23 +7,23 @@ import {
   METHOD_BASIC,
   METHOD_BEARER,
   METHOD_OIDC,
-} from "@advanced-rest-client/authorization/src/Utils.js";
+} from "@advanced-rest-client/app/src/elements/authorization/Utils.js";
 import {
   METHOD_CUSTOM,
   METHOD_PASS_THROUGH,
   METHOD_API_KEY,
 } from '../elements/ApiAuthorizationMethodElement.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@advanced-rest-client/arc-types').ArcRequest.RequestAuthorization} RequestAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth1Authorization} OAuth1Authorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OidcAuthorization} OidcAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.PassThroughAuthorization} PassThroughAuthorization */
+/** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('@advanced-rest-client/events').ArcRequest.RequestAuthorization} RequestAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.BasicAuthorization} BasicAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2Authorization} OAuth2Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth1Authorization} OAuth1Authorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.BearerAuthorization} BearerAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OidcAuthorization} OidcAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.ApiKeyAuthorization} ApiKeyAuthorization */
+/** @typedef {import('@advanced-rest-client/events').Authorization.PassThroughAuthorization} PassThroughAuthorization */
 /** @typedef {import('../types').SecuritySelectorListItem} SecuritySelectorListItem */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 
@@ -125,6 +124,7 @@ export class SecurityProcessor {
   }
 
   /**
+   * Applies authorization configuration to the API Console request object.
    * @param {ApiConsoleRequest} request
    * @param {RequestAuthorization[]} authorization
    */
@@ -272,7 +272,7 @@ export class SecurityProcessor {
   /**
    * Injects the PassThrough configuration into the request
    * @param {ApiConsoleRequest} request 
-   * @param {ApiKeyAuthorization} config 
+   * @param {PassThroughAuthorization} config 
    */
   static applyPassThrough(request, config) {
     const { header, query, } = config;
@@ -285,7 +285,7 @@ export class SecurityProcessor {
   I don't want to move it to a separate class and maintain to be
   able to apply here OAuth 1. So far we have no usage signs from anyone
   (and it's been years since this logic works here).
-  If there's a request from a customer, in the `@advanced-rest-client/authorization`
+  If there's a request from a customer, in the `@advanced-rest-client/app`
   module create a class that extracts the logic from the oauth 1 component 
   and sign the request.
   */

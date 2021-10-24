@@ -1,23 +1,26 @@
-import { fixture, assert, html } from '@open-wc/testing';
+import { fixture, assert, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-request-editor.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
+import '../../define/api-request-editor.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../..').ApiRequestEditorElement} ApiRequestEditorElement */
 
 describe('ApiRequestEditorElement', () => {
   describe('APIC-298', () => {
+    const store = new DomEventsAmfStore(window);
+    store.listen();
     const apiFile = 'APIC-298';
 
     /**
-     * @param {AmfDocument} amf
-     * @param {string} selected
+     * @param {string} domainId
      * @returns {Promise<ApiRequestEditorElement>}
      */
-    async function modelFixture(amf, selected) {
-      return (fixture(html`<api-request-editor
-        .amf="${amf}"
-        .selected="${selected}"></api-request-editor>`));
+    async function modelFixture(domainId) {
+      const element = /** @type ApiRequestEditorElement */ (await fixture(html`<api-request-editor
+        .domainId="${domainId}"></api-request-editor>`));
+      await aTimeout(2);
+      return element;
     }
 
     [true].forEach((compact) => {
@@ -25,20 +28,21 @@ describe('ApiRequestEditorElement', () => {
         let methodId;
 
         /** @type AmfLoader */
-        let store;
+        let loader;
         /** @type AmfDocument */
         let amf;
         before(async () => {
-          store = new AmfLoader();
-          amf = await store.getGraph(compact, apiFile);
+          loader = new AmfLoader();
+          amf = await loader.getGraph(compact, apiFile);
+          store.amf = amf;
         });
 
         /** @type ApiRequestEditorElement */
         let element;
         beforeEach(async () => {
-          const method = store.lookupOperation(amf,  '/prescreens/{id}', 'get');
+          const method = loader.lookupOperation(amf,  '/prescreens/{id}', 'get');
           methodId = method['@id'];
-          element = await modelFixture(amf, methodId);
+          element = await modelFixture(methodId);
         });
 
         it('computes pth uri parameters', () => {

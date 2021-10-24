@@ -1,8 +1,10 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@api-components/api-navigation/api-navigation.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
-import '../api-documentation-document.js';
+import '../define/api-navigation.js';
+import '../define/api-documentation-document.js';
+
+/** @typedef {import('../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 
 class ComponentPage extends AmfDemoBase {
   constructor() {
@@ -20,16 +22,16 @@ class ComponentPage extends AmfDemoBase {
   }
 
   /**
-   * @param {CustomEvent} e
+   * @param {ApiNavigationEvent} e
    */
   _navChanged(e) {
-    const { selected, type, passive } = e.detail;
+    const { domainId, domainType, passive } = e.detail;
     if (passive) {
       return;
     }
-    if (type === 'documentation') {
-      this.selectedId = selected;
-      this.selectedType = type;
+    if (domainType === 'documentation') {
+      this.selectedId = domainId;
+      this.selectedType = domainType;
     } else {
       this.selectedId = undefined;
       this.selectedType = undefined;
@@ -65,7 +67,7 @@ class ComponentPage extends AmfDemoBase {
   }
 
   _componentTemplate() {
-    const { demoStates, darkThemeActive, selectedId, amf } = this;
+    const { demoStates, darkThemeActive, selectedId } = this;
     if (!selectedId) {
       return html`<p>Select API documentation in the navigation</p>`;
     }
@@ -76,7 +78,6 @@ class ComponentPage extends AmfDemoBase {
       ?dark="${darkThemeActive}"
     >
       <api-documentation-document
-        .amf="${amf}"
         .domainId="${selectedId}"
         slot="content"
       ></api-documentation-document>

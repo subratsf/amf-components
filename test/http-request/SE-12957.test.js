@@ -1,14 +1,17 @@
-import { assert, fixture, html } from '@open-wc/testing';
+import { assert, fixture, html, aTimeout } from '@open-wc/testing';
 import { AmfLoader } from '../AmfLoader.js';
-import '../../api-request-editor.js';
+import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
 import * as InputCache from '../../src/lib/InputCache.js';
+import '../../define/api-request-editor.js';
 
 
-/** @typedef {import('@api-components/amf-helper-mixin').AmfDocument} AmfDocument */
+/** @typedef {import('../../src/helpers/amf').AmfDocument} AmfDocument */
 /** @typedef {import('../..').ApiRequestEditorElement} ApiRequestEditorElement */
 
 describe('ApiRequestEditorElement', () => {
   describe('SE-12957', () => {
+    const store = new DomEventsAmfStore(window);
+    store.listen();
     const apiFile = 'SE-12957';
 
     /*
@@ -17,34 +20,33 @@ describe('ApiRequestEditorElement', () => {
      */
 
     /**
-     * @param {AmfDocument} amf
-     * @param {string} selected
+     * @param {string} domainId
      * @returns {Promise<ApiRequestEditorElement>}
      */
-    async function modelFixture(amf, selected) {
-      return (fixture(html`<api-request-editor
-        .amf="${amf}"
-        .selected="${selected}"></api-request-editor>`));
+    async function modelFixture(domainId) {
+      const element = /** @type ApiRequestEditorElement */ (await fixture(html`<api-request-editor
+        .domainId="${domainId}"></api-request-editor>`));
+      await aTimeout(2);
+      return element;
     }
-
-    // 2021-09-27T14:55:33.688
 
     [true, false].forEach((compact) => {
       describe(compact ? 'Compact model' : 'Full model', () => {
         /** @type AmfLoader */
-        let store;
+        let loader;
         /** @type AmfDocument */
         let amf;
 
         before(async () => {
-          store = new AmfLoader();
-          amf = await store.getGraph(compact, apiFile);
+          loader = new AmfLoader();
+          amf = await loader.getGraph(compact, apiFile);
+          store.amf = amf;
         });
 
         it('renders the input for the URI parameter', async () => {
-          const method = store.lookupOperation(amf, '/api/v1/alarm/{scada-object-key}', 'get');
+          const method = loader.lookupOperation(amf, '/api/v1/alarm/{scada-object-key}', 'get');
           const methodId = method['@id'];
-          const editor = await modelFixture(amf, methodId);
+          const editor = await modelFixture(methodId);
           const input = editor.shadowRoot.querySelector('[name="scada-object-key"]');
           assert.ok(input);
         });
@@ -55,17 +57,17 @@ describe('ApiRequestEditorElement', () => {
         // 
 
         it('renders the dateTime query parameter', async () => {
-          const method = store.lookupOperation(amf, '/api/v1/alarm/{scada-object-key}', 'get');
+          const method = loader.lookupOperation(amf, '/api/v1/alarm/{scada-object-key}', 'get');
           const methodId = method['@id'];
-          const editor = await modelFixture(amf, methodId);
+          const editor = await modelFixture(methodId);
           const input = editor.shadowRoot.querySelector('[name="time-on"]');
           assert.ok(input);
         });
 
         it('sets the proper value on the dateTime parameter', async () => {
-          const method = store.lookupOperation(amf, '/api/v1/alarm/{scada-object-key}', 'get');
+          const method = loader.lookupOperation(amf, '/api/v1/alarm/{scada-object-key}', 'get');
           const methodId = method['@id'];
-          const editor = await modelFixture(amf, methodId);
+          const editor = await modelFixture(methodId);
           const input = /** @type HTMLInputElement */ (editor.shadowRoot.querySelector('[name="time-on"]'));
           // this is valid value but the <input> filed ignores this format.
           InputCache.set(editor, input.dataset.domainId, '2021-09-27T14:55:33.688Z', false);

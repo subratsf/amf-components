@@ -1,22 +1,113 @@
-import { ApiDemoPage } from '@advanced-rest-client/arc-demo-helper';
-import { MonacoLoader } from '@advanced-rest-client/monaco-support';
-import '@anypoint-web-components/anypoint-item/anypoint-item.js';
-import { DomEventsAmfStore } from '../../src/store/DomEventsAmfStore.js';
+import { html } from 'lit-html';
+import { DemoPage } from "@advanced-rest-client/arc-demo-helper";
+import { MonacoLoader } from "@advanced-rest-client/monaco-support";
+import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
+import '@anypoint-web-components/awc/anypoint-listbox.js';
+import '@anypoint-web-components/awc/anypoint-item.js';
+import { DomEventsAmfStore } from "../../src/store/DomEventsAmfStore.js";
+import { AmfHelperMixin } from "../../src/helpers/AmfHelperMixin.js";
+import { EventTypes } from '../../src/events/EventTypes.js';
+import { navigate, findRoute } from './route.js';
+import '../../define/api-navigation.js';
+import './ApiStyles.js';
 
-export class AmfDemoBase extends ApiDemoPage {
+/** @typedef {import('lit-html').TemplateResult} TemplateResult */
+/** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
+/** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
+/** @typedef {import('../../src/events/ReportingEvents').ReportingErrorEventDetail} ReportingErrorEventDetail */
+/** @typedef {import('../../').AmfStore} AmfStore */
+/** @typedef {import('../../').AmfStoreDomEventsMixin} AmfStoreDomEventsMixin */
+/** @typedef {import('../../').InMemAmfGraphStore} InMemAmfGraphStore */
+
+const routes = [
+  {
+    name: 'api-file',
+    pattern: 'file/(?<file>[^/]*)'
+  },
+];
+
+/**
+ * Base class for API components demo page.
+ * It creates a skeleton for an API demo page.
+ */
+export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
+  get amf() {
+    return super.amf;
+  }
+
+  set amf(value) {
+    super.amf = value;
+    this.render();
+  }
+
   constructor() {
     super();
-    this.initObservableProperties([
-      'initialized', 'loaded',
-    ]);
+    this.initObservableProperties(["initialized", "loaded", 'selectedFile']);
+    /** @type {AmfStore & AmfStoreDomEventsMixin} */
+    this.store = new DomEventsAmfStore(window);
+    this.store.listen();
+
     this.loaded = false;
     this.initialized = false;
     this.renderViewControls = true;
+    /**
+     * When set the endpoint section in navigation is opened by default.
+     * @type {boolean}
+     * @default false
+     */
+    this.endpointsOpened = true;
+
+    /**
+     * When set the documentation section in navigation is opened by default.
+     * @type {boolean}
+     * @default false
+     */
+    this.docsOpened = false;
+
+    /**
+     * When set the types section in navigation is opened by default.
+     * @type {boolean}
+     * @default false
+     */
+    this.typesOpened = false;
+
+    /**
+     * When set the security section in navigation is opened by default.
+     * @type {boolean}
+     * @default false
+     */
+    this.securityOpened = false;
+
+    /**
+     * AMF model read from the API model file downloaded after initialization.
+     * @type {any}
+     */
+    this.amf = null;
+
+    /**
+     * When set the API Navigation element won't be rendered.
+     * @type {Boolean}
+     * @default false
+     */
+    this.noApiNavigation = false;
+    /** 
+     * Currently loaded file.
+     * @type {string}
+     */
+    this.selectedFile = undefined;
+    window.addEventListener(EventTypes.Navigation.apiNavigate, this._navChanged.bind(this));
+    window.addEventListener(EventTypes.Reporting.error, this._errorHandler.bind(this));
+
+    document.body.classList.add('api');
     this.autoLoad();
   }
 
   async autoLoad() {
     await this.loadMonaco();
+    this.onRoute();
+    window.onpopstate = () => {
+      this.onRoute();
+    };
     this.initialized = true;
   }
 
@@ -27,15 +118,159 @@ export class AmfDemoBase extends ApiDemoPage {
     await MonacoLoader.monacoReady();
   }
 
+  /**
+   * Called when route change
+   */
+  onRoute() {
+    const url = new URL(window.location.href);
+    const hash = url.hash.replace('#', '');
+    const result = findRoute(routes, hash);
+    if (!result || result.route.name !== 'api-file') {
+      return;
+    }
+    const { file } = result.params;
+    if (!file) {
+      return;
+    }
+    this.selectedFile = file;
+    this._loadFile(file);
+  }
+
+  /**
+   * Sets default API selection when the view is rendered.
+   */
+  firstRender() {
+    const url = new URL(window.location.href);
+    const hash = url.hash.replace('#', '');
+    if (hash && hash.includes('file/')) {
+      // had the file already.
+      return;
+    }
+    const node = /** @type any */ (document.getElementById('apiList'));
+    if (!node) {
+      return;
+    }
+    node.selected = 0;
+  }
+
+  /**
+   * Handler for the API selection change
+   * @param {Event} e
+   */
+  _apiChanged(e) {
+    const node = /** @type AnypointListbox */ (e.target);
+    const item = /** @type HTMLElement */ (node.selectedItem);
+    const file = item.dataset.src;
+    navigate('file', file);
+  }
+
+  /**
+   * Handler for the API errors
+   * @param {CustomEvent} e
+   */
+  _errorHandler(e) {
+    const info = /** @type ReportingErrorEventDetail */ (e.detail);
+    const { description, component='Unknown component', error } = info;
+    console.error(`[${component}]: ${description}`);
+    console.error(error);
+  }
+
   /** @param {string} file */
   async _loadFile(file) {
     this.loaded = false;
-    await super._loadFile(file);
-    if (this.store) {
-      this.store.unlisten();
+    const response = await fetch(`./${file}`);
+    let data = await response.json();
+    if (Array.isArray(data)) {
+      [data] = data;
     }
-    this.store = new DomEventsAmfStore(this.amf);
-    this.store.listen();
+    this.amf = data;
+    
+    /** @type DomEventsAmfStore */ (this.store).amf = data;
     this.loaded = true;
+  }
+
+  /**
+   * This method to be overridden in child class to handle navigation.
+   * @param {ApiNavigationEvent} e Dispatched navigation event
+   */
+  _navChanged(e) {
+    const { domainId, domainType } = e.detail;
+    // eslint-disable-next-line no-console
+    console.log(`Navigation changed. Type: ${domainId}, selected: ${domainType}`);
+  }
+
+  /**
+   * This method to be overridden in child class to render API options.
+   * @return {TemplateResult[]} HTML template for apis dropdown options.
+   */
+  _apiListTemplate() {
+    return [
+      ['demo-api', 'Demo API'],
+    ].map(([file, label]) => html`
+      <anypoint-item data-src="models/${file}-compact.json">${label} - compact model</anypoint-item>
+    `);
+  }
+
+  /**
+   * @return {TemplateResult|string} Template for API navigation element
+   */
+   _apiNavigationTemplate() {
+    if (this.noApiNavigation) {
+      return '';
+    }
+    // sort, filter
+    return html`
+    <api-navigation
+      summary
+      ?endpointsOpened="${this.endpointsOpened}"
+      ?documentationsOpened="${this.docsOpened}"
+      ?schemasOpened="${this.typesOpened}"
+      ?securityOpened="${this.securityOpened}"
+    ></api-navigation>`;
+  }
+  
+  /**
+   * Call this on the top of the `render()` method to render demo navigation
+   * @return {TemplateResult} HTML template for demo header
+   */
+  headerTemplate() {
+    const { componentName, selectedFile } = this;
+    return html`
+    <header>
+      <a href="./index.html" class="header-link"><arc-icon icon="arrowBack"></arc-icon>Demo index</a>
+      <anypoint-dropdown-menu
+        aria-label="Activate to select demo API"
+        aria-expanded="false"
+      >
+        <label slot="label">Select demo API</label>
+        <anypoint-listbox 
+          slot="dropdown-content" 
+          id="apiList"
+          .selected="${selectedFile}"
+          @selectedchange="${this._apiChanged}"
+          attrForSelected="data-src"
+        >
+          ${this._apiListTemplate()}
+        </anypoint-listbox>
+      </anypoint-dropdown-menu>
+      ${componentName ? html`<h1 class="api-title">${componentName}</h1>` : ''}
+    </header>`;
+  }
+
+  /**
+   * The page render function. Usually you don't need to use it.
+   * It renders the header template, main section, and the content.
+   * 
+   * @return {TemplateResult}
+   */
+  pageTemplate() {
+    return html`
+    ${this.headerTemplate()}
+    <section role="main" class="horizontal-section-container centered main">
+      ${this._apiNavigationTemplate()}
+      <div class="demo-container">
+        ${this.contentTemplate()}
+      </div>
+    </section>`;
   }
 }

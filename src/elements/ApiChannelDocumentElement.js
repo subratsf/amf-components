@@ -8,11 +8,11 @@ import ApiResourceDocumentElement, {
   computeUrlValue,
   operationTemplate,
 } from './ApiResourceDocumentElement.js';
-import '../../api-operation-document.js'
-import '../../api-parameter-document.js';
+import '../../define/api-operation-document.js'
+import '../../define/api-parameter-document.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiOperation} ApiOperation */
+/** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
 
 /**
  * A web component that renders the async API Channel documentation page
@@ -68,7 +68,7 @@ export default class ApiChannelDocumentElement extends ApiResourceDocumentElemen
     const url = this[urlValue];
     return html`
     <div class="endpoint-url">
-      <div class="url-value">${url}</div>
+      <div class="url-value text-selectable">${url}</div>
     </div>
     `;
   }
@@ -78,15 +78,20 @@ export default class ApiChannelDocumentElement extends ApiResourceDocumentElemen
    * @returns {TemplateResult} The template for the API operation.
    */
   [operationTemplate](operation) {
-    const { serverId } = this;
+    const { serverId, endpoint, baseUri } = this;
     return html`<api-operation-document 
-      .amf="${this.amf}"
       .domainId="${operation.id}"
+      .operation="${operation}"
+      .endpoint="${endpoint}"
+      .endpointId="${endpoint.id}"
       .serverId="${serverId}"
+      .baseUri="${baseUri}" 
+      ?anypoint="${this.anypoint}"
       data-domain-id="${operation.id}"
       responsesOpened
+      renderSecurity
       asyncApi
-      ?anypoint="${this.anypoint}"
-      class="operation"></api-operation-document>`;
+      class="operation"
+    ></api-operation-document>`;
   }
 }

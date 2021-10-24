@@ -2,17 +2,16 @@
 import { html } from 'lit-element';
 import { 
   ApiDocumentationBase,
-  serializerValue,
 } from './ApiDocumentationBase.js';
+import { Events } from '../events/Events.js';
 import elementStyles from './styles/ApiSecurityRequirement.js';
-import '../../api-parametrized-security-scheme.js';
+import '../../define/api-parametrized-security-scheme.js';
 
-/** @typedef {import('@api-components/amf-helper-mixin').ApiSecurityRequirement} ApiSecurityRequirement */
-/** @typedef {import('@api-components/amf-helper-mixin').SecurityRequirement} SecurityRequirement */
+/** @typedef {import('../helpers/api').ApiSecurityRequirement} ApiSecurityRequirement */
+/** @typedef {import('../helpers/amf').SecurityRequirement} SecurityRequirement */
 
 export const securityRequirementValue = Symbol('securityRequirementValue');
-export const findSecurity = Symbol('findSecurity');
-export const findOperationSecurity = Symbol('findOperationSecurity');
+export const querySecurity = Symbol('querySecurity');
 
 export default class ApiSecurityRequirementDocumentElement extends ApiDocumentationBase {
   get styles() {
@@ -23,8 +22,6 @@ export default class ApiSecurityRequirementDocumentElement extends ApiDocumentat
     super();
     /** @type {ApiSecurityRequirement} */
     this[securityRequirementValue] = undefined;
-    /** @type {SecurityRequirement} */
-    this.domainModel = undefined;
   }
 
   /**
@@ -50,88 +47,31 @@ export default class ApiSecurityRequirementDocumentElement extends ApiDocumentat
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainModel, domainId } = this;
-    let processModel = domainModel;
-    if (!processModel && domainId) {
-      if (!this[securityRequirementValue] || this[securityRequirementValue].id !== domainId) {
-        processModel = this[findSecurity](domainId);
-        if (!processModel) {
-          processModel = this[findOperationSecurity](domainId);
-        }
-      }
-    }
-    if (processModel) {
-      this[securityRequirementValue] = this[serializerValue].securityRequirement(processModel);
-    }
-    await this.requestUpdate();
+    await this[querySecurity]();
+    this.requestUpdate();
   }
 
   /**
-   * @param {string} id
-   * @returns {SecurityRequirement|undefined} 
+   * Queries for the security requirements object.
    */
-  [findSecurity](id) {
-    const { amf } = this;
-    if (!amf) {
-      return undefined;
+  async [querySecurity]() {
+    const { domainId } = this;
+    if (!domainId) {
+      // this[securityValue] = undefined;
+      return;
     }
-    const declares = this._computeDeclares(amf);
-    if (declares) {
-      const result = declares.find((item) => item['@id'] === id);
-      if (result) {
-        return this._resolve(result);
-      }
+    if (this[securityRequirementValue] && this[securityRequirementValue].id === domainId) {
+      // in case the security model was provided via the property setter.
+      return;
     }
-    const references = this._computeReferences(amf) || [];
-    for (const reference of references) {
-      if (!this._hasType(reference, this.ns.aml.vocabularies.document.Module)) {
-        const referencedDeclares = this._computeDeclares(reference) || [];
-        for (let declare of referencedDeclares) {
-          if (Array.isArray(declare)) {
-            [declare] = declare;
-          }
-          if (declare['@id'] === id) {
-            return this._resolve(declare);
-          }
-        }
-      }
+    try {
+      const info = await Events.Security.getRequirement(this, domainId);
+      this[securityRequirementValue] = info;
+    } catch (e) {
+      this[securityRequirementValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API operation data: ${e.message}`, this.localName);
     }
-    return undefined;
-  }
-
-  /**
-   * @param {string} id
-   * @returns {SecurityRequirement|undefined} 
-   */
-  [findOperationSecurity](id) {
-    const { amf } = this;
-    if (!amf) {
-      return undefined;
-    }
-    const wa = this._computeApi(amf);
-    if (!wa) {
-      return undefined;
-    }
-    const endpoints = wa[this._getAmfKey(this.ns.aml.vocabularies.apiContract.endpoint)];
-    if (!Array.isArray(endpoints)) {
-      return undefined;
-    }
-    for (const endpoint of endpoints) {
-      const operations = endpoint[this._getAmfKey(this.ns.aml.vocabularies.apiContract.supportedOperation)];
-      if (Array.isArray(operations)) {
-        for (const operation of operations) {
-          const securityList = operation[this._getAmfKey(this.ns.aml.vocabularies.security.security)];
-          if (Array.isArray(securityList)) {
-            for (const security of securityList) {
-              if (security['@id'] === id) {
-                return security;
-              }
-            }
-          }
-        }
-      }
-    }
-    return undefined;
   }
 
   render() {
@@ -144,7 +84,6 @@ export default class ApiSecurityRequirementDocumentElement extends ApiDocumentat
     <div class="security-requirements">
       ${scheme.schemes.map((item) => html`
         <api-parametrized-security-scheme 
-          .amf="${this.amf}"
           .securityScheme="${item.scheme}" 
           .settings="${item.settings}"
           ?anypoint="${this.anypoint}"

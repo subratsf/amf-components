@@ -1,18 +1,16 @@
 import { TemplateResult } from 'lit-element';
-import { 
-  ApiSummary,
-  ApiServer,
-  AsyncApi,
-  WebApi,
-} from '@api-components/amf-helper-mixin';
+import { ApiSummary, ApiServer } from '../helpers/api';
+import { AsyncApi, WebApi } from '../helpers/amf';
 import { ApiDocumentationBase } from './ApiDocumentationBase';
-import { ApiSummaryEndpoint, ApiSummaryOperation } from '../types';
+import { ApiEndPointWithOperationsListItem, ApiOperationListItem } from '../types';
 
 export const summaryValue: unique symbol;
 export const serversValue: unique symbol;
-export const processEndpoints: unique symbol;
 export const endpointsValue: unique symbol;
-export const endpointOperations: unique symbol;
+export const querySummary: unique symbol;
+export const processSummary: unique symbol;
+export const queryServers: unique symbol;
+export const queryEndpoints: unique symbol;
 export const isAsyncValue: unique symbol;
 export const baseUriValue: unique symbol;
 export const navigateHandler: unique symbol;
@@ -35,7 +33,7 @@ export const methodTemplate: unique symbol;
  * A web component that renders the documentation page for an API documentation (like in RAML documentations) built from 
  * the AMF graph model.
  * 
- * @fires api-navigation-selection-changed
+ * @fires apinavigate
  */
 export default class ApiSummaryElement extends ApiDocumentationBase {
   get summary(): ApiSummary;
@@ -65,15 +63,32 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   protocols: string[];
   [summaryValue]: ApiSummary;
   [serversValue]: ApiServer[];
-  [endpointsValue]: ApiSummaryEndpoint[];
+  [endpointsValue]: ApiEndPointWithOperationsListItem[];
   [isAsyncValue]: boolean;
   constructor();
   /**
    * Queries the graph store for the API data.
    */
   processGraph(): Promise<void>;
-  [processEndpoints](webApi: AsyncApi | WebApi): void;
-  [endpointOperations](endpoint): ApiSummaryOperation[]|undefined;
+  /**
+   * Queries the API store for the API summary object.
+   */
+  [querySummary](): Promise<void>;
+
+  /**
+   * Queries the API store for the API summary object.
+   */
+  [queryServers](): Promise<void>;
+
+  /**
+   * Logic executed after the summary is requested from the store.
+   */
+  [processSummary](): Promise<void>;
+
+  /**
+   * Queries the API endpoints and methods.
+   */
+  [queryEndpoints](): Promise<void>;
   [navigateHandler](e: Event): void;
   render(): TemplateResult;
   [titleTemplate](): TemplateResult|string;
@@ -102,8 +117,8 @@ export default class ApiSummaryElement extends ApiDocumentationBase {
   [licenseTemplate](): TemplateResult|string;
   [termsOfServiceTemplate](): TemplateResult|string;
   [endpointsTemplate](): TemplateResult|string;
-  [endpointTemplate](item: ApiSummaryEndpoint): TemplateResult;
-  [endpointPathTemplate](item: ApiSummaryEndpoint): TemplateResult;
-  [endpointNameTemplate](item: ApiSummaryEndpoint): TemplateResult|string;
-  [methodTemplate](item: ApiSummaryOperation, endpoint: ApiSummaryEndpoint): TemplateResult;
+  [endpointTemplate](item: ApiEndPointWithOperationsListItem): TemplateResult;
+  [endpointPathTemplate](item: ApiEndPointWithOperationsListItem): TemplateResult;
+  [endpointNameTemplate](item: ApiEndPointWithOperationsListItem): TemplateResult|string;
+  [methodTemplate](item: ApiOperationListItem, endpoint: ApiEndPointWithOperationsListItem): TemplateResult;
 }

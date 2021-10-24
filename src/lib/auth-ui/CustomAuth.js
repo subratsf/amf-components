@@ -1,19 +1,17 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-html';
-import { ns } from '@api-components/amf-helper-mixin';
 import '@advanced-rest-client/highlight/arc-marked.js';
+import { ns } from '../../helpers/Namespace.js';
 import ApiUiBase from './ApiUiBase.js';
 import * as InputCache from '../InputCache.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/authorization').AuthUiInit} AuthUiInit */
-/** @typedef {import('@api-components/amf-helper-mixin').DomainElement} DomainElement */
-/** @typedef {import('@api-components/amf-helper-mixin').ParametrizedSecurityScheme} ParametrizedSecurityScheme */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiNodeShape} ApiNodeShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiParameter} ApiParameter */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiPropertyShape} ApiPropertyShape */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiShapeUnion} ApiShapeUnion */
-/** @typedef {import('@advanced-rest-client/arc-types').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
+/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/events').Authorization.RamlCustomAuthorization} RamlCustomAuthorization */
+/** @typedef {import('../../helpers/api').ApiNodeShape} ApiNodeShape */
+/** @typedef {import('../../helpers/api').ApiParameter} ApiParameter */
+/** @typedef {import('../../helpers/api').ApiPropertyShape} ApiPropertyShape */
+/** @typedef {import('../../helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../../types').OperationParameter} OperationParameter */
 
 export default class CustomAuth extends ApiUiBase {
@@ -33,7 +31,7 @@ export default class CustomAuth extends ApiUiBase {
     /** @type {string} */
     this.schemeDescription = undefined;
     /** @type {boolean} */
-    this.compatibility = undefined;
+    this.anypoint = undefined;
     /** @type {boolean} */
     this.descriptionOpened = undefined;
   }
@@ -44,13 +42,13 @@ export default class CustomAuth extends ApiUiBase {
   }
 
   initializeApiModel() {
-    const { amf, security } = this;
+    const { security } = this;
     this.clearInit();
     const source = 'settings';
     const list = /** @type OperationParameter[] */ (this.parametersValue);
     this.parametersValue = list.filter(item => item.source !== source);
 
-    if (!amf || !security) {
+    if (!security) {
       return;
     }
     if (!security.types.includes(ns.aml.vocabularies.security.ParametrizedSecurityScheme)) {
@@ -314,7 +312,7 @@ export default class CustomAuth extends ApiUiBase {
     const {
       schemeName,
       schemeDescription,
-      compatibility,
+      anypoint,
       descriptionOpened,
     } = this;
     if (!schemeName) {
@@ -327,7 +325,7 @@ export default class CustomAuth extends ApiUiBase {
         class="hint-icon"
         title="Toggle description"
         aria-label="Activate to toggle the description"
-        ?compatibility="${compatibility}"
+        ?anypoint="${anypoint}"
         @click="${this.toggleDescription}"
       >
         <arc-icon icon="help"></arc-icon>

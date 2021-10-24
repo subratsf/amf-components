@@ -1,18 +1,18 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
-import { Styles as HttpStyles } from '@api-components/http-method-label';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
+import { HttpStyles } from '@advanced-rest-client/app';
 import elementStyles from './styles/ApiDocumentationDocument.js';
 import commonStyles from './styles/Common.js';
-import { ApiDocumentationBase, descriptionTemplate, serializerValue } from './ApiDocumentationBase.js';
+import { ApiDocumentationBase, descriptionTemplate } from './ApiDocumentationBase.js';
+import { Events } from '../events/Events.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@api-components/amf-helper-mixin').ApiDocumentation} ApiDocumentation */
-/** @typedef {import('@api-components/amf-helper-mixin').CreativeWork} CreativeWork */
+/** @typedef {import('../helpers/api').ApiDocumentation} ApiDocumentation */
 
 export const documentationValue = Symbol('documentationValue');
 export const titleTemplate = Symbol('titleTemplate');
-export const setModel = Symbol('setModel');
+export const queryDocument = Symbol('queryDocument');
 
 /**
  * A web component that renders the documentation page for an API documentation (like in RAML documentations) built from 
@@ -26,16 +26,26 @@ export default class ApiDocumentationDocumentElement extends ApiDocumentationBas
   /**
    * @returns {ApiDocumentation|undefined} The serialized to a JS object graph model
    */
-  get model() {
+  get documentation() {
     return this[documentationValue];
+  }
+
+  /**
+   * @param {ApiDocumentation} value The serialized to a JS object graph model
+   */
+  set documentation(value) {
+    const old = this[documentationValue];
+    if (old === value) {
+      return;
+    }
+    this[documentationValue] = value;
+    this.processGraph();
   }
 
   constructor() {
     super();
     /** @type {ApiDocumentation} */
     this[documentationValue] = undefined;
-    /** @type {CreativeWork} */
-    this.domainModel = undefined;
   }
 
   /**
@@ -43,30 +53,31 @@ export default class ApiDocumentationDocumentElement extends ApiDocumentationBas
    * @returns {Promise<void>}
    */
   async processGraph() {
-    const { domainId, domainModel, amf } = this;
-    if (domainModel) {
-      this[setModel](domainModel);
-      return;
-    }
-    if (!domainId) {
-      this[setModel]();
-      return;
-    }
-    const webApi = this._computeApi(amf);
-    const model =  this._computeDocument(webApi, domainId);
-    this[setModel](model);
+    await this[queryDocument]();
+    await this.requestUpdate();
   }
 
   /**
-   * @param {CreativeWork=} model 
+   * Queries for the documentation model.
+   * @returns {Promise<void>} 
    */
-  [setModel](model) {
-    if (model) {
-      this[documentationValue] = this[serializerValue].documentation(model);
-    } else {
-      this[documentationValue] = undefined;
+  async [queryDocument]() {
+    const { domainId } = this;
+    if (!domainId) {
+      return;
     }
-    this.requestUpdate();
+    if (this[documentationValue] && this[documentationValue].id === domainId) {
+      // in case it was set by the parent via the property
+      return;
+    }
+    try {
+      const info = await Events.Documentation.get(this, domainId);
+      this[documentationValue] = info;
+    } catch (e) {
+      this[documentationValue] = undefined;
+      Events.Telemetry.exception(this, e.message, false);
+      Events.Reporting.error(this, e, `Unable to query for API documentation data: ${e.message}`, this.localName);
+    }
   }
 
   render() {
@@ -92,7 +103,7 @@ export default class ApiDocumentationDocumentElement extends ApiDocumentationBas
     return html`
     <div class="documentation-header">
       <div class="documentation-title">
-        <span class="label">${title}</span>
+        <span class="label text-selectable">${title}</span>
       </div>
     </div>
     `;
