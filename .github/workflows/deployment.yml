@@ -90,7 +90,12 @@ jobs:
           body: |
             ${{ steps.Changelog.outputs.changelog }}
           draft: false
-          prerelease: false
+          prerelease: ${{ contains( steps.package-node-version.outputs.version, '-beta' ) }}
       - run: npm publish --access public
+        if: ${{ !contains( steps.package-node-version.outputs.version, '-beta' ) }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish --access public --tag beta
+        if: ${{ contains( steps.package-node-version.outputs.version, '-beta' ) }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
