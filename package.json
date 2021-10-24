@@ -30,7 +30,7 @@
     "email": "arc@mulesoft.com"
   },
   "dependencies": {
-    "@advanced-rest-client/app": "^0.1.0",
+    "@advanced-rest-client/app": "^0.1.1",
     "@advanced-rest-client/events": "^0.2.22",
     "@advanced-rest-client/highlight": "^2.0.1",
     "@advanced-rest-client/http-code-snippets": "^4.0.0",
