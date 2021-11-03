@@ -3,7 +3,6 @@ import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import '@anypoint-web-components/awc/anypoint-dialog.js';
 import '@anypoint-web-components/awc/anypoint-dialog-scrollable.js';
-import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../define/api-operation-document.js';
 import '../define/api-request.js';
@@ -33,7 +32,7 @@ class ComponentPage extends AmfDemoBase {
     this.renderSecurity = true;
     this.renderCodeSnippets = true;
     this.componentName = 'api-operation-document';
-    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
+    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth/oauth-popup.html`;
   }
 
   get baseUri() {
@@ -107,7 +106,6 @@ class ComponentPage extends AmfDemoBase {
 
   contentTemplate() {
     return html`
-      <oauth2-authorization></oauth2-authorization>
       <xhr-simple-request></xhr-simple-request>
       <h2>API operation</h2>
       ${this.demoTemplate()}

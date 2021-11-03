@@ -1,5 +1,5 @@
 import { TemplateResult } from 'lit-element';
-import { Oauth2Credentials } from '@advanced-rest-client/app';
+import { Oauth2Credentials } from '@advanced-rest-client/base';
 import { ApiDocumentationBase } from './ApiDocumentationBase.js';
 import { ApiSummary } from '../helpers/api';
 import { ServerType, SelectionType, DocumentMeta } from '../types';

@@ -5,7 +5,6 @@ import '@anypoint-web-components/awc/anypoint-menu-button.js';
 import '@anypoint-web-components/awc/anypoint-listbox.js';
 import '@anypoint-web-components/awc/anypoint-item.js';
 import '@advanced-rest-client/icons/arc-icon.js';
-import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { MonacoTheme, MonacoStyles, MonacoLoader } from '@advanced-rest-client/monaco-support';
 import { DomEventsAmfStore } from "../src/store/DomEventsAmfStore.js";
 import { ApplicationPage } from "./lib/ApplicationPage.js";
@@ -81,10 +80,6 @@ export class ApiTextEditor extends ApplicationPage {
      * When the current domain type is an operation this is the selected operation domain id.
      */
     this.operationId = undefined;
-    /**
-     * The OAuth 2 redirect URI.
-     */
-    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
     /** @type string */
     this.apiFormat = 'RAML 1.0';
     /** @type string */
@@ -712,9 +707,7 @@ export class ApiTextEditor extends ApplicationPage {
       </div>
       <api-navigation
         summary
-        .amf="${model}"
         endpointsOpened
-        noOverview
       ></api-navigation>
     </nav>`;
   }
@@ -766,7 +759,6 @@ export class ApiTextEditor extends ApplicationPage {
       @tryit="${this.tryitHandler}"
     >
     </api-documentation>
-    <oauth2-authorization></oauth2-authorization>
     <xhr-simple-request></xhr-simple-request>
     `;
   }

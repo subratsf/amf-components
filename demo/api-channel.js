@@ -1,6 +1,5 @@
 import { html } from 'lit-html';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../define/api-channel-document.js';
@@ -17,7 +16,6 @@ class ComponentPage extends AmfDemoBase {
     this.selectedType = undefined;
     this.selectedOperation = undefined;
     this.componentName = 'api-channel-document';
-    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
   }
 
   /**

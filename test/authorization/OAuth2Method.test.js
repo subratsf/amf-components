@@ -1,5 +1,5 @@
 import { fixture, assert, aTimeout, nextFrame, html } from '@open-wc/testing';
-import { oauth2GrantTypes } from '@advanced-rest-client/app/src/elements/authorization/ui/OAuth2.js'
+import { oauth2GrantTypes } from '@advanced-rest-client/base/src/elements/authorization/ui/OAuth2.js'
 import { AmfLoader } from "../AmfLoader.js";
 import '../../define/api-authorization-method.js';
 
@@ -15,11 +15,10 @@ describe('OAuth 2', () => {
    * @return {Promise<ApiAuthorizationMethodElement>} 
    */
   async function methodFixture(model, security) {
-    return (fixture(html`<api-authorization-method 
+    return fixture(html`<api-authorization-method 
       type="oauth 2" 
-      .amf="${model}"
       .security="${security}"
-    ></api-authorization-method>`));
+    ></api-authorization-method>`);
   }
 
   /** @type AmfLoader */

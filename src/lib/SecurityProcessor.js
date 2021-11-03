@@ -1,13 +1,5 @@
 /* eslint-disable no-continue */
-import { ArcHeaders, UrlParser } from '@advanced-rest-client/app';
-import { 
-  normalizeType,
-  METHOD_OAUTH2,
-  // METHOD_OAUTH1,
-  METHOD_BASIC,
-  METHOD_BEARER,
-  METHOD_OIDC,
-} from "@advanced-rest-client/app/src/elements/authorization/Utils.js";
+import { ArcHeaders, UrlParser, AuthorizationUtils } from '@advanced-rest-client/base/api.js';
 import {
   METHOD_CUSTOM,
   METHOD_PASS_THROUGH,
@@ -137,20 +129,20 @@ export class SecurityProcessor {
       if (!auth.enabled || !auth.config) {
         continue;
       }
-      switch (normalizeType(auth.type)) {
-        case METHOD_BASIC: 
+      switch (AuthorizationUtils.normalizeType(auth.type)) {
+        case AuthorizationUtils.METHOD_BASIC: 
           SecurityProcessor.applyBasicAuth(request, /** @type BasicAuthorization */ (auth.config));
           auth.enabled = false; 
           break;
-        case METHOD_OAUTH2: 
+        case AuthorizationUtils.METHOD_OAUTH2: 
           SecurityProcessor.applyOAuth2(request, /** @type OAuth2Authorization */ (auth.config)); 
           auth.enabled = false;
           break;
-        case METHOD_OIDC: 
+        case AuthorizationUtils.METHOD_OIDC: 
           SecurityProcessor.applyOpenId(request, /** @type OidcAuthorization */ (auth.config)); 
           auth.enabled = false;
           break;
-        case METHOD_BEARER: 
+        case AuthorizationUtils.METHOD_BEARER: 
           SecurityProcessor.applyBearer(request, /** @type BearerAuthorization */ (auth.config)); 
           auth.enabled = false;
           break;
@@ -285,7 +277,7 @@ export class SecurityProcessor {
   I don't want to move it to a separate class and maintain to be
   able to apply here OAuth 1. So far we have no usage signs from anyone
   (and it's been years since this logic works here).
-  If there's a request from a customer, in the `@advanced-rest-client/app`
+  If there's a request from a customer, in the `@advanced-rest-client/base`
   module create a class that extracts the logic from the oauth 1 component 
   and sign the request.
   */

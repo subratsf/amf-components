@@ -1,4 +1,4 @@
-import { HeadersParser } from '@advanced-rest-client/app';
+import { HeadersParser } from '@advanced-rest-client/base/api.js';
 import sanitizer from 'dompurify';
 import { ns } from '../helpers/Namespace.js';
 

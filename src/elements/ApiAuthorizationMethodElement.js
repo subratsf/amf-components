@@ -1,4 +1,4 @@
-import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/app";
+import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/base";
 import {
   normalizeType,
   METHOD_OAUTH2,
@@ -8,14 +8,14 @@ import {
   METHOD_NTLM,
   METHOD_DIGEST,
   METHOD_OIDC,
-} from "@advanced-rest-client/app/src/elements/authorization/Utils.js";
+} from "@advanced-rest-client/base/src/elements/authorization/Utils.js";
 import {
   typeChangedSymbol,
   renderCallback,
   changeCallback,
   factory,
   propagateChanges,
-} from "@advanced-rest-client/app/src/elements/authorization/AuthorizationMethodElement.js";
+} from "@advanced-rest-client/base/src/elements/authorization/AuthorizationMethodElement.js";
 import { ApiAuthDataHelper } from "../lib/ApiAuthDataHelper.js";
 import * as InputCache from "../lib/InputCache.js";
 import styles from './styles/AuthorizationMethod.js';
@@ -34,8 +34,8 @@ export const settingsHandler = Symbol("settingsHandler");
 /** @typedef {import('@advanced-rest-client/events').Authorization.OAuth1Authorization} OAuth1Authorization */
 /** @typedef {import('@advanced-rest-client/events').Authorization.DigestAuthorization} DigestAuthorization */
 /** @typedef {import('@advanced-rest-client/events').Authorization.BearerAuthorization} BearerAuthorization */
-/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
-/** @typedef {import('@advanced-rest-client/app').AuthUiBase} AuthUiBase */
+/** @typedef {import('@advanced-rest-client/base').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/base').AuthUiBase} AuthUiBase */
 /** @typedef {import('../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('../lib/auth-ui/CustomAuth').default} CustomAuth */
 /** @typedef {import('../lib/auth-ui/ApiKeyAuth').default} ApiKeyAuth */

@@ -1,9 +1,6 @@
 import { html } from 'lit-html';
 import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@advanced-rest-client/app/define/oauth2-authorization.js';
-import '@advanced-rest-client/app/define/oauth1-authorization.js';
-import '@advanced-rest-client/app/define/oidc-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../define/api-navigation.js';
 import '../define/xhr-simple-request.js';
@@ -43,8 +40,6 @@ class ComponentDemo extends AmfDemoBase {
     this.urlEditor = true;
 
     this.demoStates = ['Filled', 'Outlined', 'Anypoint'];
-    /* eslint-disable-next-line no-restricted-globals */
-    this.redirectUri = `${location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
   }
 
   _demoStateHandler(e) {
@@ -131,9 +126,6 @@ class ComponentDemo extends AmfDemoBase {
 
   contentTemplate() {
     return html`
-      <oauth2-authorization></oauth2-authorization>
-      <oauth1-authorization></oauth1-authorization>
-      <oidc-authorization></oidc-authorization>
       <xhr-simple-request></xhr-simple-request>
       <h2 class="centered main">API request</h2>
       ${this.demoTemplate()}

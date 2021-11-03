@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
-import { HttpStyles } from '@advanced-rest-client/app';
+import { HttpStyles } from '@advanced-rest-client/base/api.js';
 import elementStyles from './styles/ApiDocumentationDocument.js';
 import commonStyles from './styles/Common.js';
 import { ApiDocumentationBase, descriptionTemplate } from './ApiDocumentationBase.js';

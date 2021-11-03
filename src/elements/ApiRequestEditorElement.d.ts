@@ -13,7 +13,7 @@ the License.
 */
 import { TemplateResult, LitElement } from 'lit-element';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
-import { Oauth2Credentials } from '@advanced-rest-client/app';
+import { Oauth2Credentials } from '@advanced-rest-client/base';
 import { ApiEndPoint, ApiOperation, ApiPayload, ApiParameter, ApiServer } from '../helpers/api';
 import { AmfParameterMixin } from '../lib/AmfParameterMixin';
 import { SecuritySelectorListItem, ApiConsoleRequest, OperationParameter, ServerType } from '../types';

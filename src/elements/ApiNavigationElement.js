@@ -8,7 +8,7 @@ import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { HttpStyles } from '@advanced-rest-client/app';
+import { HttpStyles } from '@advanced-rest-client/base/api.js';
 import '@anypoint-web-components/awc/anypoint-icon-button.js';
 import '@anypoint-web-components/awc/anypoint-collapse.js';
 import '@advanced-rest-client/icons/arc-icon.js';

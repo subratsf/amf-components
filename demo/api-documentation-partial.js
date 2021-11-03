@@ -3,7 +3,6 @@ import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import '@anypoint-web-components/awc/anypoint-dialog.js';
 import '@anypoint-web-components/awc/anypoint-dialog-scrollable.js';
-import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import { AmfPartialGraphStore } from './lib/AmfPartialGraphStore.js';
 import '../define/api-documentation.js';
@@ -49,8 +48,6 @@ class ComponentDemo extends AmfDemoBase {
     this.tryItButton = true;
     this.tryItPanel = true;
     this.overrideBaseUri = false;
-    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
-    // this.redirectUri = 'https://auth.advancedrestclient.com/oauth-popup.html';
     this.renderCustomServer = false;
     this.noServerSelector = false;
     this.allowCustomBaseUri = false;
@@ -167,7 +164,6 @@ class ComponentDemo extends AmfDemoBase {
 
   contentTemplate() {
     return html`
-      <oauth2-authorization></oauth2-authorization>
       <xhr-simple-request></xhr-simple-request>
       <h2>API documentation with partial model</h2>
       ${this.demoTemplate()}
@@ -357,7 +353,6 @@ class ComponentDemo extends AmfDemoBase {
     return html`
     <api-navigation
       summary
-      .amf="${this.amf}"
       endpointsOpened
     ></api-navigation>`;
   }

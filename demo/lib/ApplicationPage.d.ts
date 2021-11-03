@@ -1,3 +1,4 @@
+import { Authorization, OAuth2AuthorizeEvent, OidcAuthorizeEvent } from '@advanced-rest-client/events';
 import { ReactiveMixin } from './mixins/ReactiveMixin.js';
 import { RenderableMixin } from './mixins/RenderableMixin.js';
 
@@ -21,8 +22,27 @@ export declare class ApplicationPage extends RenderableMixin(ReactiveMixin(Event
    * True when the app should render mobile friendly view.
    */
   isMobile: boolean;
+  redirectUri: string;
   /**
    * Initializes media queries and observers.
    */
   initMediaQueries(): void;
+
+  oauth2authorizeHandler(e: OAuth2AuthorizeEvent): void;
+
+  /**
+   * Authorize the user using provided settings.
+   *
+   * @param settings The authorization configuration.
+   */
+  authorizeOauth2(settings: Authorization.OAuth2Authorization): Promise<Authorization.TokenInfo>;
+
+  oidcAuthorizeHandler(e: OidcAuthorizeEvent): void;
+
+  /**
+   * Authorize the user using provided settings.
+   *
+   * @param settings The authorization configuration.
+   */
+  authorizeOidc(settings: Authorization.OAuth2Authorization): Promise<(Authorization.OidcTokenInfo|Authorization.OidcTokenError)[]>;
 }

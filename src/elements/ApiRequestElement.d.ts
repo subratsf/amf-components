@@ -14,7 +14,7 @@ the License.
 import { TemplateResult, LitElement } from 'lit-element';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { ArcResponse, ArcRequest, ApiTypes } from '@advanced-rest-client/events';
-import { Oauth2Credentials } from '@advanced-rest-client/app';
+import { Oauth2Credentials } from '@advanced-rest-client/base';
 import { ServerType, ApiConsoleResponse, ApiConsoleRequest } from '../types';
 import { ApiRequestEvent, ApiResponseEvent } from '../events/RequestEvents';
 

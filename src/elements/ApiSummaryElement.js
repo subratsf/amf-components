@@ -3,7 +3,7 @@ import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { MarkdownStyles } from '@advanced-rest-client/highlight';
 import '@advanced-rest-client/highlight/arc-marked.js';
-import { HttpStyles } from '@advanced-rest-client/app';
+import { HttpStyles } from '@advanced-rest-client/base';
 import elementStyles from './styles/ApiSummary.js';
 import commonStyles from './styles/Common.js';
 import { 

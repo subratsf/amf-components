@@ -12,7 +12,7 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { html, LitElement } from 'lit-element';
-import { ArcHeaders } from '@advanced-rest-client/app';
+import { ArcHeaders } from '@advanced-rest-client/base/api.js';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import elementStyles from './styles/Panel.styles.js';
 import { EventTypes } from '../events/EventTypes.js';
@@ -28,7 +28,7 @@ import '../../define/api-response-view.js';
 /** @typedef {import('@advanced-rest-client/events').ArcRequest.ArcBaseRequest} ArcBaseRequest */
 /** @typedef {import('@advanced-rest-client/events').ArcRequest.TransportRequest} TransportRequest */
 /** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */
-/** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
+/** @typedef {import('@advanced-rest-client/base').Oauth2Credentials} Oauth2Credentials */
 /** @typedef {import('../types').ServerType} ServerType */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */
 /** @typedef {import('../types').ApiConsoleResponse} ApiConsoleResponse */

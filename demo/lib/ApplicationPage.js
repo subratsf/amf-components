@@ -1,6 +1,15 @@
 /* eslint-disable class-methods-use-this */
+import { EventTypes as ArcEventTypes } from '@advanced-rest-client/events';
+import { OAuth2Authorization, OidcAuthorization } from '@advanced-rest-client/oauth';
 import { ReactiveMixin } from './mixins/ReactiveMixin.js';
 import { RenderableMixin } from './mixins/RenderableMixin.js';
+
+/** @typedef {import('@advanced-rest-client/events').OAuth2AuthorizeEvent} OAuth2AuthorizeEvent */
+/** @typedef {import('@advanced-rest-client/events').OidcAuthorizeEvent} OidcAuthorizeEvent */
+/** @typedef {import('@advanced-rest-client/events').Authorization.TokenInfo} TokenInfo */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2Authorization} OAuth2Settings */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OidcTokenInfo} OidcTokenInfo */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OidcTokenError} OidcTokenError */
 
 /**
  * A base class for pages build outside the LitElement. It uses `lit-html` 
@@ -25,6 +34,9 @@ export class ApplicationPage extends RenderableMixin(ReactiveMixin(EventTarget))
      * True when the app should render mobile friendly view.
      */
     this.isMobile = false;
+    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth/oauth-popup.html`;
+    window.addEventListener(ArcEventTypes.Authorization.OAuth2.authorize, this.oauth2authorizeHandler.bind(this));
+    window.addEventListener(ArcEventTypes.Authorization.Oidc.authorize, this.oidcAuthorizeHandler.bind(this));
     this.initMediaQueries();
   }
 
@@ -37,5 +49,46 @@ export class ApplicationPage extends RenderableMixin(ReactiveMixin(EventTarget))
     mql.addEventListener('change', (e) => {
       this.isMobile = e.matches;
     });
+  }
+
+  /**
+   * @param {OAuth2AuthorizeEvent} e
+   */
+  oauth2authorizeHandler(e) {
+    e.preventDefault();
+    const config = { ...e.detail };
+    e.detail.result = this.authorizeOauth2(config);
+  }
+
+  /**
+   * Authorize the user using provided settings.
+   *
+   * @param {OAuth2Settings} settings The authorization configuration.
+   * @returns {Promise<TokenInfo>}
+   */
+  async authorizeOauth2(settings) {
+    const auth = new OAuth2Authorization(settings);
+    auth.checkConfig();
+    return auth.authorize();
+  }
+
+  /**
+   * @param {OidcAuthorizeEvent} e
+   */
+  oidcAuthorizeHandler(e) {
+    const config = { ...e.detail };
+    e.detail.result = this.authorizeOidc(config);
+  }
+
+  /**
+   * Authorize the user using provided settings.
+   *
+   * @param {OAuth2Settings} settings The authorization configuration.
+   * @returns {Promise<(OidcTokenInfo|OidcTokenError)[]>}
+   */
+  async authorizeOidc(settings) {
+    const auth = new OidcAuthorization(settings);
+    auth.checkConfig();
+    return auth.authorize();
   }
 }

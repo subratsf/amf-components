@@ -1,20 +1,14 @@
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-element';
-import { ResponseViewElement } from '@advanced-rest-client/app';
+import { ResponseViewElement } from '@advanced-rest-client/base/api.js';
 import { 
-  responseTemplate, 
-  rawTemplate, 
-  urlStatusTemplate,
-  responseOptionsItemsTemplate,
-  contentActionHandler,
-  responsePrefixTemplate,
-  clearResponseHandler,
-} from '@advanced-rest-client/app/src/elements/http/internals.js';
-import { DataExportEventTypes } from '@advanced-rest-client/events';
+  HttpInternals,
+} from '@advanced-rest-client/base/api.js';
+import { EventTypes } from '@advanced-rest-client/events';
 import { dataValue, providerOptionsValue } from '@advanced-rest-client/events/src/dataexport/Events.js';
 import '@anypoint-web-components/awc/anypoint-icon-item.js';
 import '@advanced-rest-client/icons/arc-icon.js';
-import '@advanced-rest-client/app/define/headers-list.js';
+import '@advanced-rest-client/base/define/headers-list.js';
 import elementStyles from './styles/Response.styles.js';
 
 /** @typedef {import('@advanced-rest-client/events').ArcExportFilesystemEvent} ArcExportFilesystemEvent */
@@ -57,19 +51,19 @@ export class ApiResponseViewElement extends ResponseViewElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.addEventListener(DataExportEventTypes.fileSave, this[saveFileHandler]);
+    this.addEventListener(EventTypes.DataExport.fileSave, this[saveFileHandler]);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener(DataExportEventTypes.fileSave, this[saveFileHandler]);
+    this.removeEventListener(EventTypes.DataExport.fileSave, this[saveFileHandler]);
   }
 
   /**
    * A handler for the content action drop down item selection
    * @param {CustomEvent} e
    */
-  async [contentActionHandler](e) {
+  async [HttpInternals.contentActionHandler](e) {
     const id = e.detail.selected;
     if (id === 'toggle-details') {
       this.details = !this.details;
@@ -80,9 +74,9 @@ export class ApiResponseViewElement extends ResponseViewElement {
       return undefined;
     }
     if (id === 'clear') {
-      this[clearResponseHandler]();
+      this[HttpInternals.clearResponseHandler]();
     }
-    return super[contentActionHandler](e);
+    return super[HttpInternals.contentActionHandler](e);
   }
 
   /**
@@ -121,14 +115,14 @@ export class ApiResponseViewElement extends ResponseViewElement {
     const { source } = this;
     return html`
     <style>${this.styles}</style>
-    ${source ? this[rawTemplate]('raw', true) : this[responseTemplate]('response', true)}
+    ${source ? this[HttpInternals.rawTemplate]('raw', true) : this[HttpInternals.responseTemplate]('response', true)}
     `;
   }
 
   /**
    * @returns {TemplateResult} The template for the response meta drop down options
    */
-  [responseOptionsItemsTemplate]() {
+  [HttpInternals.responseOptionsItemsTemplate]() {
     const { details, source } = this;
     const icon = details ? 'toggleOn' : 'toggleOff';
     const sourceLabel = source ? 'Formatted view' : 'Source view';
@@ -136,7 +130,7 @@ export class ApiResponseViewElement extends ResponseViewElement {
     <anypoint-icon-item data-id="clear" ?anypoint="${this.anypoint}">
       <arc-icon icon="clear" slot="item-icon"></arc-icon> Clear response
     </anypoint-icon-item>
-    ${super[responseOptionsItemsTemplate]()}
+    ${super[HttpInternals.responseOptionsItemsTemplate]()}
     <anypoint-icon-item data-id="toggle-details" ?anypoint="${this.anypoint}">
       <arc-icon icon="${icon}" slot="item-icon"></arc-icon> Response details
     </anypoint-icon-item>
@@ -149,7 +143,7 @@ export class ApiResponseViewElement extends ResponseViewElement {
   /**
    * @returns {TemplateResult|string} The template for the response details, when rendered
    */
-  [responsePrefixTemplate]() {
+  [HttpInternals.responsePrefixTemplate]() {
     const { details } = this;
     if (!details) {
       return '';
@@ -158,7 +152,7 @@ export class ApiResponseViewElement extends ResponseViewElement {
     const headers = info && info.headers;
     return html`
     <div class="response-details">
-      ${this[urlStatusTemplate]()}
+      ${this[HttpInternals.urlStatusTemplate]()}
       ${headers ? html`<headers-list class="summary-content" .headers="${headers}"></headers-list>` : html`<p class="summary-content">There are no recorded response headers</p>`}
     </div>
     `;

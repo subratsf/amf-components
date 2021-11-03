@@ -7,7 +7,7 @@ import '@anypoint-web-components/awc/anypoint-tab.js';
 import '@anypoint-web-components/awc/anypoint-tabs.js';
 import '@advanced-rest-client/icons/arc-icon.js';
 import '@advanced-rest-client/http-code-snippets/http-code-snippets.js';
-import { HttpStyles } from '@advanced-rest-client/app';
+import { HttpStyles } from '@advanced-rest-client/base/api.js';
 import { ApiSchemaGenerator } from '../schema/ApiSchemaGenerator.js';
 import { ApiSchemaValues } from '../schema/ApiSchemaValues.js';
 import { ns } from "../helpers/Namespace.js";
@@ -380,6 +380,7 @@ export default class ApiOperationDocumentElement extends ApiDocumentationBase {
     this[computeSnippetsPayload]();
     this[computeSnippetsHeaders]();
     await this.requestUpdate();
+    this.dispatchEvent(new Event('graphload'));
   }
 
   /**

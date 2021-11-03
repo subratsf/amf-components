@@ -1,5 +1,5 @@
 import { TemplateResult } from 'lit-element';
-import { ResponseViewElement } from '@advanced-rest-client/app';
+import { ResponseViewElement } from '@advanced-rest-client/base/api.js';
 import { ArcExportFilesystemEvent } from '@advanced-rest-client/events';
 
 export declare const saveFileHandler: unique symbol;

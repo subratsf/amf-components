@@ -1,9 +1,9 @@
-import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/app";
+import { AuthorizationMethodElement as AuthorizationMethod } from "@advanced-rest-client/base";
 import { ApiParametrizedSecurityScheme } from '../helpers/api';
 import {
   typeChangedSymbol,
   propagateChanges,
-} from "@advanced-rest-client/app/src/elements/authorization/AuthorizationMethodElement.js";
+} from "@advanced-rest-client/base/src/elements/authorization/AuthorizationMethodElement.js";
 
 export const METHOD_CUSTOM: string;
 export const METHOD_PASS_THROUGH: string;

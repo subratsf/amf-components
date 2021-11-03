@@ -51,7 +51,7 @@ export class SecurityProcessor {
   I don't want to move it to a separate class and maintain to be
   able to apply here OAuth 1. So far we have no usage signs from anyone
   (and it's been years since this logic works here).
-  If there's a request from a customer, in the `@advanced-rest-client/app`
+  If there's a request from a customer, in the `@advanced-rest-client/base`
   module create a class that extracts the logic from the oauth 1 component 
   and sign the request.
   */

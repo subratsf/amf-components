@@ -6,7 +6,7 @@ import ApiUiBase from './ApiUiBase.js';
 import * as InputCache from '../InputCache.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/base').AuthUiInit} AuthUiInit */
 /** @typedef {import('../../helpers/api').ApiShapeUnion} ApiShapeUnion */
 /** @typedef {import('../../helpers/api').ApiNodeShape} ApiNodeShape */
 /** @typedef {import('../../helpers/api').ApiParameter} ApiParameter */

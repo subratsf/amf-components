@@ -4,6 +4,8 @@ import { MonacoLoader } from "@advanced-rest-client/monaco-support";
 import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/awc/anypoint-listbox.js';
 import '@anypoint-web-components/awc/anypoint-item.js';
+import { EventTypes as ArcEventTypes } from '@advanced-rest-client/events';
+import { OAuth2Authorization, OidcAuthorization } from '@advanced-rest-client/oauth';
 import { DomEventsAmfStore } from "../../src/store/DomEventsAmfStore.js";
 import { AmfHelperMixin } from "../../src/helpers/AmfHelperMixin.js";
 import { EventTypes } from '../../src/events/EventTypes.js';
@@ -13,6 +15,12 @@ import './ApiStyles.js';
 
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 /** @typedef {import('@anypoint-web-components/awc').AnypointListboxElement} AnypointListbox */
+/** @typedef {import('@advanced-rest-client/events').OAuth2AuthorizeEvent} OAuth2AuthorizeEvent */
+/** @typedef {import('@advanced-rest-client/events').OidcAuthorizeEvent} OidcAuthorizeEvent */
+/** @typedef {import('@advanced-rest-client/events').Authorization.TokenInfo} TokenInfo */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OAuth2Authorization} OAuth2Settings */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OidcTokenInfo} OidcTokenInfo */
+/** @typedef {import('@advanced-rest-client/events').Authorization.OidcTokenError} OidcTokenError */
 /** @typedef {import('../../src/events/NavigationEvents').ApiNavigationEvent} ApiNavigationEvent */
 /** @typedef {import('../../src/events/ReportingEvents').ReportingErrorEventDetail} ReportingErrorEventDetail */
 /** @typedef {import('../../').AmfStore} AmfStore */
@@ -42,7 +50,7 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
 
   constructor() {
     super();
-    this.initObservableProperties(["initialized", "loaded", 'selectedFile']);
+    this.initObservableProperties(["initialized", "loaded", 'selectedFile', 'redirectUri']);
     /** @type {AmfStore & AmfStoreDomEventsMixin} */
     this.store = new DomEventsAmfStore(window);
     this.store.listen();
@@ -95,6 +103,10 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
      * @type {string}
      */
     this.selectedFile = undefined;
+    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth/oauth-popup.html`;
+    window.addEventListener(ArcEventTypes.Authorization.OAuth2.authorize, this.oauth2authorizeHandler.bind(this));
+    window.addEventListener(ArcEventTypes.Authorization.Oidc.authorize, this.oidcAuthorizeHandler.bind(this));
+
     window.addEventListener(EventTypes.Navigation.apiNavigate, this._navChanged.bind(this));
     window.addEventListener(EventTypes.Reporting.error, this._errorHandler.bind(this));
 
@@ -187,6 +199,47 @@ export class AmfDemoBase extends AmfHelperMixin(DemoPage) {
     
     /** @type DomEventsAmfStore */ (this.store).amf = data;
     this.loaded = true;
+  }
+
+  /**
+   * @param {OAuth2AuthorizeEvent} e
+   */
+  oauth2authorizeHandler(e) {
+    e.preventDefault();
+    const config = { ...e.detail };
+    e.detail.result = this.authorizeOauth2(config);
+  }
+
+  /**
+   * Authorize the user using provided settings.
+   *
+   * @param {OAuth2Settings} settings The authorization configuration.
+   * @returns {Promise<TokenInfo>}
+   */
+  async authorizeOauth2(settings) {
+    const auth = new OAuth2Authorization(settings);
+    auth.checkConfig();
+    return auth.authorize();
+  }
+
+  /**
+   * @param {OidcAuthorizeEvent} e
+   */
+  oidcAuthorizeHandler(e) {
+    const config = { ...e.detail };
+    e.detail.result = this.authorizeOidc(config);
+  }
+
+  /**
+   * Authorize the user using provided settings.
+   *
+   * @param {OAuth2Settings} settings The authorization configuration.
+   * @returns {Promise<(OidcTokenInfo|OidcTokenError)[]>}
+   */
+  async authorizeOidc(settings) {
+    const auth = new OidcAuthorization(settings);
+    auth.checkConfig();
+    return auth.authorize();
   }
 
   /**

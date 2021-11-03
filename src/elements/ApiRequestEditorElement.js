@@ -19,7 +19,7 @@ import { classMap } from 'lit-html/directives/class-map.js';
 import { EventsTargetMixin } from '@anypoint-web-components/awc';
 import { RequestEventTypes } from '@advanced-rest-client/events';
 import { v4 } from '@advanced-rest-client/uuid';
-import { HeadersParser, ifProperty } from '@advanced-rest-client/app';
+import { HeadersParser, ifProperty } from '@advanced-rest-client/base';
 import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/awc/anypoint-listbox.js';
 import '@anypoint-web-components/awc/anypoint-item.js';
@@ -28,9 +28,9 @@ import '@anypoint-web-components/awc/anypoint-radio-button.js';
 import '@anypoint-web-components/awc/anypoint-radio-group.js';
 import '@anypoint-web-components/awc/anypoint-icon-button.js';
 import '@anypoint-web-components/awc/anypoint-switch.js';
-import '@advanced-rest-client/app/define/body-formdata-editor.js';
-import '@advanced-rest-client/app/define/body-multipart-editor.js';
-import '@advanced-rest-client/app/define/body-raw-editor.js';
+import '@advanced-rest-client/base/define/body-formdata-editor.js';
+import '@advanced-rest-client/base/define/body-multipart-editor.js';
+import '@advanced-rest-client/base/define/body-raw-editor.js';
 import '@advanced-rest-client/icons/arc-icon.js';
 import elementStyles from './styles/Editor.styles.js';
 import { ensureContentType, generateHeaders } from "../lib/Utils.js";
@@ -47,9 +47,9 @@ import '../../define/api-server-selector.js';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('@advanced-rest-client/events').ApiTypes.ApiType} ApiType */
-/** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
-/** @typedef {import('@advanced-rest-client/app').BodyRawEditorElement} BodyRawEditorElement */
-/** @typedef {import('@advanced-rest-client/app').BodyFormdataEditorElement} BodyFormdataEditorElement */
+/** @typedef {import('@advanced-rest-client/base').Oauth2Credentials} Oauth2Credentials */
+/** @typedef {import('@advanced-rest-client/base').BodyRawEditorElement} BodyRawEditorElement */
+/** @typedef {import('@advanced-rest-client/base').BodyFormdataEditorElement} BodyFormdataEditorElement */
 /** @typedef {import('../helpers/api').ApiEndPoint} ApiEndPoint */
 /** @typedef {import('../helpers/api').ApiOperation} ApiOperation */
 /** @typedef {import('../helpers/api').ApiPayload} ApiPayload */

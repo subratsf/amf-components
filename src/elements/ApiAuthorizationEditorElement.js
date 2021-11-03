@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import { html, LitElement } from 'lit-element';
-import '@advanced-rest-client/app/define/authorization-method.js';
+import '@advanced-rest-client/base/define/authorization-method.js';
 import elementStyles from './styles/AuthorizationEditor.js';
 import '../../define/api-authorization-method.js';
 
@@ -12,7 +12,7 @@ import '../../define/api-authorization-method.js';
 /** @typedef {import('../helpers/api').ApiSecurityHttpSettings} ApiSecurityHttpSettings */
 /** @typedef {import('./ApiAuthorizationMethodElement').default} ApiAuthorizationMethodElement */
 /** @typedef {import('@advanced-rest-client/events').ArcRequest.RequestAuthorization} RequestAuthorization */
-/** @typedef {import('@advanced-rest-client/app').Oauth2Credentials} Oauth2Credentials */
+/** @typedef {import('@advanced-rest-client/base').Oauth2Credentials} Oauth2Credentials */
 
 /** 
  * @typedef SecurityMethods

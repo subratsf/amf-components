@@ -5,7 +5,6 @@ import '@anypoint-web-components/awc/anypoint-menu-button.js';
 import '@anypoint-web-components/awc/anypoint-listbox.js';
 import '@anypoint-web-components/awc/anypoint-item.js';
 import '@advanced-rest-client/icons/arc-icon.js';
-import '@advanced-rest-client/app/define/oauth2-authorization.js';
 import { MonacoLoader } from "@advanced-rest-client/monaco-support";
 import { ApplicationPage } from "./lib/ApplicationPage.js";
 import { findRoute, navigate } from './lib/route.js';
@@ -118,10 +117,6 @@ export class ApiConsole extends ApplicationPage {
      * When the current domain type is an operation this is the selected operation domain id.
      */
     this.operationId = undefined;
-    /**
-     * The OAuth 2 redirect URI.
-     */
-    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
     /**
      * The title of the currently loaded API.
      * @type string
@@ -446,10 +441,9 @@ export class ApiConsole extends ApplicationPage {
     return html`
     <nav class="${classMap(classes)}">
       <api-navigation
-        .amf="${model}"
         summary
         endpointsOpened
-        noOverview
+        layout="natural"
       ></api-navigation>
     </nav>`;
   }
@@ -480,7 +474,6 @@ export class ApiConsole extends ApplicationPage {
       tryItPanel
     >
     </api-documentation>
-    <oauth2-authorization></oauth2-authorization>
     <xhr-simple-request></xhr-simple-request>
     `;
   }

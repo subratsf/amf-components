@@ -1,6 +1,6 @@
 import { TemplateResult, LitElement } from 'lit-element';
 import { ApiParametrizedSecurityScheme, ApiSecurityRequirement, } from '../helpers/api';
-import { Oauth2Credentials } from '@advanced-rest-client/app';
+import { Oauth2Credentials } from '@advanced-rest-client/base';
 import { RequestAuthorization } from '@advanced-rest-client/events/src/request/ArcRequest';
 import { default as ApiAuthorizationMethodElement } from './ApiAuthorizationMethodElement';
 

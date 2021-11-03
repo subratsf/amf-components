@@ -2,7 +2,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import { html } from 'lit-html';
-import Oauth2, { oauth2GrantTypes } from '@advanced-rest-client/app/src/elements/authorization/ui/OAuth2.js'
+import Oauth2, { oauth2GrantTypes } from '@advanced-rest-client/base/src/elements/authorization/ui/OAuth2.js'
 import { ns } from '../../helpers/Namespace.js';
 import * as InputCache from '../InputCache.js';
 import { AmfInputParser } from '../AmfInputParser.js';
@@ -13,7 +13,7 @@ const securityValue = Symbol("securityValue");
 const gtValue = Symbol("gtValue");
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
-/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/base').AuthUiInit} AuthUiInit */
 /** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 /** @typedef {import('../../helpers/api').ApiNodeShape} ApiNodeShape */
 /** @typedef {import('../../helpers/api').ApiParameter} ApiParameter */

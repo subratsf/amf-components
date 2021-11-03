@@ -3,7 +3,7 @@ import { LitElement, html } from 'lit-element';
 import '@anypoint-web-components/awc/anypoint-icon-button.js';
 import '@anypoint-web-components/awc/anypoint-collapse.js';
 import { keyboardArrowDown, openInNew, } from '@advanced-rest-client/icons/ArcIcons.js';
-import { HttpStyles } from '@advanced-rest-client/app';
+import { HttpStyles } from '@advanced-rest-client/base/api.js';
 import { AmfHelperMixin } from '../helpers/AmfHelperMixin.js';
 import navStyles from './styles/Navigation.js';
 import { EventTypes } from '../events/EventTypes.js'

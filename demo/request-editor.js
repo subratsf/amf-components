@@ -2,9 +2,6 @@ import { html } from 'lit-html';
 import '@anypoint-web-components/awc/anypoint-checkbox.js';
 import '@anypoint-web-components/awc/anypoint-item.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@advanced-rest-client/app/define/oidc-authorization.js';
-import '@advanced-rest-client/app/define/oauth2-authorization.js';
-import '@advanced-rest-client/app/define/oauth1-authorization.js';
 import { AmfDemoBase } from './lib/AmfDemoBase.js';
 import '../define/xhr-simple-request.js';
 import '../define/api-request-editor.js';
@@ -42,7 +39,6 @@ class ComponentDemo extends AmfDemoBase {
     this._toggleMainOption = this._toggleMainOption.bind(this);
     this._responseReady = this._responseReady.bind(this);
     this._apiRequestHandler = this._apiRequestHandler.bind(this);
-    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
   }
 
   _demoStateHandler(e) {
@@ -168,9 +164,6 @@ class ComponentDemo extends AmfDemoBase {
   contentTemplate() {
     return html`
     <xhr-simple-request @api-response="${this._responseReady}"></xhr-simple-request>
-    <oauth1-authorization></oauth1-authorization>
-    <oauth2-authorization></oauth2-authorization>
-    <oidc-authorization></oidc-authorization>
     <h2 class="centered main">API request editor</h2>
     ${this.demoTemplate()}
     ${this._annotationsEventTemplate()}

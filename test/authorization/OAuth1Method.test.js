@@ -1,5 +1,5 @@
 import { fixture, assert, aTimeout, nextFrame, html } from "@open-wc/testing";
-import { defaultSignatureMethods } from '@advanced-rest-client/app/src/elements/authorization/ui/OAuth1.js';
+import { defaultSignatureMethods } from '@advanced-rest-client/base/src/elements/authorization/ui/OAuth1.js';
 import { AmfLoader } from "../AmfLoader.js";
 import '../../define/api-authorization-method.js';
 
@@ -17,7 +17,6 @@ describe("OAuth 1", () => {
   async function methodFixture(model, security) {
     return fixture(html`<api-authorization-method
       type="oauth 1"
-      .amf="${model}"
       .security="${security}"
     ></api-authorization-method>`);
   }

@@ -14,7 +14,7 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { LitElement } from 'lit-element';
-import { HeadersParser } from '@advanced-rest-client/app';
+import { HeadersParser } from '@advanced-rest-client/base/api.js';
 
 /** @typedef {import('@advanced-rest-client/events').FormTypes.FormItem} FormItem */
 /** @typedef {import('../types').ApiConsoleRequest} ApiConsoleRequest */

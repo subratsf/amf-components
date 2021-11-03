@@ -6,7 +6,7 @@ This project replaces all `api-*` components from this organization and consolid
 
 [![Published on NPM](https://img.shields.io/npm/v/@api-components/amf-components.svg)](https://www.npmjs.com/package/@api-components/amf-components)
 
-[![Tests and publishing](https://github.com/advanced-rest-client/amf-components/actions/workflows/deployment.yml/badge.svg)](https://github.com/advanced-rest-client/amf-components/actions/workflows/deployment.yml)
+[![Tests and publishing](https://github.com/api-components/amf-components/actions/workflows/deployment.yml/badge.svg)](https://github.com/api-components/amf-components/actions/workflows/deployment.yml)
 
 ## Usage
 
@@ -84,7 +84,7 @@ await MonacoLoader.monacoReady();
 ## Development
 
 ```sh
-git clone https://github.com/advanced-rest-client/amf-components
+git clone https://github.com/api-components/amf-components
 cd amf-components
 npm install
 ```

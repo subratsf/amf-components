@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import AuthUiBase from "@advanced-rest-client/app/src/elements/authorization/ui/AuthUiBase.js";
+import AuthUiBase from "@advanced-rest-client/base/src/elements/authorization/ui/AuthUiBase.js";
 import '@anypoint-web-components/awc/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/awc/anypoint-listbox.js';
 import '@anypoint-web-components/awc/anypoint-item.js';
@@ -11,7 +11,7 @@ import '@anypoint-web-components/awc/anypoint-icon-button.js';
 import '@advanced-rest-client/icons/arc-icon.js';
 import { AmfParameterMixin } from '../AmfParameterMixin.js';
 
-/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/base').AuthUiInit} AuthUiInit */
 /** @typedef {import('../../helpers/amf').DomainElement} DomainElement */
 /** @typedef {import('../../helpers/api').ApiParametrizedSecurityScheme} ApiParametrizedSecurityScheme */
 

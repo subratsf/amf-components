@@ -15,7 +15,6 @@ class ComponentPage extends AmfDemoBase {
     this.shape = undefined;
     this.serializer = new AmfSerializer();
     this.componentName = 'api-annotation-document';
-    this.redirectUri = `${window.location.origin}/node_modules/@advanced-rest-client/oauth-authorization/oauth-popup.html`;
   }
 
   /** @param {string} file */

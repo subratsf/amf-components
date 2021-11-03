@@ -1,16 +1,16 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-param-reassign */
-import { UiDataHelper } from '@advanced-rest-client/app';
+import { AuthUiDataHelper } from '@advanced-rest-client/base/api.js';
 import CustomAuth from './auth-ui/CustomAuth.js';
 import ApiKeyAuth from './auth-ui/ApiKeyAuth.js';
 import PassThroughAuth from './auth-ui/PassThroughAuth.js';
 import OAuth2Auth from './auth-ui/OAuth2Auth.js';
 import OAuth1Auth from './auth-ui/OAuth1Auth.js';
 
-/** @typedef {import('@advanced-rest-client/app').AuthUiInit} AuthUiInit */
+/** @typedef {import('@advanced-rest-client/base').AuthUiInit} AuthUiInit */
 /** @typedef {import('../elements/ApiAuthorizationMethodElement').default} ApiAuthorizationElement */
 
-export class ApiAuthDataHelper extends UiDataHelper {
+export class ApiAuthDataHelper extends AuthUiDataHelper {
   /**
    * @param {ApiAuthorizationElement} element
    * @param {AuthUiInit} init
@@ -81,7 +81,7 @@ export class ApiAuthDataHelper extends UiDataHelper {
     i.security = element.security;
     i.globalCache = element.globalCache;
     // @ts-ignore
-    UiDataHelper.setOAuth2Values(element, init);
+    AuthUiDataHelper.setOAuth2Values(element, init);
     return i;
   }
 
@@ -95,7 +95,7 @@ export class ApiAuthDataHelper extends UiDataHelper {
     const i = new OAuth1Auth(init);
     i.security = element.security;
     // @ts-ignore
-    UiDataHelper.setupOauth1(element, init);
+    AuthUiDataHelper.setupOauth1(element, init);
     return i;
   }
 }

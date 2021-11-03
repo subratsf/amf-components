@@ -1,7 +1,7 @@
 {
   "name": "@api-components/amf-components",
   "description": "A set of web components based on LitElement that creates the visualization layer on top of the AMF's graph model.",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
@@ -23,18 +23,19 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/advanced-rest-client/amf-components.git"
+    "url": "git://github.com/api-components/amf-components.git"
   },
   "bugs": {
-    "url": "https://github.com/advanced-rest-client/amf-components/issues",
+    "url": "https://github.com/api-components/amf-components/issues",
     "email": "arc@mulesoft.com"
   },
   "dependencies": {
-    "@advanced-rest-client/app": "^0.1.1",
+    "@advanced-rest-client/base": "^0.1.0",
     "@advanced-rest-client/events": "^0.2.22",
     "@advanced-rest-client/highlight": "^2.0.1",
     "@advanced-rest-client/http-code-snippets": "^4.0.0",
     "@advanced-rest-client/icons": "^4.0.0",
+    "@advanced-rest-client/oauth": "^0.1.0",
     "@advanced-rest-client/uuid": "^4.0.0",
     "@anypoint-web-components/awc": "^1.0.5",
     "@api-client/context-menu": "^0.2.0",
