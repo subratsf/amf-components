@@ -28,7 +28,7 @@ describe('ApiOperationDocumentElement', () => {
       .domainId="${operation && operation.id}"
       .operation="${operation}"
     ></api-operation-document>`);
-    await aTimeout(5);
+    await aTimeout(10);
     // await oneEvent(element, 'graphload');
     return /** @type ApiOperationDocumentElement */ (element);
   }
@@ -44,7 +44,7 @@ describe('ApiOperationDocumentElement', () => {
       .operation="${operation}"
       tryItButton
     ></api-operation-document>`);
-    await aTimeout(2);
+    await aTimeout(10);
     return /** @type ApiOperationDocumentElement */ (element);
   }
 
@@ -59,7 +59,7 @@ describe('ApiOperationDocumentElement', () => {
       .domainId="${operation && operation.id}"
       .operation="${operation}"
     ></api-operation-document>`);
-    await aTimeout(5);
+    await aTimeout(10);
     return /** @type ApiOperationDocumentElement */ (element);
   }
 
