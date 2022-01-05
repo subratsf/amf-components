@@ -44,9 +44,7 @@
     "amf-json-ld-lib": "0.0.14",
     "dompurify": "^2.3.3",
     "lit-element": "^2.5.1",
-    "lit-html": "^1.4.1"
-  },
-  "devDependencies": {
+    "lit-html": "^1.4.1",
     "@advanced-rest-client/arc-demo-helper": "^5.0.1",
     "@api-components/api-model-generator": "^0.2.14",
     "@commitlint/cli": "^13.2.1",
