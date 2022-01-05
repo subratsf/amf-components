@@ -65,7 +65,7 @@
     "uuid": "^8.3.2"
   },
   "scripts": {
-    "start": "web-dev-server",
+    "start": "web-dev-server --port $PORT",
     "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
     "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
     "lint:types": "tsc",
